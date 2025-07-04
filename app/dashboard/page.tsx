@@ -1,244 +1,473 @@
-import Dashboard from '@/components/dashboard/Dashboard';
-import { PlanType } from '@/lib/whop-sdk';
+import Link from "next/link";
 
 export default function DashboardPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow-sm border-b">
+    <div className="min-h-screen" style={{ backgroundColor: "#f8fafc" }}>
+      {/* Header */}
+      <header
+        className="border-b shadow-sm"
+        style={{
+          backgroundColor: "white",
+          borderColor: "#e2e8f0",
+        }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">WatchTower Pro Dashboard</h1>
-                <p className="mt-2 text-gray-600">Monitor your websites and get intelligent alerts</p>
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-3">
+              <div
+                className="w-8 h-8 rounded-lg flex items-center justify-center"
+                style={{ backgroundColor: "#3b82f6" }}
+              >
+                <span className="text-white font-bold text-sm">W</span>
               </div>
-              <div className="flex items-center space-x-4">
-                <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                  ✓ System Online
+              <h1 className="text-xl font-bold" style={{ color: "#1f2937" }}>
+                WatchTower Pro
+              </h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div
+                className="flex items-center space-x-2 px-3 py-1 rounded-full"
+                style={{
+                  backgroundColor: "#f0fdf4",
+                  border: "1px solid #bbf7d0",
+                }}
+              >
+                <span style={{ color: "#16a34a" }}>●</span>
+                <span
+                  className="text-sm font-medium"
+                  style={{ color: "#16a34a" }}
+                >
+                  System Online
+                </span>
+              </div>
+              <div
+                className="px-3 py-1 rounded-full text-sm font-medium"
+                style={{ backgroundColor: "#3b82f6", color: "white" }}
+              >
+                ✨ Professional Plan
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold mb-2" style={{ color: "#111827" }}>
+            Welcome back!
+          </h2>
+          <p style={{ color: "#6b7280" }}>
+            Here's what's happening with your monitors today.
+          </p>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Total Monitors */}
+          <div
+            className="rounded-xl p-6 shadow-sm border hover:shadow-md transition-all duration-200"
+            style={{
+              backgroundColor: "white",
+              borderColor: "#e5e7eb",
+            }}
+          >
+            <div className="space-y-2">
+              <p className="text-sm font-medium" style={{ color: "#6b7280" }}>
+                Total Monitors
+              </p>
+              <p className="text-3xl font-bold" style={{ color: "#111827" }}>
+                12
+              </p>
+              <p className="text-sm font-medium" style={{ color: "#16a34a" }}>
+                ↗ +2 this month
+              </p>
+            </div>
+          </div>
+
+          {/* Online Status */}
+          <div
+            className="rounded-xl p-6 shadow-sm border hover:shadow-md transition-all duration-200"
+            style={{
+              backgroundColor: "white",
+              borderColor: "#e5e7eb",
+            }}
+          >
+            <div className="space-y-2">
+              <p className="text-sm font-medium" style={{ color: "#6b7280" }}>
+                Online
+              </p>
+              <p className="text-3xl font-bold" style={{ color: "#16a34a" }}>
+                11
+              </p>
+              <p className="text-sm font-medium" style={{ color: "#16a34a" }}>
+                ● 99.2% uptime
+              </p>
+            </div>
+          </div>
+
+          {/* Issues */}
+          <div
+            className="rounded-xl p-6 shadow-sm border hover:shadow-md transition-all duration-200"
+            style={{
+              backgroundColor: "white",
+              borderColor: "#e5e7eb",
+            }}
+          >
+            <div className="space-y-2">
+              <p className="text-sm font-medium" style={{ color: "#6b7280" }}>
+                Issues
+              </p>
+              <p className="text-3xl font-bold" style={{ color: "#dc2626" }}>
+                1
+              </p>
+              <p className="text-sm font-medium" style={{ color: "#dc2626" }}>
+                ⚠ Needs attention
+              </p>
+            </div>
+          </div>
+
+          {/* Response Time */}
+          <div
+            className="rounded-xl p-6 shadow-sm border hover:shadow-md transition-all duration-200"
+            style={{
+              backgroundColor: "white",
+              borderColor: "#e5e7eb",
+            }}
+          >
+            <div className="space-y-2">
+              <p className="text-sm font-medium" style={{ color: "#6b7280" }}>
+                Avg Response
+              </p>
+              <p className="text-3xl font-bold" style={{ color: "#111827" }}>
+                234ms
+              </p>
+              <p className="text-sm font-medium" style={{ color: "#2563eb" }}>
+                ⚡ 12ms faster
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Activity & Quick Actions */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Recent Activity */}
+          <div
+            className="rounded-xl p-6 shadow-sm border"
+            style={{
+              backgroundColor: "white",
+              borderColor: "#e5e7eb",
+            }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3
+                className="text-lg font-semibold"
+                style={{ color: "#111827" }}
+              >
+                Recent Activity
+              </h3>
+              <Link
+                href="/monitors"
+                className="text-sm font-medium hover:underline"
+                style={{ color: "#3b82f6" }}
+              >
+                View all
+              </Link>
+            </div>
+            <div className="space-y-4">
+              <div
+                className="flex items-center justify-between p-3 rounded-lg"
+                style={{ backgroundColor: "#f9fafb" }}
+              >
+                <div className="flex items-center space-x-3">
+                  <span style={{ color: "#16a34a" }}>●</span>
+                  <div>
+                    <p
+                      className="text-sm font-medium"
+                      style={{ color: "#111827" }}
+                    >
+                      api.example.com
+                    </p>
+                    <p className="text-xs" style={{ color: "#6b7280" }}>
+                      Monitor is back online
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                  Professional Plan
+                <span className="text-xs" style={{ color: "#6b7280" }}>
+                  2 mins ago
+                </span>
+              </div>
+
+              <div
+                className="flex items-center justify-between p-3 rounded-lg"
+                style={{ backgroundColor: "#f9fafb" }}
+              >
+                <div className="flex items-center space-x-3">
+                  <span style={{ color: "#dc2626" }}>●</span>
+                  <div>
+                    <p
+                      className="text-sm font-medium"
+                      style={{ color: "#111827" }}
+                    >
+                      shop.example.com
+                    </p>
+                    <p className="text-xs" style={{ color: "#6b7280" }}>
+                      Monitor went offline
+                    </p>
+                  </div>
+                </div>
+                <span className="text-xs" style={{ color: "#6b7280" }}>
+                  5 mins ago
+                </span>
+              </div>
+
+              <div
+                className="flex items-center justify-between p-3 rounded-lg"
+                style={{ backgroundColor: "#f9fafb" }}
+              >
+                <div className="flex items-center space-x-3">
+                  <span style={{ color: "#f59e0b" }}>●</span>
+                  <div>
+                    <p
+                      className="text-sm font-medium"
+                      style={{ color: "#111827" }}
+                    >
+                      blog.example.com
+                    </p>
+                    <p className="text-xs" style={{ color: "#6b7280" }}>
+                      Response time increased
+                    </p>
+                  </div>
+                </div>
+                <span className="text-xs" style={{ color: "#6b7280" }}>
+                  12 mins ago
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div
+            className="rounded-xl p-6 shadow-sm border"
+            style={{
+              backgroundColor: "white",
+              borderColor: "#e5e7eb",
+            }}
+          >
+            <h3
+              className="text-lg font-semibold mb-6"
+              style={{ color: "#111827" }}
+            >
+              Quick Actions
+            </h3>
+            <div className="space-y-3">
+              <Link
+                href="/monitors/create"
+                className="w-full flex items-center justify-between p-4 rounded-lg border hover:shadow-sm transition-all duration-200 group"
+                style={{
+                  backgroundColor: "#eff6ff",
+                  borderColor: "#bfdbfe",
+                }}
+              >
+                <div>
+                  <p className="font-medium" style={{ color: "#111827" }}>
+                    Add Monitor
+                  </p>
+                  <p className="text-sm" style={{ color: "#6b7280" }}>
+                    Create a new website monitor
+                  </p>
+                </div>
+                <span
+                  className="group-hover:translate-x-1 transition-transform"
+                  style={{ color: "#6b7280" }}
+                >
+                  →
+                </span>
+              </Link>
+
+              <Link
+                href="/billing"
+                className="w-full flex items-center justify-between p-4 rounded-lg hover:shadow-sm transition-all duration-200 group"
+                style={{ backgroundColor: "#f9fafb" }}
+              >
+                <div>
+                  <p className="font-medium" style={{ color: "#111827" }}>
+                    Upgrade Plan
+                  </p>
+                  <p className="text-sm" style={{ color: "#6b7280" }}>
+                    Get more monitors and features
+                  </p>
+                </div>
+                <span
+                  className="group-hover:translate-x-1 transition-transform"
+                  style={{ color: "#6b7280" }}
+                >
+                  →
+                </span>
+              </Link>
+
+              <div
+                className="w-full flex items-center justify-between p-4 rounded-lg"
+                style={{ backgroundColor: "#f9fafb" }}
+              >
+                <div>
+                  <p className="font-medium" style={{ color: "#111827" }}>
+                    System Health
+                  </p>
+                  <p className="text-sm" style={{ color: "#6b7280" }}>
+                    All systems operational
+                  </p>
+                </div>
+                <span style={{ color: "#16a34a" }}>●</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Monitors */}
+        <div
+          className="rounded-xl p-6 shadow-sm border"
+          style={{
+            backgroundColor: "white",
+            borderColor: "#e5e7eb",
+          }}
+        >
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold" style={{ color: "#111827" }}>
+              Your Monitors
+            </h3>
+            <Link
+              href="/monitors"
+              className="text-sm font-medium hover:underline"
+              style={{ color: "#3b82f6" }}
+            >
+              View all monitors
+            </Link>
+          </div>
+          <div className="space-y-4">
+            <div
+              className="flex items-center justify-between p-4 rounded-lg hover:shadow-sm transition-all duration-200"
+              style={{ backgroundColor: "#f9fafb" }}
+            >
+              <div className="flex items-center space-x-4">
+                <span style={{ color: "#16a34a" }}>●</span>
+                <div>
+                  <p className="font-medium" style={{ color: "#111827" }}>
+                    Main Website
+                  </p>
+                  <p className="text-sm" style={{ color: "#6b7280" }}>
+                    https://example.com
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-6 text-sm">
+                <div className="text-center">
+                  <p className="font-medium" style={{ color: "#111827" }}>
+                    99.9%
+                  </p>
+                  <p style={{ color: "#6b7280" }}>Uptime</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-medium" style={{ color: "#111827" }}>
+                    245ms
+                  </p>
+                  <p style={{ color: "#6b7280" }}>Response</p>
+                </div>
+                <div
+                  className="px-3 py-1 rounded-full text-xs font-medium"
+                  style={{
+                    backgroundColor: "#dcfce7",
+                    color: "#166534",
+                  }}
+                >
+                  online
+                </div>
+              </div>
+            </div>
+
+            <div
+              className="flex items-center justify-between p-4 rounded-lg hover:shadow-sm transition-all duration-200"
+              style={{ backgroundColor: "#f9fafb" }}
+            >
+              <div className="flex items-center space-x-4">
+                <span style={{ color: "#16a34a" }}>●</span>
+                <div>
+                  <p className="font-medium" style={{ color: "#111827" }}>
+                    API Endpoint
+                  </p>
+                  <p className="text-sm" style={{ color: "#6b7280" }}>
+                    https://api.example.com
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-6 text-sm">
+                <div className="text-center">
+                  <p className="font-medium" style={{ color: "#111827" }}>
+                    98.5%
+                  </p>
+                  <p style={{ color: "#6b7280" }}>Uptime</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-medium" style={{ color: "#111827" }}>
+                    156ms
+                  </p>
+                  <p style={{ color: "#6b7280" }}>Response</p>
+                </div>
+                <div
+                  className="px-3 py-1 rounded-full text-xs font-medium"
+                  style={{
+                    backgroundColor: "#dcfce7",
+                    color: "#166534",
+                  }}
+                >
+                  online
+                </div>
+              </div>
+            </div>
+
+            <div
+              className="flex items-center justify-between p-4 rounded-lg hover:shadow-sm transition-all duration-200"
+              style={{ backgroundColor: "#f9fafb" }}
+            >
+              <div className="flex items-center space-x-4">
+                <span style={{ color: "#dc2626" }}>●</span>
+                <div>
+                  <p className="font-medium" style={{ color: "#111827" }}>
+                    Shop Page
+                  </p>
+                  <p className="text-sm" style={{ color: "#6b7280" }}>
+                    https://shop.example.com
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-6 text-sm">
+                <div className="text-center">
+                  <p className="font-medium" style={{ color: "#111827" }}>
+                    95.2%
+                  </p>
+                  <p style={{ color: "#6b7280" }}>Uptime</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-medium" style={{ color: "#111827" }}>
+                    N/A
+                  </p>
+                  <p style={{ color: "#6b7280" }}>Response</p>
+                </div>
+                <div
+                  className="px-3 py-1 rounded-full text-xs font-medium"
+                  style={{
+                    backgroundColor: "#fee2e2",
+                    color: "#991b1b",
+                  }}
+                >
+                  offline
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <DashboardContent />
-      </div>
+      </main>
     </div>
   );
 }
-
-function DashboardContent() {
-  return (
-    <div className="space-y-8">
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Total Monitors</dt>
-                  <dd className="text-2xl font-semibold text-gray-900">12</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Online</dt>
-                  <dd className="text-2xl font-semibold text-green-600">11</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z" />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Issues</dt>
-                  <dd className="text-2xl font-semibold text-red-600">1</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Avg Response</dt>
-                  <dd className="text-2xl font-semibold text-gray-900">234ms</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Monitors */}
-      <div className="bg-white shadow rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-gray-900">Active Monitors</h3>
-            <a href="/monitors/create" className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 inline-block">
-              Add Monitor
-            </a>
-          </div>
-          <div className="space-y-3">
-            {/* Sample Monitor Items */}
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
-                <div>
-                  <p className="font-medium text-gray-900">Website Homepage</p>
-                  <p className="text-sm text-gray-500">https://example.com</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">99.9% uptime</p>
-                <p className="text-xs text-gray-500">Last checked: 2 min ago</p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
-                <div>
-                  <p className="font-medium text-gray-900">API Endpoint</p>
-                  <p className="text-sm text-gray-500">https://api.example.com/status</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">100% uptime</p>
-                <p className="text-xs text-gray-500">Last checked: 1 min ago</p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-red-500 rounded-full mr-3"></div>
-                <div>
-                  <p className="font-medium text-gray-900">Database Server</p>
-                  <p className="text-sm text-gray-500">db.example.com:5432</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-medium text-red-600">Connection timeout</p>
-                <p className="text-xs text-gray-500">Last checked: 5 min ago</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Alerts */}
-      <div className="bg-white shadow rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-gray-900">Recent Alerts</h3>
-            <button className="bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-700">
-              View All
-            </button>
-          </div>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200">
-              <div className="flex items-center">
-                <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
-                  <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">Database Connection Failed</p>
-                  <p className="text-sm text-gray-500">db.example.com:5432 - Connection timeout</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-medium text-red-600">5 min ago</p>
-                <p className="text-xs text-gray-500">Sent to: #alerts</p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
-              <div className="flex items-center">
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                  <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">Service Restored</p>
-                  <p className="text-sm text-gray-500">https://example.com - Back online</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-medium text-green-600">1 hour ago</p>
-                <p className="text-xs text-gray-500">Sent to: team@example.com</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Demo Notice */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex">
-          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-            <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <div>
-            <h3 className="text-sm font-medium text-blue-800">Demo Mode</h3>
-            <p className="text-sm text-blue-700 mt-1">
-              This is a demo of your WatchTower Pro monitoring system. Connect your database and create your first monitor to see real data.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-} 

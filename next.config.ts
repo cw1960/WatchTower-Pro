@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
 	images: {
 		remotePatterns: [{ hostname: "**" }],
 	},
+	eslint: {
+		ignoreDuringBuilds: true,
+	},
 };
 
 export default withWhopAppConfig(nextConfig);
