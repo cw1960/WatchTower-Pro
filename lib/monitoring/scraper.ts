@@ -259,7 +259,7 @@ class WebScraper {
     }
   }
 
-  private async performAction(action: ScrapeOptions['actions'][0]): Promise<void> {
+  private async performAction(action: NonNullable<ScrapeOptions['actions']>[0]): Promise<void> {
     if (!this.page) return;
 
     switch (action.type) {
@@ -267,7 +267,7 @@ class WebScraper {
         if (action.selector) {
           await this.page.click(action.selector);
           if (action.delay) {
-            await this.page.waitForTimeout(action.delay);
+            await new Promise(resolve => setTimeout(resolve, action.delay));
           }
         }
         break;
@@ -275,7 +275,7 @@ class WebScraper {
         if (action.selector && action.value) {
           await this.page.type(action.selector, action.value);
           if (action.delay) {
-            await this.page.waitForTimeout(action.delay);
+            await new Promise(resolve => setTimeout(resolve, action.delay));
           }
         }
         break;
@@ -283,7 +283,7 @@ class WebScraper {
         if (action.selector && action.value) {
           await this.page.select(action.selector, action.value);
           if (action.delay) {
-            await this.page.waitForTimeout(action.delay);
+            await new Promise(resolve => setTimeout(resolve, action.delay));
           }
         }
         break;
@@ -291,7 +291,7 @@ class WebScraper {
         if (action.selector) {
           await this.page.waitForSelector(action.selector);
         } else if (action.delay) {
-          await this.page.waitForTimeout(action.delay);
+          await new Promise(resolve => setTimeout(resolve, action.delay));
         }
         break;
       case 'scroll':
@@ -299,7 +299,7 @@ class WebScraper {
           window.scrollTo(0, document.body.scrollHeight);
         });
         if (action.delay) {
-          await this.page.waitForTimeout(action.delay);
+          await new Promise(resolve => setTimeout(resolve, action.delay));
         }
         break;
     }
@@ -366,7 +366,7 @@ class WebScraper {
         try {
           const element = await this.page.$(selector);
           if (element) {
-            const value = await element.evaluate(el => el.textContent || el.innerText || '');
+            const value = await element.evaluate(el => el.textContent || (el as HTMLElement).innerText || '');
             (data as any)[key] = value.trim();
           }
         } catch (error) {
@@ -399,7 +399,7 @@ class WebScraper {
         const elements = await this.page.$$(selector);
         
         for (const element of elements) {
-          const text = await element.evaluate(el => el.textContent || el.innerText || '');
+          const text = await element.evaluate(el => el.textContent || (el as HTMLElement).innerText || '');
           const priceMatch = text.match(/[\$£€¥₹]\s*(\d+(?:\.\d{2})?)|(\d+(?:\.\d{2})?)\s*[\$£€¥₹]/);
           
           if (priceMatch) {
@@ -433,7 +433,7 @@ class WebScraper {
         const element = await this.page.$(selector);
         
         if (element) {
-          const text = await element.evaluate(el => el.textContent || el.innerText || '');
+          const text = await element.evaluate(el => el.textContent || (el as HTMLElement).innerText || '');
           let value: string | number = text.trim();
 
           if (type === 'number') {
