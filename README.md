@@ -1,7 +1,22 @@
-This is a template for a whop app built in NextJS. Fork it and keep the parts you need for your app.
+# WatchTower Pro
 
-# Whop NextJS App Template
+Advanced website monitoring and alert platform for Whop creators.
 
-To run this project, install dependencies with: `pnpm i` and start with `pnpm dev`
+## Getting Started
 
-For more info, see our docs at https://dev.whop.com/introduction
+To run this project:
+
+1. Install dependencies: `pnpm i`
+2. Configure environment variables: `cp env.example .env`
+3. Set up database: `pnpm run db:push`
+4. Start development server: `pnpm dev`
+
+## Features
+
+- Website monitoring (HTTP/HTTPS, PING, TCP, SSL)
+- Whop metrics integration
+- Multi-channel alerting (Email, Slack, Discord, SMS)
+- Team collaboration
+- Plan-based access control
+
+For more info about Whop development, see https://dev.whop.com/introduction

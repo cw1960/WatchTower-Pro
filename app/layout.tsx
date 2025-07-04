@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Whop App",
-	description: "My Whop App",
+	title: "WatchTower Pro",
+	description: "Advanced website monitoring and alert platform for Whop creators",
 };
 
 export default function RootLayout({
