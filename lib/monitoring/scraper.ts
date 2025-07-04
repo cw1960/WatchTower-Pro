@@ -220,7 +220,7 @@ class WebScraper {
 
       // Wait for additional timeout if specified
       if (options.waitForTimeout) {
-        await this.page.waitForTimeout(options.waitForTimeout);
+        await new Promise(resolve => setTimeout(resolve, options.waitForTimeout));
       }
 
       // Perform custom actions
