@@ -1,0 +1,23 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[context.production.environment]
+  NODE_ENV = "production"
+
+# Handle Next.js dynamic routes
+[[redirects]]
+  from = "/experiences/:experienceId"
+  to = "/experiences/[experienceId]"
+  status = 200
+
+[[redirects]]
+  from = "/api/*"
+  to = "/api/:splat"
+  status = 200 

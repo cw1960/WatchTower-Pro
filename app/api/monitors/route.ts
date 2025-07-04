@@ -2,11 +2,28 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { whopAuth, whopPricing, PlanType } from "@/lib/whop-sdk";
 import { z } from "zod";
+import { getMonitoringEngine } from "@/lib/monitoring/engine";
+import {
+  requireUsageLimit,
+  requireFeature,
+  requireFrequencyLimit,
+  requirePlanAccess,
+} from "@/lib/middleware/pricing-middleware";
+import PricingService from "@/lib/pricing";
 
 const createMonitorSchema = z.object({
   name: z.string().min(1, "Name is required"),
   url: z.string().url("Valid URL is required"),
-  type: z.enum(["HTTP", "HTTPS", "PING", "TCP", "WHOP_METRICS", "WHOP_SALES", "WHOP_USERS", "WHOP_REVENUE"]),
+  type: z.enum([
+    "HTTP",
+    "HTTPS",
+    "PING",
+    "TCP",
+    "WHOP_METRICS",
+    "WHOP_SALES",
+    "WHOP_USERS",
+    "WHOP_REVENUE",
+  ]),
   interval: z.number().min(60).max(86400).default(300),
   timeout: z.number().min(5).max(120).default(30),
   retries: z.number().min(1).max(10).default(3),
@@ -28,9 +45,12 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
-    
+
     if (!userId) {
-      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User ID is required" },
+        { status: 400 },
+      );
     }
 
     // Validate user access
@@ -56,7 +76,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(monitors);
   } catch (error) {
     console.error("Error fetching monitors:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -65,9 +88,12 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { userId, companyId, ...monitorData } = body;
-    
+
     if (!userId) {
-      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User ID is required" },
+        { status: 400 },
+      );
     }
 
     // Validate user access
@@ -80,24 +106,45 @@ export async function POST(request: NextRequest) {
     const validatedData = createMonitorSchema.parse(monitorData);
 
     // Check if user can create more monitors based on their plan
-    const user = await db.user.findUnique({
-      where: { id: userId },
-      include: { _count: { select: { monitors: true } } },
+    const usageCheck = await requireUsageLimit(request, userId, {
+      type: "monitors",
+      redirectUrl: "/billing/upgrade?feature=monitors",
     });
 
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    if (usageCheck) {
+      return usageCheck;
     }
 
-    const planType = user.plan as PlanType;
-    const limits = whopPricing.getPlanLimits(planType);
-    
-    if (limits.monitors !== -1 && user._count.monitors >= limits.monitors) {
-      return NextResponse.json({ 
-        error: "Monitor limit reached for your plan",
-        limit: limits.monitors,
-        current: user._count.monitors
-      }, { status: 400 });
+    // Check frequency limits
+    const frequencyCheck = await requireFrequencyLimit(request, userId, {
+      intervalSeconds: validatedData.interval,
+      redirectUrl: "/billing/upgrade?feature=frequency",
+    });
+
+    if (frequencyCheck) {
+      return frequencyCheck;
+    }
+
+    // Check feature access for specific monitor types
+    const featureRequirements = [];
+
+    if (validatedData.type.startsWith("WHOP_")) {
+      featureRequirements.push("whopMetrics");
+    }
+
+    if (validatedData.sslCheck) {
+      featureRequirements.push("sslMonitoring");
+    }
+
+    // Check all feature requirements
+    const planAccessCheck = await requirePlanAccess(request, userId, {
+      features: featureRequirements as any[],
+      usageChecks: [{ type: "monitors" }],
+      frequencyCheck: { intervalSeconds: validatedData.interval },
+    });
+
+    if (planAccessCheck) {
+      return planAccessCheck;
     }
 
     // Create the monitor
@@ -119,14 +166,30 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Add monitor to the monitoring engine
+    try {
+      const monitoringEngine = getMonitoringEngine();
+      // The engine will handle adding the monitor to the scheduler internally
+      // This is handled automatically when the engine syncs monitors
+    } catch (error) {
+      console.error("Error accessing monitoring engine:", error);
+      // Don't fail the request if monitoring engine fails
+    }
+
     return NextResponse.json(monitor, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: "Validation error", details: error.errors }, { status: 400 });
+      return NextResponse.json(
+        { error: "Validation error", details: error.errors },
+        { status: 400 },
+      );
     }
-    
+
     console.error("Error creating monitor:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -135,9 +198,12 @@ export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
     const { id, userId, ...updateData } = body;
-    
+
     if (!id || !userId) {
-      return NextResponse.json({ error: "Monitor ID and User ID are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Monitor ID and User ID are required" },
+        { status: 400 },
+      );
     }
 
     // Validate user access
@@ -152,7 +218,10 @@ export async function PUT(request: NextRequest) {
     });
 
     if (!existingMonitor) {
-      return NextResponse.json({ error: "Monitor not found or unauthorized" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Monitor not found or unauthorized" },
+        { status: 404 },
+      );
     }
 
     // Validate input
@@ -173,14 +242,29 @@ export async function PUT(request: NextRequest) {
       },
     });
 
+    // Update monitor in the monitoring engine
+    try {
+      const monitoringEngine = getMonitoringEngine();
+      await monitoringEngine.updateMonitor(monitor.id, monitor);
+    } catch (error) {
+      console.error("Error updating monitor in monitoring engine:", error);
+      // Don't fail the request if monitoring engine fails
+    }
+
     return NextResponse.json(monitor);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: "Validation error", details: error.errors }, { status: 400 });
+      return NextResponse.json(
+        { error: "Validation error", details: error.errors },
+        { status: 400 },
+      );
     }
-    
+
     console.error("Error updating monitor:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -190,9 +274,12 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
     const userId = searchParams.get("userId");
-    
+
     if (!id || !userId) {
-      return NextResponse.json({ error: "Monitor ID and User ID are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Monitor ID and User ID are required" },
+        { status: 400 },
+      );
     }
 
     // Validate user access
@@ -207,7 +294,19 @@ export async function DELETE(request: NextRequest) {
     });
 
     if (!existingMonitor) {
-      return NextResponse.json({ error: "Monitor not found or unauthorized" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Monitor not found or unauthorized" },
+        { status: 404 },
+      );
+    }
+
+    // Remove monitor from the monitoring engine first
+    try {
+      const monitoringEngine = getMonitoringEngine();
+      await monitoringEngine.deleteMonitor(id);
+    } catch (error) {
+      console.error("Error removing monitor from monitoring engine:", error);
+      // Continue with deletion even if monitoring engine fails
     }
 
     // Delete the monitor (cascading deletes will handle related records)
@@ -218,6 +317,9 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ message: "Monitor deleted successfully" });
   } catch (error) {
     console.error("Error deleting monitor:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
-} 
+}

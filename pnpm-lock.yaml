@@ -105,6 +105,9 @@ importers:
       '@biomejs/biome':
         specifier: ^1.9.4
         version: 1.9.4
+      '@netlify/plugin-nextjs':
+        specifier: ^5.11.4
+        version: 5.11.4
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.1.6
@@ -394,6 +397,10 @@ packages:
 
   '@juggle/resize-observer@3.4.0':
     resolution: {integrity: sha512-dfLbk+PwWvFzSxwk3n5ySL0hfBog779o8h68wK/7/APo/7cgyWp5jcXockbxdk5kFRkbeXWm4Fbi9FrdN381sA==}
+
+  '@netlify/plugin-nextjs@5.11.4':
+    resolution: {integrity: sha512-hJJthlDU76wn1vuOF48GiYx7HLhSK0u9xJU7N4BSmOjc741zvI5NgfWlQwfPOydp5OOuoxPDXxbZj9EttBycPw==}
+    engines: {node: '>=18.0.0'}
 
   '@next/env@15.3.2':
     resolution: {integrity: sha512-xURk++7P7qR9JG1jJtLzPzf0qEvqCN0A/T3DXf8IPMKo9/6FfjxtEffRJIIew/bIL4T3C2jLLqBor8B/zVlx6g==}
@@ -3131,6 +3138,8 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.0
 
   '@juggle/resize-observer@3.4.0': {}
+
+  '@netlify/plugin-nextjs@5.11.4': {}
 
   '@next/env@15.3.2': {}
 
