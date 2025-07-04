@@ -297,7 +297,21 @@ export class ConditionEvaluator {
     if (!socialData || !condition.socialPlatform) return 0;
     
     const platform = socialData[condition.socialPlatform];
-    return platform?.followers || 0;
+    if (!platform) return 0;
+    
+    // Type-safe access based on platform type
+    switch (condition.socialPlatform) {
+      case 'facebook':
+        return 0; // Facebook doesn't have a followers field in our interface
+      case 'twitter':
+        return ('followers' in platform) ? platform.followers || 0 : 0;
+      case 'instagram':
+        return ('followers' in platform) ? platform.followers || 0 : 0;
+      case 'youtube':
+        return ('subscribers' in platform) ? platform.subscribers || 0 : 0;
+      default:
+        return 0;
+    }
   }
 
   private extractSocialEngagement(condition: Condition): number {
@@ -305,7 +319,25 @@ export class ConditionEvaluator {
     if (!socialData || !condition.socialPlatform) return 0;
     
     const platform = socialData[condition.socialPlatform];
-    return platform?.engagement || 0;
+    if (!platform) return 0;
+    
+    // Type-safe access based on platform type
+    switch (condition.socialPlatform) {
+      case 'facebook':
+        // Facebook might have likes, shares, or comments
+        if ('likes' in platform) return platform.likes || 0;
+        if ('shares' in platform) return platform.shares || 0;
+        if ('comments' in platform) return platform.comments || 0;
+        return 0;
+      case 'twitter':
+        return ('engagement' in platform) ? platform.engagement || 0 : 0;
+      case 'instagram':
+        return ('engagement' in platform) ? platform.engagement || 0 : 0;
+      case 'youtube':
+        return ('views' in platform) ? platform.views || 0 : 0;
+      default:
+        return 0;
+    }
   }
 
   private compareValues(condition: Condition, actualValue: any): boolean {

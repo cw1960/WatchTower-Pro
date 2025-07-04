@@ -133,10 +133,28 @@ export class MonitoringEngine {
     monitorData: Omit<Monitor, "id" | "createdAt" | "updatedAt" | "lastCheck">,
   ): Promise<Monitor> {
     try {
-      // Create monitor in database
+      // Create monitor in database with proper type handling
       const monitor = await db.monitor.create({
         data: {
-          ...monitorData,
+          name: monitorData.name,
+          type: monitorData.type,
+          userId: monitorData.userId,
+          companyId: monitorData.companyId,
+          url: monitorData.url,
+          interval: monitorData.interval,
+          timeout: monitorData.timeout,
+          retries: monitorData.retries,
+          method: monitorData.method,
+          headers: monitorData.headers as any,
+          body: monitorData.body,
+          expectedStatus: monitorData.expectedStatus,
+          expectedContent: monitorData.expectedContent,
+          expectedKeywords: monitorData.expectedKeywords,
+          sslCheck: monitorData.sslCheck,
+          sslExpiryDays: monitorData.sslExpiryDays,
+          responseTimeThreshold: monitorData.responseTimeThreshold,
+          whopMetrics: monitorData.whopMetrics as any,
+          whopThresholds: monitorData.whopThresholds as any,
           status: "ACTIVE" as const,
         },
       });

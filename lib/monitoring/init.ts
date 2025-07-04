@@ -1,75 +1,96 @@
 import { getMonitoringEngine } from './engine';
+import { db } from '@/lib/db';
 
-let isInitialized = false;
-
-export async function initializeMonitoringEngine(): Promise<void> {
-  if (isInitialized) {
-    console.log('[MonitoringEngine] Already initialized, skipping...');
-    return;
-  }
-
+// Initialize the monitoring system
+export async function initializeMonitoring() {
   try {
-    console.log('[MonitoringEngine] Initializing monitoring engine...');
+    console.log('🚀 Initializing WatchTower Pro Monitoring System...');
     
-    const monitoringEngine = getMonitoringEngine({
+    // Get the monitoring engine instance
+    const engine = getMonitoringEngine({
       scheduler: {
         maxConcurrentJobs: 10,
         maxRetries: 3,
         retryDelay: 60,
         batchSize: 5,
-        healthCheckInterval: 30,
-        cleanupInterval: 300,
-        maxJobAge: 86400,
         enableMetrics: true,
         enableLogging: true
       },
+      defaultTimeout: 30000,
+      maxConcurrentMonitors: 10,
+      enableAutoScaling: false,
+      retryFailedChecks: true,
       enableMetrics: true,
       enableLogging: true
     });
-
-    await monitoringEngine.start();
     
-    isInitialized = true;
-    console.log('[MonitoringEngine] Monitoring engine initialized successfully');
+    // Start the monitoring engine
+    await engine.start();
     
-    // Handle graceful shutdown
-    process.on('SIGTERM', async () => {
-      console.log('[MonitoringEngine] Received SIGTERM, shutting down gracefully...');
-      await monitoringEngine.stop();
-      process.exit(0);
-    });
-
-    process.on('SIGINT', async () => {
-      console.log('[MonitoringEngine] Received SIGINT, shutting down gracefully...');
-      await monitoringEngine.stop();
-      process.exit(0);
-    });
-
+    // Get initial stats
+    const stats = engine.getStats();
+    console.log('📊 Monitoring System Started Successfully!');
+    console.log(`   • Total Monitors: ${stats.totalMonitors}`);
+    console.log(`   • Active Monitors: ${stats.activeMonitors}`);
+    console.log(`   • Total Checks: ${stats.totalChecks}`);
+    console.log(`   • Success Rate: ${stats.successfulChecks}/${stats.totalChecks}`);
+    
+    return engine;
   } catch (error) {
-    console.error('[MonitoringEngine] Failed to initialize:', error);
-    // Don't throw the error to prevent application startup failure
+    console.error('❌ Failed to initialize monitoring system:', error);
+    throw error;
   }
 }
 
-export async function shutdownMonitoringEngine(): Promise<void> {
-  if (!isInitialized) {
-    return;
-  }
-
+// Gracefully shutdown the monitoring system
+export async function shutdownMonitoring() {
   try {
-    console.log('[MonitoringEngine] Shutting down monitoring engine...');
-    
-    const monitoringEngine = getMonitoringEngine();
-    await monitoringEngine.stop();
-    
-    isInitialized = false;
-    console.log('[MonitoringEngine] Monitoring engine shut down successfully');
-    
+    console.log('🛑 Shutting down monitoring system...');
+    const engine = getMonitoringEngine();
+    await engine.stop();
+    console.log('✅ Monitoring system shut down successfully');
   } catch (error) {
-    console.error('[MonitoringEngine] Error during shutdown:', error);
+    console.error('❌ Error shutting down monitoring system:', error);
   }
 }
 
-export function isMonitoringEngineInitialized(): boolean {
-  return isInitialized;
-} 
+// Health check for the monitoring system
+export async function healthCheck() {
+  try {
+    const engine = getMonitoringEngine();
+    const stats = engine.getStats();
+    const schedulerMetrics = engine.getSchedulerMetrics();
+    
+    return {
+      healthy: true,
+      stats,
+      schedulerMetrics,
+      database: await checkDatabaseHealth(),
+      timestamp: new Date().toISOString()
+    };
+  } catch (error) {
+    return {
+      healthy: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+async function checkDatabaseHealth() {
+  try {
+    await db.$queryRaw`SELECT 1`;
+    return { connected: true };
+  } catch (error) {
+    return { 
+      connected: false, 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    };
+  }
+}
+
+// Export for use in other parts of the application
+export { getMonitoringEngine } from './engine';
+export { getScheduler } from './scheduler';
+export { default as WebScraper } from './scraper';
+export { ConditionEvaluator } from './conditions'; 
