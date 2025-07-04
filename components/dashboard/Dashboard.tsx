@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { PlanType } from "@/lib/whop-sdk";
 
 interface DashboardProps {
@@ -39,8 +39,22 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [monitoringStats, setMonitoringStats] = useState<any>(null);
+  const [testingMonitor, setTestingMonitor] = useState<string | null>(null);
+  const [monitoringStatus, setMonitoringStatus] = useState<'stopped' | 'running' | 'starting'>('stopped');
+
   useEffect(() => {
     fetchDashboardData();
+    // Fetch monitoring stats
+    fetchMonitoringStats();
+    
+    // Set up interval to refresh data every 30 seconds
+    const interval = setInterval(() => {
+      fetchDashboardData();
+      fetchMonitoringStats();
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, [userId]);
 
   const fetchDashboardData = async () => {
@@ -64,6 +78,94 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchMonitoringStats = async () => {
+    try {
+      const response = await fetch(`/api/monitoring?action=stats&userId=${userId}`);
+      if (response.ok) {
+        const stats = await response.json();
+        setMonitoringStats(stats);
+        setMonitoringStatus('running');
+      }
+    } catch (err) {
+      console.warn("Failed to fetch monitoring stats:", err);
+      // Check if monitoring is stopped
+      try {
+        const statusResponse = await fetch(`/api/monitoring?action=status&userId=${userId}`);
+        if (statusResponse.ok) {
+          const statusData = await statusResponse.json();
+          setMonitoringStatus(statusData.status === 'running' ? 'running' : 'stopped');
+        }
+      } catch (statusErr) {
+        setMonitoringStatus('stopped');
+      }
+    }
+  };
+
+  const startMonitoring = async () => {
+    try {
+      setMonitoringStatus('starting');
+      const response = await fetch('/api/monitoring', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'start',
+          userId,
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setMonitoringStatus('running');
+        fetchMonitoringStats();
+        fetchDashboardData();
+        alert('Monitoring system started successfully!');
+      } else {
+        setMonitoringStatus('stopped');
+        alert(`Failed to start monitoring: ${result.error}`);
+      }
+    } catch (err) {
+      setMonitoringStatus('stopped');
+      alert(`Failed to start monitoring: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
+  };
+
+  const testMonitor = async (monitorId: string) => {
+    try {
+      setTestingMonitor(monitorId);
+      const response = await fetch('/api/monitoring', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'test',
+          monitorId,
+          userId,
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        // Refresh the dashboard data to show updated results
+        fetchDashboardData();
+        fetchMonitoringStats();
+        
+        // Show success notification (you could use a toast library here)
+        alert(`Monitor test completed!\nResponse Time: ${result.result.responseTime || 'N/A'}ms\nStatus: ${result.result.success ? 'Success' : 'Failed'}`);
+      } else {
+        alert(`Monitor test failed: ${result.error}`);
+      }
+    } catch (err) {
+      alert(`Monitor test failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setTestingMonitor(null);
     }
   };
 
@@ -127,6 +229,78 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
         </p>
       </div>
 
+      {/* Monitoring System Status */}
+      <div className="bg-white shadow rounded-lg mb-6 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-medium text-gray-900">Monitoring System Status</h3>
+          <div className="flex items-center space-x-2">
+            {monitoringStatus === 'running' ? (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <span className="w-2 h-2 bg-green-400 rounded-full mr-1"></span>
+                Running
+              </span>
+            ) : monitoringStatus === 'starting' ? (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                <div className="w-2 h-2 bg-yellow-400 rounded-full mr-1 animate-pulse"></div>
+                Starting...
+              </span>
+            ) : (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                <span className="w-2 h-2 bg-red-400 rounded-full mr-1"></span>
+                Stopped
+              </span>
+            )}
+            {monitoringStatus === 'stopped' ? (
+              <button
+                onClick={startMonitoring}
+                className="bg-blue-600 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-blue-700"
+              >
+                Start Monitoring
+              </button>
+            ) : (
+              <button
+                onClick={() => window.location.href = '/api/monitoring?action=health'}
+                className="text-sm text-blue-600 hover:text-blue-800"
+              >
+                Health Check
+              </button>
+            )}
+          </div>
+        </div>
+        {monitoringStats ? (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-900">
+                {monitoringStats.recentChecks?.count || 0}
+              </div>
+              <div className="text-sm text-gray-500">Checks (24h)</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-900">
+                {Math.round(monitoringStats.recentChecks?.averageResponseTime || 0)}ms
+              </div>
+              <div className="text-sm text-gray-500">Avg Response</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-900">
+                {monitoringStats.engineStats?.totalMonitors || 0}
+              </div>
+              <div className="text-sm text-gray-500">Total Monitors</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-900">
+                {monitoringStats.engineStats?.activeMonitors || 0}
+              </div>
+              <div className="text-sm text-gray-500">Active Monitors</div>
+            </div>
+                     </div>
+         ) : (
+           <div className="text-center py-8">
+             <p className="text-gray-500">Start monitoring to see real-time statistics</p>
+           </div>
+         )}
+       </div>
+
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white overflow-hidden shadow rounded-lg">
@@ -163,7 +337,7 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Active Monitors</dt>
                   <dd className="text-lg font-semibold text-gray-900">
-                    {monitors.filter(m => m.status === "ACTIVE").length}
+                    {monitors.filter((m: Monitor) => m.status === "ACTIVE").length}
                   </dd>
                 </dl>
               </div>
@@ -185,7 +359,7 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Active Alerts</dt>
                   <dd className="text-lg font-semibold text-gray-900">
-                    {alerts.filter(a => a.status === "ACTIVE").length}
+                    {alerts.filter((a: Alert) => a.status === "ACTIVE").length}
                   </dd>
                 </dl>
               </div>
@@ -231,10 +405,13 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Last Check
                     </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {monitors.slice(0, 5).map((monitor) => (
+                  {monitors.slice(0, 5).map((monitor: Monitor) => (
                     <tr key={monitor.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
@@ -255,6 +432,27 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {monitor.lastCheck ? new Date(monitor.lastCheck).toLocaleString() : "Never"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <button
+                          onClick={() => testMonitor(monitor.id)}
+                          disabled={testingMonitor === monitor.id}
+                          className="bg-blue-600 text-white px-3 py-1 rounded-md text-xs font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center"
+                        >
+                          {testingMonitor === monitor.id ? (
+                            <>
+                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+                              Testing...
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-7 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                              </svg>
+                              Test
+                            </>
+                          )}
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -285,7 +483,7 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
                 <span className="text-sm text-gray-500">{alerts.length} used</span>
               </div>
               <div className="text-xs text-gray-500">
-                Active: {alerts.filter(a => a.status === "ACTIVE").length}
+                Active: {alerts.filter((a: Alert) => a.status === "ACTIVE").length}
               </div>
             </div>
           </div>
