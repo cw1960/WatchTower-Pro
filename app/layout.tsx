@@ -56,13 +56,13 @@ export default async function RootLayout({
           overflow: "auto",
         }}
       >
-        <WhopApp>
+        {/* <WhopApp> Temporarily commented out for build compatibility */}
           <ErrorBoundary>
             <WhopUserProvider initialUser={initialUser}>
               <div className="w-full h-full">{children}</div>
             </WhopUserProvider>
           </ErrorBoundary>
-        </WhopApp>
+        {/* </WhopApp> */}
       </body>
     </html>
   );
