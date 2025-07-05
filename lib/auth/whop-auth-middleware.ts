@@ -40,3 +40,36 @@ export async function validateWhopAuth() {
     };
   }
 }
+
+// Add back missing exports that other parts of the app expect
+export async function requireWhopAuthForPage() {
+  const authResult = await validateWhopAuth();
+  if (!authResult.success || !authResult.user) {
+    return { redirect: "/auth/login" };
+  }
+  return { user: authResult.user };
+}
+
+export async function getCurrentWhopUser() {
+  try {
+    const authResult = await validateWhopAuth();
+    return authResult.user || null;
+  } catch (error) {
+    console.error("Error getting current user:", error);
+    return null;
+  }
+}
+
+export async function checkUsageLimit(user: any, action: string) {
+  // Simple implementation - allow everything for now
+  return {
+    allowed: true,
+    limit: -1,
+    current: 0,
+  };
+}
+
+export async function logoutUser(userId: string) {
+  // Simple implementation
+  console.log("Logout user:", userId);
+}
