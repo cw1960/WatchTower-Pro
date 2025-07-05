@@ -91,6 +91,11 @@ export async function validateWhopAuth(
     const headersList = await headers();
     console.log("🔧 Got headers, checking Whop SDK configuration");
 
+    // DEBUG: Check if the critical x-whop-user-token header is present
+    const userToken = headersList.get('x-whop-user-token');
+    console.log("🔧 x-whop-user-token header:", userToken ? "✅ Present" : "❌ Missing");
+    console.log("🔧 All headers:", Object.fromEntries(headersList.entries()));
+
     // Check if Whop SDK is configured
     if (!whopSdk) {
       console.error("❌ Whop SDK not configured");
@@ -107,6 +112,15 @@ export async function validateWhopAuth(
       WHOP_API_KEY: process.env.WHOP_API_KEY ? "✅ Set" : "❌ Missing",
       NEXT_PUBLIC_WHOP_APP_ID: process.env.NEXT_PUBLIC_WHOP_APP_ID ? "✅ Set" : "❌ Missing",
     });
+
+    if (!userToken) {
+      console.error("❌ No x-whop-user-token header found - user must access app through Whop platform");
+      return {
+        success: false,
+        error: "No user token found - please access this app through the Whop platform",
+        shouldRedirect: false,
+      };
+    }
 
     // Verify the user token from Whop
     const { userId } = await whopSdk.verifyUserToken(headersList);
