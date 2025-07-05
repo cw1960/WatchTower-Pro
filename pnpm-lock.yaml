@@ -83,6 +83,9 @@ importers:
       '@whop/react':
         specifier: 0.2.14
         version: 0.2.14(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(framer@2.4.1(framer-motion@10.18.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      autoprefixer:
+        specifier: ^10.4.16
+        version: 10.4.21(postcss@8.5.6)
       axios:
         specifier: ^1.7.9
         version: 1.10.0
@@ -137,6 +140,9 @@ importers:
       tailwind-merge:
         specifier: ^2.6.0
         version: 2.6.0
+      tailwindcss:
+        specifier: ^3.4.0
+        version: 3.4.17
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.17)
@@ -162,18 +168,12 @@ importers:
       '@whop-apps/dev-proxy':
         specifier: 0.0.1-canary.116
         version: 0.0.1-canary.116
-      autoprefixer:
-        specifier: ^10.4.16
-        version: 10.4.21(postcss@8.5.6)
       dotenv-cli:
         specifier: ^8.0.0
         version: 8.0.0
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
-      tailwindcss:
-        specifier: ^3.4.0
-        version: 3.4.17
       tsx:
         specifier: ^4.20.3
         version: 4.20.3
