@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "description": "Advanced website monitoring and alert platform for Whop creators",
   "private": true,
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
   "scripts": {
     "dev": "whop-proxy --command 'next dev --turbopack'",
     "build": "next build",

@@ -7,7 +7,7 @@
   functions = "netlify/functions"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
   NPM_VERSION = "10"
   # Enable faster builds
   NEXT_TELEMETRY_DISABLED = "1"
