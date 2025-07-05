@@ -1,6 +1,6 @@
 import { requireWhopAuthForPage } from "@/lib/auth/whop-auth-middleware";
 import { redirect } from "next/navigation";
-import MonitorCreator from "@/components/monitors/MonitorCreator";
+import MonitorCreatorWrapper from "@/components/monitors/MonitorCreatorWrapper";
 import Link from "next/link";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 
@@ -35,13 +35,9 @@ export default async function CreateMonitorPage() {
 
         {/* Main Content */}
         <div className="max-w-4xl">
-          <MonitorCreator
+          <MonitorCreatorWrapper
             userId={user.id}
             userPlan={user.plan}
-            onMonitorCreated={() => {
-              // Handle monitor creation - could redirect to dashboard or show success message
-              window.location.href = "/dashboard";
-            }}
           />
         </div>
       </div>
