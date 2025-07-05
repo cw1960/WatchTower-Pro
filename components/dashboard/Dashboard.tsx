@@ -63,44 +63,63 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
     try {
       setLoading(true);
       setError(null);
-      
+
       console.log("🔍 Dashboard: Starting to fetch data...");
-      
+
       // Fetch monitors
       console.log("🔍 Dashboard: Fetching monitors...");
       const monitorsRes = await fetch(`/api/monitors?userId=${userId}`);
-      console.log("📊 Dashboard: Monitors response status:", monitorsRes.status);
-      
+      console.log(
+        "📊 Dashboard: Monitors response status:",
+        monitorsRes.status,
+      );
+
       if (!monitorsRes.ok) {
         const errorText = await monitorsRes.text();
         console.error("❌ Dashboard: Monitors API failed:", errorText);
-        throw new Error(`Failed to fetch monitors: ${monitorsRes.status} - ${errorText}`);
+        throw new Error(
+          `Failed to fetch monitors: ${monitorsRes.status} - ${errorText}`,
+        );
       }
-      
+
       const monitorsData = await monitorsRes.json();
-      console.log("✅ Dashboard: Monitors data received:", monitorsData.length, "monitors");
-      
+      console.log(
+        "✅ Dashboard: Monitors data received:",
+        monitorsData.length,
+        "monitors",
+      );
+
       // Fetch alerts
       console.log("🔍 Dashboard: Fetching alerts...");
       const alertsRes = await fetch(`/api/alerts?userId=${userId}`);
       console.log("📊 Dashboard: Alerts response status:", alertsRes.status);
-      
+
       if (!alertsRes.ok) {
         const errorText = await alertsRes.text();
         console.error("❌ Dashboard: Alerts API failed:", errorText);
-        throw new Error(`Failed to fetch alerts: ${alertsRes.status} - ${errorText}`);
+        throw new Error(
+          `Failed to fetch alerts: ${alertsRes.status} - ${errorText}`,
+        );
       }
-      
+
       const alertsData = await alertsRes.json();
-      console.log("✅ Dashboard: Alerts data received:", alertsData.length, "alerts");
+      console.log(
+        "✅ Dashboard: Alerts data received:",
+        alertsData.length,
+        "alerts",
+      );
 
       setMonitors(monitorsData || []);
       setAlerts(alertsData || []);
-      
+
       console.log("✅ Dashboard: All data fetched successfully");
     } catch (err) {
       console.error("❌ Dashboard: Error in fetchDashboardData:", err);
-      setError(err instanceof Error ? err.message : "An error occurred while fetching data");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "An error occurred while fetching data",
+      );
     } finally {
       setLoading(false);
     }
@@ -109,26 +128,38 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
   const fetchMonitoringStats = async () => {
     try {
       console.log("🔍 Dashboard: Fetching monitoring stats...");
-      const response = await fetch(`/api/monitoring?action=stats&userId=${userId}`);
-      console.log("📊 Dashboard: Monitoring stats response status:", response.status);
-      
+      const response = await fetch(
+        `/api/monitoring?action=stats&userId=${userId}`,
+      );
+      console.log(
+        "📊 Dashboard: Monitoring stats response status:",
+        response.status,
+      );
+
       if (response.ok) {
         const stats = await response.json();
         console.log("✅ Dashboard: Monitoring stats received:", stats);
         setMonitoringStats(stats);
         setMonitoringStatus("running");
       } else {
-        console.warn("⚠️ Dashboard: Monitoring stats failed, checking status...");
-        throw new Error('Stats not available');
+        console.warn(
+          "⚠️ Dashboard: Monitoring stats failed, checking status...",
+        );
+        throw new Error("Stats not available");
       }
     } catch (err) {
       console.warn("⚠️ Dashboard: Failed to fetch monitoring stats:", err);
       // Check if monitoring is stopped
       try {
         console.log("🔍 Dashboard: Checking monitoring status...");
-        const statusResponse = await fetch(`/api/monitoring?action=status&userId=${userId}`);
-        console.log("📊 Dashboard: Monitoring status response:", statusResponse.status);
-        
+        const statusResponse = await fetch(
+          `/api/monitoring?action=status&userId=${userId}`,
+        );
+        console.log(
+          "📊 Dashboard: Monitoring status response:",
+          statusResponse.status,
+        );
+
         if (statusResponse.ok) {
           const statusData = await statusResponse.json();
           console.log("✅ Dashboard: Monitoring status data:", statusData);
@@ -237,8 +268,18 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
 
   // Plan limits based on user plan
   const planLimits = {
-    monitors: userPlan?.toUpperCase() === "PRO" ? 100 : userPlan?.toUpperCase() === "STARTER" ? 10 : 3,
-    alerts: userPlan?.toUpperCase() === "PRO" ? 1000 : userPlan?.toUpperCase() === "STARTER" ? 100 : 10,
+    monitors:
+      userPlan?.toUpperCase() === "PRO"
+        ? 100
+        : userPlan?.toUpperCase() === "STARTER"
+          ? 10
+          : 3,
+    alerts:
+      userPlan?.toUpperCase() === "PRO"
+        ? 1000
+        : userPlan?.toUpperCase() === "STARTER"
+          ? 100
+          : 10,
   };
 
   if (loading) {
@@ -478,7 +519,7 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
             <h3 className="text-xl font-semibold text-white">
               Recent Monitors
             </h3>
-            <a 
+            <a
               href="/monitors/create"
               className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-lg transform hover:scale-105 transition-all duration-200"
             >
@@ -507,7 +548,8 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
                 No monitors yet
               </h3>
               <p className="text-gray-300 mb-8 max-w-md mx-auto">
-                Create your first monitor to start tracking website uptime and performance.
+                Create your first monitor to start tracking website uptime and
+                performance.
               </p>
               <a
                 href="/monitors/create"
@@ -549,50 +591,59 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
                   </tr>
                 </thead>
                 <tbody className="bg-slate-800/40 divide-y divide-slate-600/30">
-                  {monitors.slice(0, 5).map((monitor: Monitor, index: number) => (
-                    <tr key={monitor.id} className="hover:bg-slate-700/50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-white">
-                          {monitor.name}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-blue-300">
-                          {monitor.url}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium shadow-lg ${
-                            monitor.status === "ACTIVE"
-                              ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
-                              : monitor.status === "PAUSED"
-                              ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white"
-                              : "bg-gradient-to-r from-red-500 to-pink-500 text-white"
-                          }`}
-                        >
-                          <span className={`w-2 h-2 rounded-full mr-2 ${
-                            monitor.status === "ACTIVE"
-                              ? "bg-white animate-pulse"
-                              : "bg-white"
-                          }`}></span>
-                          {monitor.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                        {monitor.lastCheck ? (
-                          <time
-                            dateTime={new Date(monitor.lastCheck).toISOString()}
-                            className="text-purple-300"
+                  {monitors
+                    .slice(0, 5)
+                    .map((monitor: Monitor, index: number) => (
+                      <tr
+                        key={monitor.id}
+                        className="hover:bg-slate-700/50 transition-colors"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-white">
+                            {monitor.name}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-blue-300">
+                            {monitor.url}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium shadow-lg ${
+                              monitor.status === "ACTIVE"
+                                ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
+                                : monitor.status === "PAUSED"
+                                  ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white"
+                                  : "bg-gradient-to-r from-red-500 to-pink-500 text-white"
+                            }`}
                           >
-                            {new Date(monitor.lastCheck).toLocaleString()}
-                          </time>
-                        ) : (
-                          <span className="text-gray-400">Never</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                            <span
+                              className={`w-2 h-2 rounded-full mr-2 ${
+                                monitor.status === "ACTIVE"
+                                  ? "bg-white animate-pulse"
+                                  : "bg-white"
+                              }`}
+                            ></span>
+                            {monitor.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                          {monitor.lastCheck ? (
+                            <time
+                              dateTime={new Date(
+                                monitor.lastCheck,
+                              ).toISOString()}
+                              className="text-purple-300"
+                            >
+                              {new Date(monitor.lastCheck).toLocaleString()}
+                            </time>
+                          ) : (
+                            <span className="text-gray-400">Never</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
@@ -604,9 +655,7 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
       <div className="bg-gradient-to-br from-purple-600/10 to-pink-600/10 backdrop-blur-sm border border-purple-400/30 rounded-xl shadow-xl">
         <div className="px-6 py-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold text-white">
-              Plan Usage
-            </h3>
+            <h3 className="text-xl font-semibold text-white">Plan Usage</h3>
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg">
               <span className="w-2 h-2 bg-white rounded-full mr-2"></span>
               {userPlan} Plan
@@ -649,43 +698,45 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
                 ></div>
               </div>
             </div>
-            {planLimits.monitors > 0 && monitors.length >= planLimits.monitors && (
-              <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-400/30 rounded-lg p-4 mt-4">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <svg
-                      className="w-5 h-5 text-orange-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z"
-                      />
-                    </svg>
-                  </div>
-                  <div className="ml-3 flex-1">
-                    <h4 className="text-sm font-medium text-orange-300">
-                      Monitor limit reached
-                    </h4>
-                    <p className="text-sm text-orange-200 mt-1">
-                      You've reached your plan limit. Upgrade to add more monitors.
-                    </p>
-                  </div>
-                  <div className="ml-4 flex-shrink-0">
-                    <a
-                      href="/billing"
-                      className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg transform hover:scale-105 transition-all duration-200"
-                    >
-                      Upgrade
-                    </a>
+            {planLimits.monitors > 0 &&
+              monitors.length >= planLimits.monitors && (
+                <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-400/30 rounded-lg p-4 mt-4">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <svg
+                        className="w-5 h-5 text-orange-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z"
+                        />
+                      </svg>
+                    </div>
+                    <div className="ml-3 flex-1">
+                      <h4 className="text-sm font-medium text-orange-300">
+                        Monitor limit reached
+                      </h4>
+                      <p className="text-sm text-orange-200 mt-1">
+                        You've reached your plan limit. Upgrade to add more
+                        monitors.
+                      </p>
+                    </div>
+                    <div className="ml-4 flex-shrink-0">
+                      <a
+                        href="/billing"
+                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg transform hover:scale-105 transition-all duration-200"
+                      >
+                        Upgrade
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
         </div>
       </div>
