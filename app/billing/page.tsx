@@ -1,539 +1,290 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { RequireAuth, useWhopUser } from "@/lib/context/WhopUserContext";
 import { PlanType } from "@prisma/client";
+import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
-interface PlanConfig {
-  name: string;
-  price: number;
-  monitors: number;
-  checkFrequency: number;
-  retention: number;
-  alerts: number;
-  features: Record<string, boolean>;
-}
-
-interface UsageData {
-  monitors: number;
-  alerts: number;
-  notifications: number;
-  checks: number;
-}
-
-interface BillingData {
-  user: {
-    id: string;
-    plan: PlanType;
-    name: string;
-    email: string;
-  };
-  usage: UsageData;
-  suggestions: {
-    shouldUpgrade: boolean;
-    suggestedPlan?: PlanType;
-    reasons: string[];
-  };
-}
-
-const PLAN_DETAILS = {
+const planFeatures = {
   [PlanType.FREE]: {
     name: "Free",
-    price: 0,
-    monitors: 3,
-    checkFrequency: 60,
-    retention: 7,
-    alerts: 1,
-    features: {
-      basicMonitoring: true,
-      emailAlerts: true,
-      slackIntegration: false,
-      whopMetrics: false,
-      customWebhooks: false,
-      apiAccess: false,
-      prioritySupport: false,
-    },
+    price: "$0",
+    description: "Perfect for trying out WatchTower Pro",
+    features: [
+      "1 monitor",
+      "5-minute check frequency",
+      "Email notifications",
+      "Basic uptime monitoring",
+      "Community support",
+    ],
+    limitations: [
+      "No SSL monitoring",
+      "No advanced alerts",
+      "No Discord integration",
+      "No custom webhooks",
+      "No API access",
+    ],
   },
   [PlanType.STARTER]: {
-    name: "Basic",
-    price: 29,
-    monitors: 25,
-    checkFrequency: 10,
-    retention: 30,
-    alerts: 10,
-    features: {
-      basicMonitoring: true,
-      emailAlerts: true,
-      slackIntegration: true,
-      whopMetrics: true,
-      customWebhooks: false,
-      apiAccess: false,
-      prioritySupport: false,
-    },
+    name: "Starter",
+    price: "$9.99",
+    description: "Great for small websites and projects",
+    features: [
+      "5 monitors",
+      "1-minute check frequency",
+      "Email & push notifications",
+      "SSL certificate monitoring",
+      "Basic incident management",
+      "Email support",
+    ],
+    limitations: [
+      "No Discord integration",
+      "No custom webhooks",
+      "No SMS notifications",
+      "Limited API access",
+    ],
   },
   [PlanType.PROFESSIONAL]: {
-    name: "Pro",
-    price: 99,
-    monitors: 100,
-    checkFrequency: 5,
-    retention: 90,
-    alerts: 50,
-    features: {
-      basicMonitoring: true,
-      emailAlerts: true,
-      slackIntegration: true,
-      whopMetrics: true,
-      customWebhooks: true,
-      apiAccess: true,
-      prioritySupport: true,
-    },
+    name: "Professional",
+    price: "$29.99",
+    description: "Perfect for growing businesses",
+    features: [
+      "25 monitors",
+      "30-second check frequency",
+      "All notification channels",
+      "Advanced alert conditions",
+      "Discord & webhook integration",
+      "Priority support",
+      "Custom status page",
+    ],
+    limitations: [
+      "No SMS notifications",
+      "Standard API limits",
+    ],
   },
   [PlanType.ENTERPRISE]: {
     name: "Enterprise",
-    price: 299,
-    monitors: -1,
-    checkFrequency: 1,
-    retention: 365,
-    alerts: -1,
-    features: {
-      basicMonitoring: true,
-      emailAlerts: true,
-      slackIntegration: true,
-      whopMetrics: true,
-      customWebhooks: true,
-      apiAccess: true,
-      prioritySupport: true,
-    },
+    price: "$99.99",
+    description: "For teams and large organizations",
+    features: [
+      "Unlimited monitors",
+      "15-second check frequency",
+      "All notification channels",
+      "SMS notifications",
+      "Custom integrations",
+      "Dedicated support",
+      "White-label options",
+      "Advanced analytics",
+      "Team management",
+    ],
+    limitations: [],
   },
 };
 
 export default function BillingPage() {
-  const [billingData, setBillingData] = useState<BillingData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [upgrading, setUpgrading] = useState<PlanType | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { user, updateUserPlan } = useWhopUser();
+  const [loading, setLoading] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState(false);
 
-  useEffect(() => {
-    fetchBillingData();
-  }, []);
+  const handleUpgrade = async (planType: PlanType) => {
+    if (!user || planType === user.plan) return;
 
-  const fetchBillingData = async () => {
+    setLoading(planType);
     try {
-      // In a real implementation, you'd get the user ID from auth context
-      const userId = "current-user-id"; // Replace with actual user ID
-
-      const response = await fetch(`/api/billing?userId=${userId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setBillingData(data);
-      } else {
-        setError("Failed to load billing information");
-      }
-    } catch (err) {
-      setError("An error occurred while loading billing data");
-      console.error("Billing fetch error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleUpgrade = async (targetPlan: PlanType) => {
-    if (!billingData) return;
-
-    setUpgrading(targetPlan);
-    setError(null);
-
-    try {
-      const response = await fetch("/api/billing", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/billing/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          userId: billingData.user.id,
-          action: "create_upgrade_session",
-          planType: targetPlan,
+          planType,
+          successUrl: `${window.location.origin}/billing/success`,
+          cancelUrl: `${window.location.origin}/billing`,
         }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        // Redirect to Whop checkout
-        window.location.href = data.checkoutUrl;
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || "Failed to create upgrade session");
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
       }
-    } catch (err) {
-      setError("An error occurred while processing your upgrade");
-      console.error("Upgrade error:", err);
+
+      const { checkoutUrl } = await response.json();
+      window.location.href = checkoutUrl;
+    } catch (error) {
+      console.error('Error creating checkout:', error);
+      alert('Failed to create checkout session. Please try again.');
     } finally {
-      setUpgrading(null);
+      setLoading(null);
     }
   };
 
-  const getUsagePercentage = (current: number, limit: number) => {
-    if (limit === -1) return 0;
-    return Math.min((current / limit) * 100, 100);
+  const handleCancelSubscription = async () => {
+    if (!user || user.plan === PlanType.FREE) return;
+
+    setCancelling(true);
+    try {
+      const response = await fetch('/api/billing/cancel', {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to cancel subscription');
+      }
+
+      const result = await response.json();
+      alert(result.message);
+      
+      // Update user plan locally
+      await updateUserPlan(PlanType.FREE);
+    } catch (error) {
+      console.error('Error cancelling subscription:', error);
+      alert('Failed to cancel subscription. Please try again.');
+    } finally {
+      setCancelling(false);
+    }
   };
 
-  const renderFeatureIcon = (enabled: boolean) => {
-    return enabled ? (
-      <svg
-        className="w-4 h-4 text-green-500"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M5 13l4 4L19 7"
-        />
-      </svg>
-    ) : (
-      <svg
-        className="w-4 h-4 text-gray-300"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M6 18L18 6M6 6l12 12"
-        />
-      </svg>
-    );
-  };
-
-  const renderUsageBar = (current: number, limit: number, label: string) => {
-    const percentage = getUsagePercentage(current, limit);
-    const isNearLimit = percentage >= 80;
-
-    return (
-      <div className="mb-4">
-        <div className="flex justify-between text-sm mb-1">
-          <span className="text-gray-600">{label}</span>
-          <span
-            className={`font-medium ${isNearLimit ? "text-red-600" : "text-gray-900"}`}
-          >
-            {current}/{limit === -1 ? "∞" : limit}
-          </span>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div
-            className={`h-2 rounded-full transition-all duration-300 ${
-              isNearLimit ? "bg-red-500" : "bg-blue-500"
-            }`}
-            style={{ width: `${Math.min(percentage, 100)}%` }}
-          />
-        </div>
-        {isNearLimit && (
-          <p className="text-xs text-red-600 mt-1">
-            You're approaching your {label.toLowerCase()} limit
-          </p>
-        )}
-      </div>
-    );
-  };
-
-  if (loading) {
+  if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading billing information...</p>
-        </div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
   }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
-            <h2 className="text-lg font-semibold text-red-800 mb-2">Error</h2>
-            <p className="text-red-600">{error}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
-            >
-              Try Again
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!billingData) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">No billing data available</p>
-      </div>
-    );
-  }
-
-  const currentPlan = billingData.user.plan;
-  const currentConfig = PLAN_DETAILS[currentPlan];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Billing & Plans</h1>
-          <p className="text-gray-600 mt-2">
-            Manage your WatchTower Pro subscription and usage
-          </p>
+    <RequireAuth>
+      <div className="min-h-screen bg-gray-50">
+        <div className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="py-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900">Billing & Subscription</h1>
+                  <p className="mt-2 text-gray-600">Manage your WatchTower Pro subscription</p>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                    Current Plan: {planFeatures[user.plan].name}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Current Plan & Usage */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-8">
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              Current Plan
-            </h2>
-            <div className="flex items-center justify-between mb-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Current Plan Info */}
+          <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
+            <h2 className="text-xl font-semibold mb-4">Current Subscription</h2>
+            <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-medium text-gray-900">
-                  {currentConfig.name}
-                </h3>
-                <p className="text-2xl font-bold text-blue-600">
-                  {currentConfig.price === 0
-                    ? "Free"
-                    : `$${currentConfig.price}/month`}
+                <h3 className="text-lg font-medium">{planFeatures[user.plan].name} Plan</h3>
+                <p className="text-gray-600">{planFeatures[user.plan].description}</p>
+                <p className="text-2xl font-bold text-gray-900 mt-2">
+                  {planFeatures[user.plan].price}
+                  {user.plan !== PlanType.FREE && <span className="text-sm font-normal text-gray-500">/month</span>}
                 </p>
               </div>
-              {currentPlan !== PlanType.ENTERPRISE && (
+              {user.plan !== PlanType.FREE && (
                 <button
-                  onClick={() => {
-                    const nextPlan =
-                      currentPlan === PlanType.FREE
-                        ? PlanType.STARTER
-                        : currentPlan === PlanType.STARTER
-                          ? PlanType.PROFESSIONAL
-                          : PlanType.ENTERPRISE;
-                    handleUpgrade(nextPlan);
-                  }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium"
+                  onClick={handleCancelSubscription}
+                  disabled={cancelling}
+                  className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 border border-red-200 rounded-md disabled:opacity-50"
                 >
-                  Upgrade Plan
+                  {cancelling ? 'Cancelling...' : 'Cancel Subscription'}
                 </button>
               )}
             </div>
-
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span>Monitors</span>
-                <span>
-                  {currentConfig.monitors === -1
-                    ? "Unlimited"
-                    : currentConfig.monitors}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Check Frequency</span>
-                <span>{currentConfig.checkFrequency} minutes</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Data Retention</span>
-                <span>{currentConfig.retention} days</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Alerts</span>
-                <span>
-                  {currentConfig.alerts === -1
-                    ? "Unlimited"
-                    : currentConfig.alerts}
-                </span>
-              </div>
-            </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Usage</h2>
-            {renderUsageBar(
-              billingData.usage.monitors,
-              currentConfig.monitors,
-              "Monitors",
-            )}
-            {renderUsageBar(
-              billingData.usage.alerts,
-              currentConfig.alerts,
-              "Alerts",
-            )}
-
-            <div className="mt-6 pt-6 border-t">
-              <h3 className="font-medium text-gray-900 mb-2">This Month</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>Notifications Sent</span>
-                  <span>{billingData.usage.notifications}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Checks Performed</span>
-                  <span>{billingData.usage.checks}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Upgrade Suggestions */}
-        {billingData.suggestions.shouldUpgrade && (
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Consider Upgrading Your Plan
-            </h2>
-            <div className="space-y-1 mb-4">
-              {billingData.suggestions.reasons.map((reason, index) => (
-                <p key={index} className="text-gray-600">
-                  • {reason}
-                </p>
-              ))}
-            </div>
-            {billingData.suggestions.suggestedPlan && (
-              <button
-                onClick={() =>
-                  handleUpgrade(billingData.suggestions.suggestedPlan!)
-                }
-                disabled={upgrading === billingData.suggestions.suggestedPlan}
-                className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-2 rounded-lg font-medium"
+          {/* Pricing Plans */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Object.entries(planFeatures).map(([planType, plan]) => (
+              <div
+                key={planType}
+                className={`bg-white rounded-lg shadow-sm border p-6 relative ${
+                  user.plan === planType ? 'ring-2 ring-blue-500' : ''
+                }`}
               >
-                {upgrading === billingData.suggestions.suggestedPlan
-                  ? "Processing..."
-                  : `Upgrade to ${PLAN_DETAILS[billingData.suggestions.suggestedPlan].name}`}
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* All Plans */}
-        <div className="bg-white rounded-lg shadow-sm border p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">
-            All Plans
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {Object.entries(PLAN_DETAILS).map(([plan, config]) => {
-              const planType = plan as PlanType;
-              const isCurrentPlan = planType === currentPlan;
-              const isUpgrade = planType > currentPlan;
-
-              return (
-                <div
-                  key={plan}
-                  className={`relative border rounded-lg p-6 ${
-                    isCurrentPlan
-                      ? "ring-2 ring-blue-500 bg-blue-50"
-                      : "bg-white"
-                  } ${planType === PlanType.STARTER ? "border-blue-200" : "border-gray-200"}`}
-                >
-                  {planType === PlanType.STARTER && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                      <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                        Most Popular
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="text-center mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {config.name}
-                    </h3>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {config.price === 0 ? "Free" : `$${config.price}`}
-                      {config.price > 0 && (
-                        <span className="text-sm text-gray-500">/month</span>
-                      )}
-                    </p>
+                {user.plan === planType && (
+                  <div className="absolute top-0 right-0 -mt-2 -mr-2">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-500 text-white">
+                      Current
+                    </span>
                   </div>
+                )}
 
-                  <div className="space-y-2 mb-6 text-sm">
-                    <div className="flex justify-between">
-                      <span>Monitors</span>
-                      <span className="font-medium">
-                        {config.monitors === -1 ? "Unlimited" : config.monitors}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Check Frequency</span>
-                      <span className="font-medium">
-                        {config.checkFrequency}min
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Data Retention</span>
-                      <span className="font-medium">
-                        {config.retention} days
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Alerts</span>
-                      <span className="font-medium">
-                        {config.alerts === -1 ? "Unlimited" : config.alerts}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 mb-6 text-sm">
-                    <div className="flex items-center gap-2">
-                      {renderFeatureIcon(config.features.basicMonitoring)}
-                      <span>Basic monitoring</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {renderFeatureIcon(config.features.emailAlerts)}
-                      <span>Email alerts</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {renderFeatureIcon(config.features.slackIntegration)}
-                      <span>Slack integration</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {renderFeatureIcon(config.features.whopMetrics)}
-                      <span>Whop metrics</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {renderFeatureIcon(config.features.customWebhooks)}
-                      <span>Custom webhooks</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {renderFeatureIcon(config.features.apiAccess)}
-                      <span>API access</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-4">
-                    {isCurrentPlan ? (
-                      <button
-                        disabled
-                        className="w-full bg-gray-100 text-gray-600 py-2 rounded-lg font-medium"
-                      >
-                        Current Plan
-                      </button>
-                    ) : isUpgrade ? (
-                      <button
-                        onClick={() => handleUpgrade(planType)}
-                        disabled={upgrading === planType}
-                        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-2 rounded-lg font-medium"
-                      >
-                        {upgrading === planType ? "Processing..." : "Upgrade"}
-                      </button>
-                    ) : (
-                      <button
-                        disabled
-                        className="w-full bg-gray-100 text-gray-400 py-2 rounded-lg font-medium"
-                      >
-                        Downgrade
-                      </button>
-                    )}
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold">{plan.name}</h3>
+                  <p className="text-gray-600 text-sm mb-4">{plan.description}</p>
+                  <div className="mb-6">
+                    <span className="text-3xl font-bold">{plan.price}</span>
+                    {planType !== PlanType.FREE && <span className="text-sm text-gray-500">/month</span>}
                   </div>
                 </div>
-              );
-            })}
+
+                <div className="space-y-3 mb-6">
+                  {plan.features.map((feature, index) => (
+                    <div key={index} className="flex items-center">
+                      <CheckIcon className="h-4 w-4 text-green-500 mr-2" />
+                      <span className="text-sm text-gray-700">{feature}</span>
+                    </div>
+                  ))}
+                  {plan.limitations.map((limitation, index) => (
+                    <div key={index} className="flex items-center">
+                      <XMarkIcon className="h-4 w-4 text-red-500 mr-2" />
+                      <span className="text-sm text-gray-500">{limitation}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => handleUpgrade(planType as PlanType)}
+                  disabled={
+                    user.plan === planType || 
+                    loading === planType ||
+                    (planType === PlanType.FREE && user.plan !== PlanType.FREE)
+                  }
+                  className={`w-full py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                    user.plan === planType
+                      ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                      : planType === PlanType.FREE
+                      ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
+                >
+                  {loading === planType ? (
+                    'Processing...'
+                  ) : user.plan === planType ? (
+                    'Current Plan'
+                  ) : planType === PlanType.FREE ? (
+                    'Contact Support'
+                  ) : (
+                    `Upgrade to ${plan.name}`
+                  )}
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Billing Info */}
+          <div className="bg-white rounded-lg shadow-sm border p-6 mt-8">
+            <h2 className="text-xl font-semibold mb-4">Billing Information</h2>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-600">
+                  Your subscription is managed through Whop. All billing inquiries should be directed to Whop support.
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">
+                  <strong>Need help?</strong> Contact our support team at support@watchtowerpro.com
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </RequireAuth>
   );
 }

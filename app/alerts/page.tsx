@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
-import { whopAuth } from '@/lib/whop-sdk';
+import { requireWhopAuthForPage } from '@/lib/auth/whop-auth-middleware';
 import { db } from '@/lib/db';
 import AlertManager from '@/components/alerts/AlertManager';
+import { RequireAuth } from '@/lib/context/WhopUserContext';
 import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
@@ -11,16 +12,17 @@ export const metadata: Metadata = {
 
 export default async function AlertsPage() {
   try {
-    // Get the current user
-    const currentUser = await whopAuth.getCurrentUser();
+    const authResult = await requireWhopAuthForPage();
     
-    if (!currentUser) {
-      redirect('/auth/login');
+    if ('redirect' in authResult) {
+      redirect(authResult.redirect);
     }
+    
+    const { user } = authResult;
 
     // Get user's monitors
     const monitors = await db.monitor.findMany({
-      where: { userId: currentUser.id },
+      where: { userId: user.id },
       select: {
         id: true,
         name: true,
@@ -31,19 +33,18 @@ export default async function AlertsPage() {
       orderBy: { createdAt: 'desc' },
     });
 
-    // Get user's plan type (default to FREE if not set)
-    const userPlan = (currentUser.plan as 'FREE' | 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE') || 'FREE';
-
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <AlertManager 
-            userId={currentUser.id}
-            monitors={monitors}
-            userPlan={userPlan}
-          />
+      <RequireAuth>
+        <div className="min-h-screen bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 py-8">
+            <AlertManager 
+              userId={user.id}
+              monitors={monitors}
+              userPlan={user.plan}
+            />
+          </div>
         </div>
-      </div>
+      </RequireAuth>
     );
   } catch (error) {
     console.error('Error loading alerts page:', error);

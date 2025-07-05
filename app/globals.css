@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import iframe compatibility styles */
+@import '../lib/styles/iframe-compatibility.css';
+
 @import "@whop/react/styles.css";
 
 @layer base {

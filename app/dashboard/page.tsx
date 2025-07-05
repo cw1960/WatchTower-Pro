@@ -1,13 +1,20 @@
 import Dashboard from "@/components/dashboard/Dashboard";
-import { PlanType } from "@/lib/whop-sdk";
+import { RequireAuth } from "@/lib/context/WhopUserContext";
+import { requireWhopAuthForPage } from "@/lib/auth/whop-auth-middleware";
+import { redirect } from "next/navigation";
 
-export default function DashboardPage() {
-  // In a real Whop app, you would get this from the Whop SDK
-  // For now, using the first user from our seed data
-  const userId = "cmcpgepgp00007cwfw7frnuhb"; // This would come from Whop auth
-  const userPlan = PlanType.PROFESSIONAL;
+export default async function DashboardPage() {
+  const authResult = await requireWhopAuthForPage();
+  
+  if ('redirect' in authResult) {
+    redirect(authResult.redirect);
+  }
+  
+  const { user } = authResult;
 
   return (
-    <Dashboard userId={userId} userPlan={userPlan} />
+    <RequireAuth>
+      <Dashboard userId={user.id} userPlan={user.plan} />
+    </RequireAuth>
   );
 }

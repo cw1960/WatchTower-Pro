@@ -1,0 +1,236 @@
+/* Iframe Compatibility Styles for WatchTower Pro */
+
+/* Ensure the app fills the iframe properly */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
+}
+
+/* Root app container */
+#__next {
+  height: 100%;
+  width: 100%;
+}
+
+/* Remove any conflicting styles that might cause iframe issues */
+body {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+/* Ensure fixed positioning works in iframe */
+.fixed {
+  position: fixed !important;
+}
+
+/* Make sure modals and dropdowns work in iframe */
+.modal-overlay,
+.dropdown-menu,
+.tooltip {
+  z-index: 9999;
+}
+
+/* Iframe-specific responsive adjustments */
+@media (max-width: 768px) {
+  /* Adjust for mobile iframe viewing */
+  body {
+    font-size: 14px;
+  }
+  
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Fix for scrollbar issues in iframe */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Ensure buttons and interactive elements work properly */
+button, a, input, select, textarea {
+  touch-action: manipulation;
+}
+
+/* Fix for potential focus issues in iframe */
+:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Prevent iframe content from breaking out */
+* {
+  box-sizing: border-box;
+}
+
+/* Ensure proper font rendering in iframe */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Fix for potential flexbox issues in iframe */
+.flex-container {
+  display: flex;
+  min-height: 0; /* Allow flex items to shrink */
+}
+
+/* Ensure tables are responsive in iframe */
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Fix for potential grid issues */
+.grid-container {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Ensure images don't break layout in iframe */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Fix for potential animation issues in iframe */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Ensure proper loading states in iframe */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+/* Fix for potential clipboard API issues in iframe */
+.copy-button {
+  cursor: pointer;
+}
+
+.copy-button:hover {
+  opacity: 0.8;
+}
+
+/* Ensure proper form styling in iframe */
+form {
+  width: 100%;
+}
+
+input, select, textarea {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Ensure proper button styling */
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Fix for potential notification issues in iframe */
+.notification {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10000;
+  max-width: 400px;
+}
+
+/* Ensure proper card styling in iframe */
+.card {
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Fix for potential navigation issues */
+.nav-container {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Ensure proper spacing in iframe */
+.page-container {
+  padding: 1rem;
+  min-height: 100vh;
+}
+
+/* Fix for potential dark mode issues in iframe */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #111827;
+    color: #f9fafb;
+  }
+  
+  .card {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+  
+  input, select, textarea {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+  }
+} 

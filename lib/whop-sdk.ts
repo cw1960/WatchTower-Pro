@@ -46,12 +46,8 @@ export const whopSdk = new Proxy({} as ReturnType<typeof WhopServerSdk>, {
 });
 
 // Plan type enum (will be moved to use Prisma enum once generated)
-export enum PlanType {
-  FREE = "FREE",
-  STARTER = "STARTER",
-  PROFESSIONAL = "PROFESSIONAL",
-  ENTERPRISE = "ENTERPRISE",
-}
+// Import plan types from Prisma to ensure consistency
+export { PlanType } from '@prisma/client';
 
 // User authentication and validation utilities
 export const whopAuth = {
@@ -184,21 +180,44 @@ export const whopPricing = {
         };
       }
 
-      // TODO: Implement actual Whop checkout session creation
-      // This would use the Whop SDK to create a checkout session
-      // For now, return a placeholder that can be extended
-      const sessionId = `whop_checkout_${Date.now()}`;
-      const checkoutUrl = `https://whop.com/checkout/${sessionId}?plan=${options.planType}`;
+      // Get the product ID for the plan
+      const productId = options.productId || this.getProductIdForPlan(options.planType);
+      
+      if (!productId) {
+        throw new Error(`No product ID configured for plan: ${options.planType}`);
+      }
+
+      // Create checkout session using Whop SDK
+      const checkout = await whopSdk.checkouts.createCheckout({
+        productId,
+        cancelUrl: options.cancelUrl,
+        successUrl: options.successUrl,
+        metadata: options.metadata,
+      });
 
       return {
-        id: sessionId,
-        url: checkoutUrl,
+        id: checkout.id,
+        url: checkout.url,
       };
     } catch (error) {
       console.error("Error creating checkout session:", error);
       throw new Error("Failed to create checkout session");
     }
   },
+
+  /**
+   * Gets the product ID for a plan type
+   */
+  getProductIdForPlan(planType: PlanType): string | null {
+    const productIds = {
+      [PlanType.FREE]: null, // Free plan has no product ID
+      [PlanType.STARTER]: process.env.WHOP_STARTER_PRODUCT_ID,
+      [PlanType.PROFESSIONAL]: process.env.WHOP_PROFESSIONAL_PRODUCT_ID,
+      [PlanType.ENTERPRISE]: process.env.WHOP_ENTERPRISE_PRODUCT_ID,
+    };
+
+         return productIds[planType] || null;
+   },
 
   /**
    * Generates a checkout URL for a specific plan

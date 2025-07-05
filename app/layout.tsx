@@ -1,6 +1,8 @@
 import { WhopApp } from "@whop/react/components";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { WhopUserProvider } from "@/lib/context/WhopUserContext";
+import { getCurrentWhopUser } from "@/lib/auth/whop-auth-middleware";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,17 +21,44 @@ export const metadata: Metadata = {
     "Advanced website monitoring and alert platform for Whop creators",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Get initial user data on server side
+  let initialUser = null;
+  try {
+    initialUser = await getCurrentWhopUser();
+  } catch (error) {
+    console.log("No authenticated user on initial load");
+  }
+
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Add meta tags for iframe compatibility */}
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta httpEquiv="X-Frame-Options" content="ALLOWALL" />
+        <meta httpEquiv="Content-Security-Policy" content="frame-ancestors *;" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        style={{
+          // Ensure iframe compatibility
+          margin: 0,
+          padding: 0,
+          height: "100vh",
+          overflow: "auto",
+        }}
       >
-        <WhopApp>{children}</WhopApp>
+        <WhopApp>
+          <WhopUserProvider initialUser={initialUser}>
+            <div className="w-full h-full">
+              {children}
+            </div>
+          </WhopUserProvider>
+        </WhopApp>
       </body>
     </html>
   );
