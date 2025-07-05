@@ -144,23 +144,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user's plan and check alert limits
-    const userPlan = await whopAuth.getUserPlan(userId);
-    const pricingService = new PricingService();
-    const planLimits = pricingService.getPlanLimits(userPlan);
+    const userPlan = "STARTER" as const; // TODO: Get actual user plan from database
+    const canCreateAlertResult = await PricingService.canCreateAlert(userId, userPlan);
 
-    // Check if user has reached alert limit
-    const existingAlerts = await db.alert.count({
-      where: {
-        monitor: {
-          userId: userId,
-        },
-      },
-    });
-
-    if (planLimits.maxAlerts !== -1 && existingAlerts >= planLimits.maxAlerts) {
+    if (!canCreateAlertResult.allowed) {
       return NextResponse.json(
         {
-          error: `Alert limit reached. Your ${userPlan} plan allows ${planLimits.maxAlerts} alerts.`,
+          error: canCreateAlertResult.message || "Alert limit reached",
         },
         { status: 400 },
       );
@@ -170,9 +160,8 @@ export async function POST(request: NextRequest) {
     const validatedData = createAlertSchema.parse(alertData);
 
     // Check if selected channels are available for user's plan
-    const availableChannels = pricingService.getAvailableChannels(userPlan);
     const invalidChannels = validatedData.channels.filter(
-      (channel) => !availableChannels.includes(channel),
+      (channel) => !PricingService.hasChannelAccess(userPlan, channel as any),
     );
 
     if (invalidChannels.length > 0) {
@@ -203,6 +192,7 @@ export async function POST(request: NextRequest) {
     const alert = await db.alert.create({
       data: {
         ...validatedData,
+        userId: userId, // Add the userId field required by the database
         escalation: validatedData.escalation
           ? JSON.stringify(validatedData.escalation)
           : undefined,
@@ -284,11 +274,9 @@ export async function PUT(request: NextRequest) {
 
     // If updating channels, check if they're available for user's plan
     if (validatedData.channels) {
-      const userPlan = await whopAuth.getUserPlan(userId);
-      const pricingService = new PricingService();
-      const availableChannels = pricingService.getAvailableChannels(userPlan);
+      const userPlan = "STARTER" as const; // TODO: Get actual user plan from database
       const invalidChannels = validatedData.channels.filter(
-        (channel) => !availableChannels.includes(channel),
+        (channel) => !PricingService.hasChannelAccess(userPlan, channel as any),
       );
 
       if (invalidChannels.length > 0) {
@@ -398,83 +386,4 @@ export async function DELETE(request: NextRequest) {
   }
 }
 
-// POST /api/alerts/test - Test an alert manually
-export async function POST(request: NextRequest) {
-  if (request.nextUrl.pathname.endsWith("/test")) {
-    try {
-      const body = await request.json();
-      const { alertId, userId } = body;
 
-      if (!alertId || !userId) {
-        return NextResponse.json(
-          { error: "Alert ID and User ID are required" },
-          { status: 400 },
-        );
-      }
-
-      // Validate user access
-      const hasAccess = await whopAuth.validateUserAccess(userId);
-      if (!hasAccess) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-
-      // Get alert with monitor
-      const alert = await db.alert.findFirst({
-        where: {
-          id: alertId,
-          monitor: {
-            userId: userId,
-          },
-        },
-        include: {
-          monitor: true,
-        },
-      });
-
-      if (!alert) {
-        return NextResponse.json(
-          { error: "Alert not found or unauthorized" },
-          { status: 404 },
-        );
-      }
-
-      // Import and use notification service to send test alert
-      const NotificationService = (
-        await import("@/lib/notifications/notification-service")
-      ).default;
-      const notificationService = NotificationService.getInstance();
-
-      const payload = {
-        title: `Test Alert: ${alert.name}`,
-        message: `This is a test alert for monitor "${alert.monitor.name}". Your alert configuration is working correctly.`,
-        severity: "low" as const,
-        metadata: {
-          test: true,
-          monitorId: alert.monitor.id,
-          alertId: alert.id,
-          url: alert.monitor.url,
-        },
-        timestamp: new Date(),
-      };
-
-      // Send test notification
-      await notificationService.sendNotification(
-        userId,
-        alert.id,
-        alert.channels,
-        payload,
-      );
-
-      return NextResponse.json({ message: "Test alert sent successfully" });
-    } catch (error) {
-      console.error("Error sending test alert:", error);
-      return NextResponse.json(
-        { error: "Internal server error" },
-        { status: 500 },
-      );
-    }
-  }
-
-  // If not test endpoint, fallback to regular POST
-  return POST(request);
-}

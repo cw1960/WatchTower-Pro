@@ -4,8 +4,9 @@ import {
   AlertChannel,
   NotificationType,
   NotificationStatus,
+  PlanType,
 } from "@prisma/client";
-import { PricingService, PlanType } from "@/lib/pricing";
+import { PricingService } from "@/lib/pricing";
 
 export interface NotificationPayload {
   title: string;
