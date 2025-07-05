@@ -62,22 +62,45 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [monitorsRes, alertsRes] = await Promise.all([
-        fetch('/api/monitors'),
-        fetch('/api/alerts'),
-      ]);
-
-      if (!monitorsRes.ok || !alertsRes.ok) {
-        throw new Error("Failed to fetch dashboard data");
+      setError(null);
+      
+      console.log("🔍 Dashboard: Starting to fetch data...");
+      
+      // Fetch monitors
+      console.log("🔍 Dashboard: Fetching monitors...");
+      const monitorsRes = await fetch('/api/monitors');
+      console.log("📊 Dashboard: Monitors response status:", monitorsRes.status);
+      
+      if (!monitorsRes.ok) {
+        const errorText = await monitorsRes.text();
+        console.error("❌ Dashboard: Monitors API failed:", errorText);
+        throw new Error(`Failed to fetch monitors: ${monitorsRes.status} - ${errorText}`);
       }
-
+      
       const monitorsData = await monitorsRes.json();
+      console.log("✅ Dashboard: Monitors data received:", monitorsData.length, "monitors");
+      
+      // Fetch alerts
+      console.log("🔍 Dashboard: Fetching alerts...");
+      const alertsRes = await fetch('/api/alerts');
+      console.log("📊 Dashboard: Alerts response status:", alertsRes.status);
+      
+      if (!alertsRes.ok) {
+        const errorText = await alertsRes.text();
+        console.error("❌ Dashboard: Alerts API failed:", errorText);
+        throw new Error(`Failed to fetch alerts: ${alertsRes.status} - ${errorText}`);
+      }
+      
       const alertsData = await alertsRes.json();
+      console.log("✅ Dashboard: Alerts data received:", alertsData.length, "alerts");
 
-      setMonitors(monitorsData);
-      setAlerts(alertsData);
+      setMonitors(monitorsData || []);
+      setAlerts(alertsData || []);
+      
+      console.log("✅ Dashboard: All data fetched successfully");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      console.error("❌ Dashboard: Error in fetchDashboardData:", err);
+      setError(err instanceof Error ? err.message : "An error occurred while fetching data");
     } finally {
       setLoading(false);
     }
@@ -85,24 +108,36 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
 
   const fetchMonitoringStats = async () => {
     try {
+      console.log("🔍 Dashboard: Fetching monitoring stats...");
       const response = await fetch('/api/monitoring?action=stats');
+      console.log("📊 Dashboard: Monitoring stats response status:", response.status);
+      
       if (response.ok) {
         const stats = await response.json();
+        console.log("✅ Dashboard: Monitoring stats received:", stats);
         setMonitoringStats(stats);
         setMonitoringStatus("running");
+      } else {
+        console.warn("⚠️ Dashboard: Monitoring stats failed, checking status...");
+        throw new Error('Stats not available');
       }
     } catch (err) {
-      console.warn("Failed to fetch monitoring stats:", err);
+      console.warn("⚠️ Dashboard: Failed to fetch monitoring stats:", err);
       // Check if monitoring is stopped
       try {
+        console.log("🔍 Dashboard: Checking monitoring status...");
         const statusResponse = await fetch('/api/monitoring?action=status');
+        console.log("📊 Dashboard: Monitoring status response:", statusResponse.status);
+        
         if (statusResponse.ok) {
           const statusData = await statusResponse.json();
+          console.log("✅ Dashboard: Monitoring status data:", statusData);
           setMonitoringStatus(
             statusData.status === "running" ? "running" : "stopped",
           );
         }
       } catch (statusErr) {
+        console.error("❌ Dashboard: Status check failed:", statusErr);
         setMonitoringStatus("stopped");
       }
     }
