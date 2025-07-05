@@ -119,7 +119,7 @@ const nextConfig: NextConfig = {
   generateEtags: true,
 
   // Output optimization
-  output: "standalone",
+  // output: "standalone", // Commented out for Netlify compatibility
 
   // Performance budgets
   onDemandEntries: {
@@ -131,6 +131,18 @@ const nextConfig: NextConfig = {
 
   // Webpack optimization for Whop environment
   webpack: (config, { isServer, dev }) => {
+    // Ensure path alias resolution works properly
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': require('path').resolve(__dirname),
+    };
+
+    // Ensure proper module resolution
+    config.resolve.extensions = [
+      '.tsx', '.ts', '.jsx', '.js', '.json',
+      ...config.resolve.extensions,
+    ];
+
     // Optimize bundle for iframe
     if (!isServer) {
       config.resolve.fallback = {
