@@ -20,17 +20,19 @@ export default async function ExperiencePage({
     if (!authResult.success || !authResult.user) {
       console.error("❌ ExperiencePage: Authentication failed:", authResult.error);
       return (
-        <div className="flex justify-center items-center h-screen px-8">
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center px-8">
           <div className="text-center">
-            <h1 className="text-xl font-bold text-red-600 mb-4">
+            <h1 className="text-2xl font-bold text-red-400 mb-4">
               Authentication Required
             </h1>
-            <p className="text-gray-600">
-              Please authenticate to access this experience.
+            <p className="text-gray-300 mb-4">
+              Please authenticate to access WatchTower Pro.
             </p>
-            <p className="text-sm text-gray-500 mt-2">
-              Error: {authResult.error}
-            </p>
+            <div className="bg-slate-800/50 rounded-lg p-4 border border-red-500/20">
+              <p className="text-sm text-red-300">
+                Error: {authResult.error}
+              </p>
+            </div>
           </div>
         </div>
       );
@@ -47,9 +49,27 @@ export default async function ExperiencePage({
     });
     console.log("🔍 ExperiencePage: Access check result:", result);
 
-    console.log("🔍 ExperiencePage: Getting user info from Whop");
-    const whopUser = await whopSdk.users.getUser({ userId });
-    console.log("🔍 ExperiencePage: Got user info:", whopUser?.name);
+    // Check if user has access to the experience
+    if (!result.hasAccess) {
+      console.error("❌ ExperiencePage: User does not have access to experience:", experienceId);
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900 flex items-center justify-center px-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-red-400 mb-4">
+              Access Denied
+            </h1>
+            <p className="text-gray-300 mb-4">
+              You don't have access to this WatchTower Pro experience.
+            </p>
+            <div className="bg-slate-800/50 rounded-lg p-4 border border-red-500/20">
+              <p className="text-sm text-red-300">
+                Experience ID: {experienceId}
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     console.log("🔍 ExperiencePage: Getting experience info");
     const experience = await whopSdk.experiences.getExperience({
@@ -57,25 +77,96 @@ export default async function ExperiencePage({
     });
     console.log("🔍 ExperiencePage: Got experience info:", experience?.name);
 
-    // Either: 'admin' | 'customer' | 'no_access';
-    // 'admin' means the user is an admin of the whop, such as an owner or moderator
-    // 'customer' means the user is a common member in this whop
-    // 'no_access' means the user does not have access to the whop
-    const { accessLevel } = result;
-
+    // Now show the full WatchTower Pro interface
     return (
-      <div className="flex justify-center items-center h-screen px-8">
-        <h1 className="text-xl">
-          Hi <strong>{authenticatedUser.name}</strong>, you{" "}
-          <strong>{result.hasAccess ? "have" : "do not have"} access</strong> to
-          this experience. Your access level to this whop is:{" "}
-          <strong>{accessLevel}</strong>. <br />
-          <br />
-          Your user ID is <strong>{userId}</strong> and your email is{" "}
-          <strong>{authenticatedUser.email}</strong>.<br />
-          <br />
-          You are viewing the experience: <strong>{experience.name}</strong>
-        </h1>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+        <div className="flex flex-col items-center justify-center min-h-screen px-8">
+          <div className="text-center max-w-4xl">
+            {/* Logo/Header */}
+            <div className="mb-8">
+              <h1 className="text-4xl font-bold text-white mb-2">
+                🗼 WatchTower Pro
+              </h1>
+              <p className="text-blue-300 text-lg">
+                Advanced Website & Whop Metrics Monitoring
+              </p>
+              {experience?.name && (
+                <p className="text-gray-400 text-sm mt-2">
+                  Experience: {experience.name}
+                </p>
+              )}
+            </div>
+
+            {/* Welcome Message */}
+            <div className="bg-slate-800/50 rounded-lg p-8 border border-blue-500/20 mb-8">
+              <h2 className="text-2xl font-semibold text-white mb-4">
+                Welcome back, <span className="text-blue-400">{authenticatedUser.name || 'User'}</span>!
+              </h2>
+              <p className="text-gray-300 mb-6">
+                Your WatchTower Pro monitoring dashboard is ready. Track website uptime, performance, 
+                and Whop metrics all in one place.
+              </p>
+              
+              {/* User Info */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div className="bg-slate-700/50 rounded p-3">
+                  <p className="text-gray-400">User ID</p>
+                  <p className="text-white font-mono">{userId}</p>
+                </div>
+                <div className="bg-slate-700/50 rounded p-3">
+                  <p className="text-gray-400">Plan</p>
+                  <p className="text-blue-400 font-semibold">{authenticatedUser.plan}</p>
+                </div>
+                <div className="bg-slate-700/50 rounded p-3">
+                  <p className="text-gray-400">Access Level</p>
+                  <p className="text-green-400 font-semibold">{result.accessLevel}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-600/50 hover:border-blue-500/50 transition-colors">
+                <div className="text-blue-400 text-2xl mb-2">📊</div>
+                <h3 className="text-white font-semibold mb-1">Dashboard</h3>
+                <p className="text-gray-400 text-sm">View all monitors</p>
+              </div>
+              
+              <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-600/50 hover:border-green-500/50 transition-colors">
+                <div className="text-green-400 text-2xl mb-2">➕</div>
+                <h3 className="text-white font-semibold mb-1">Add Monitor</h3>
+                <p className="text-gray-400 text-sm">Create new monitor</p>
+              </div>
+              
+              <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-600/50 hover:border-yellow-500/50 transition-colors">
+                <div className="text-yellow-400 text-2xl mb-2">🔔</div>
+                <h3 className="text-white font-semibold mb-1">Alerts</h3>
+                <p className="text-gray-400 text-sm">Manage alerts</p>
+              </div>
+              
+              <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-600/50 hover:border-purple-500/50 transition-colors">
+                <div className="text-purple-400 text-2xl mb-2">💰</div>
+                <h3 className="text-white font-semibold mb-1">Billing</h3>
+                <p className="text-gray-400 text-sm">Upgrade plan</p>
+              </div>
+            </div>
+
+            {/* Debug Info (can be removed later) */}
+            <div className="mt-8 bg-slate-800/30 rounded-lg p-4 border border-slate-600/30">
+              <p className="text-xs text-gray-400">
+                Debug: Experience ID: {experienceId} | User ID: {userId} | Access: {result.accessLevel}
+              </p>
+            </div>
+
+            {/* Status */}
+            <div className="mt-8 text-center">
+              <div className="inline-flex items-center gap-2 bg-green-500/20 text-green-400 px-4 py-2 rounded-full border border-green-500/30">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium">System Operational</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   } catch (error) {
@@ -84,17 +175,17 @@ export default async function ExperiencePage({
     console.error("❌ ExperiencePage: Error message:", error instanceof Error ? error.message : String(error));
     
     return (
-      <div className="flex justify-center items-center h-screen px-8">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900 flex items-center justify-center px-8">
         <div className="text-center">
-          <h1 className="text-xl font-bold text-red-600 mb-4">
+          <h1 className="text-2xl font-bold text-red-400 mb-4">
             Error Loading Experience
           </h1>
-          <p className="text-gray-600">
-            There was an error loading this experience. Please try again later.
+          <p className="text-gray-300 mb-4">
+            There was an error loading WatchTower Pro. Please try again later.
           </p>
-          <details className="mt-4 text-left bg-gray-100 p-4 rounded">
-            <summary className="cursor-pointer font-semibold">Debug Info</summary>
-            <pre className="mt-2 text-xs text-gray-600">
+          <details className="mt-4 text-left bg-slate-800/50 p-4 rounded border border-red-500/20">
+            <summary className="cursor-pointer font-semibold text-red-300">Debug Info</summary>
+            <pre className="mt-2 text-xs text-gray-400">
               {error instanceof Error ? error.message : String(error)}
             </pre>
           </details>
