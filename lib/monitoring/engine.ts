@@ -549,13 +549,13 @@ export class MonitoringEngine {
     try {
       const checkData = {
         monitorId: monitor.id,
-        status: scrapeResult.success ? "SUCCESS" : "FAILED",
+        status: scrapeResult.success ? "SUCCESS" as const : "FAILED" as const,
         responseTime: scrapeResult.responseTime,
         statusCode: scrapeResult.data?.statusCode || null,
         responseSize: scrapeResult.data?.html?.length || null,
         responseHeaders: scrapeResult.data?.headers
           ? JSON.stringify(scrapeResult.data.headers)
-          : null,
+          : undefined,
         errorMessage: scrapeResult.error || null,
         whopData: scrapeResult.data
           ? JSON.stringify({
@@ -563,7 +563,7 @@ export class MonitoringEngine {
               evaluationResults,
               groupEvaluationResults,
             })
-          : null,
+          : undefined,
         checkedAt: scrapeResult.timestamp,
       };
 
@@ -610,9 +610,7 @@ export class MonitoringEngine {
             status: "OPEN",
             monitorId: monitor.id,
             alertId: alert.id,
-            userId: monitor.userId,
-            companyId: monitor.companyId,
-            metadata: JSON.stringify({
+            triggeredBy: JSON.stringify({
               monitorUrl: monitor.url,
               scrapeResult,
               timestamp: new Date(),
@@ -663,37 +661,41 @@ export class MonitoringEngine {
     scrapeResult: ScrapeResult,
   ): Promise<void> {
     try {
-      // Create notification record
-      await db.notification.create({
-        data: {
-          type: "ALERT_TRIGGERED",
-          title: `Alert: ${alert.name}`,
-          message: `Monitor "${monitor.name}" has triggered an alert: ${alert.name}`,
-          userId: monitor.userId,
-          alertId: alert.id,
-          data: JSON.stringify({
-            monitorId: monitor.id,
-            incidentId: incident.id,
-            url: monitor.url,
-            responseTime: scrapeResult.responseTime,
-            error: scrapeResult.error,
-          }),
-          status: "PENDING",
-        },
-      });
+      // Import notification service
+      const NotificationService = (await import('@/lib/notifications/notification-service')).default;
+      const notificationService = NotificationService.getInstance();
 
-      // Send external notifications based on alert channels
+      // Determine severity based on alert type and response
+      const severity = this.determineSeverityLevel(alert, scrapeResult);
+
+      // Create notification payload
+      const payload = {
+        title: `Alert: ${alert.name}`,
+        message: this.generateAlertMessage(alert, monitor, scrapeResult),
+        severity,
+        metadata: {
+          monitorId: monitor.id,
+          incidentId: incident.id,
+          url: monitor.url,
+          responseTime: scrapeResult.responseTime,
+          error: scrapeResult.error,
+          alertType: alert.type,
+        },
+                 url: `${typeof process !== 'undefined' && process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard?monitor=${monitor.id}`,
+        timestamp: new Date(),
+      };
+
+      // Send notifications through all configured channels
       if (alert.channels && Array.isArray(alert.channels)) {
-        for (const channel of alert.channels) {
-          await this.sendChannelNotification(
-            channel,
-            alert,
-            monitor,
-            incident,
-            scrapeResult,
-          );
-        }
+        await notificationService.sendNotification(
+          monitor.userId,
+          alert.id,
+          alert.channels,
+          payload,
+          incident.id
+        );
       }
+
     } catch (error) {
       this.log(
         `Error sending notifications: ${error instanceof Error ? error.message : "Unknown error"}`,
@@ -701,16 +703,33 @@ export class MonitoringEngine {
     }
   }
 
-  private async sendChannelNotification(
-    channel: string,
-    alert: Alert,
-    monitor: Monitor,
-    incident: any,
-    scrapeResult: ScrapeResult,
-  ): Promise<void> {
-    // This would integrate with external notification services
-    // For now, just log the notification
-    this.log(`Sending ${channel} notification for alert ${alert.id}`);
+  private determineSeverityLevel(alert: Alert, scrapeResult: ScrapeResult): 'low' | 'medium' | 'high' | 'critical' {
+    // Determine severity based on alert type and response
+    if (alert.type === 'DOWN') {
+      return 'critical';
+    } else if (alert.type === 'SLOW_RESPONSE') {
+      return 'high';
+    } else if (alert.type === 'SSL_EXPIRY') {
+      return 'medium';
+    } else if (alert.type === 'WHOP_THRESHOLD' || alert.type === 'WHOP_ANOMALY') {
+      return 'high';
+    } else {
+      return 'medium';
+    }
+  }
+
+  private generateAlertMessage(alert: Alert, monitor: Monitor, scrapeResult: ScrapeResult): string {
+    const baseMessage = `Monitor "${monitor.name}" has triggered an alert: ${alert.name}`;
+    
+    if (!scrapeResult.success && scrapeResult.error) {
+      return `${baseMessage}\n\nError: ${scrapeResult.error}`;
+    }
+
+    if (scrapeResult.responseTime) {
+      return `${baseMessage}\n\nResponse time: ${scrapeResult.responseTime}ms`;
+    }
+
+    return baseMessage;
   }
 
   private async syncMonitors(): Promise<void> {
