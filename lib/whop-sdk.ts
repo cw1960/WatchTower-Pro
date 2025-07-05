@@ -47,7 +47,7 @@ export const whopSdk = new Proxy({} as ReturnType<typeof WhopServerSdk>, {
 
 // Plan type enum (will be moved to use Prisma enum once generated)
 // Import plan types from Prisma to ensure consistency
-export { PlanType } from '@prisma/client';
+export { PlanType } from "@prisma/client";
 
 // User authentication and validation utilities
 export const whopAuth = {
@@ -181,10 +181,13 @@ export const whopPricing = {
       }
 
       // Get the product ID for the plan
-      const productId = options.productId || this.getProductIdForPlan(options.planType);
-      
+      const productId =
+        options.productId || this.getProductIdForPlan(options.planType);
+
       if (!productId) {
-        throw new Error(`No product ID configured for plan: ${options.planType}`);
+        throw new Error(
+          `No product ID configured for plan: ${options.planType}`,
+        );
       }
 
       // Create checkout session using Whop SDK
@@ -216,8 +219,8 @@ export const whopPricing = {
       [PlanType.ENTERPRISE]: process.env.WHOP_ENTERPRISE_PRODUCT_ID,
     };
 
-         return productIds[planType] || null;
-   },
+    return productIds[planType] || null;
+  },
 
   /**
    * Generates a checkout URL for a specific plan

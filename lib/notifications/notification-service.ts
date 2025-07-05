@@ -1,12 +1,16 @@
 import { db } from "@/lib/db";
 import { whopSdk } from "@/lib/whop-sdk";
-import { AlertChannel, NotificationType, NotificationStatus } from "@prisma/client";
+import {
+  AlertChannel,
+  NotificationType,
+  NotificationStatus,
+} from "@prisma/client";
 import { PricingService, PlanType } from "@/lib/pricing";
 
 export interface NotificationPayload {
   title: string;
   message: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: "low" | "medium" | "high" | "critical";
   metadata?: Record<string, any>;
   url?: string;
   timestamp?: Date;
@@ -61,12 +65,16 @@ export class NotificationService {
   private async initializeEmail(): Promise<void> {
     try {
       // Initialize nodemailer if email config is available
-      if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-        this.nodemailer = require('nodemailer');
+      if (
+        process.env.SMTP_HOST &&
+        process.env.SMTP_USER &&
+        process.env.SMTP_PASS
+      ) {
+        this.nodemailer = require("nodemailer");
         this.emailConfig = {
           host: process.env.SMTP_HOST,
-          port: parseInt(process.env.SMTP_PORT || '587'),
-          secure: process.env.SMTP_SECURE === 'true',
+          port: parseInt(process.env.SMTP_PORT || "587"),
+          secure: process.env.SMTP_SECURE === "true",
           auth: {
             user: process.env.SMTP_USER,
             pass: process.env.SMTP_PASS,
@@ -75,7 +83,7 @@ export class NotificationService {
         };
       }
     } catch (error) {
-      console.warn('Email service not available:', error);
+      console.warn("Email service not available:", error);
     }
   }
 
@@ -87,16 +95,16 @@ export class NotificationService {
     alertId: string,
     channels: AlertChannel[],
     payload: NotificationPayload,
-    incidentId?: string
+    incidentId?: string,
   ): Promise<void> {
     // Get user's plan to check notification limits
     const user = await db.user.findUnique({
       where: { id: userId },
-      select: { plan: true, email: true, whopId: true }
+      select: { plan: true, email: true, whopId: true },
     });
 
     if (!user) {
-      throw new Error('User not found');
+      throw new Error("User not found");
     }
 
     const planType = user.plan as PlanType;
@@ -109,19 +117,19 @@ export class NotificationService {
         let notificationType: NotificationType;
 
         switch (channel) {
-          case 'EMAIL':
+          case "EMAIL":
             result = await this.sendEmailNotification(user.email, payload);
             notificationType = NotificationType.EMAIL;
             break;
-          case 'DISCORD':
+          case "DISCORD":
             result = await this.sendDiscordNotification(userId, payload);
             notificationType = NotificationType.DISCORD;
             break;
-          case 'PUSH':
+          case "PUSH":
             result = await this.sendWhopNotification(userId, payload);
             notificationType = NotificationType.PUSH;
             break;
-          case 'WEBHOOK':
+          case "WEBHOOK":
             result = await this.sendWebhookNotification(userId, payload);
             notificationType = NotificationType.WEBHOOK;
             break;
@@ -136,25 +144,33 @@ export class NotificationService {
           incidentId,
           notificationType,
           result,
-          payload
+          payload,
         );
 
         // If notification failed and is retryable, schedule retry
         if (!result.success && result.retryable) {
-          await this.scheduleRetry(userId, alertId, channel, payload, incidentId);
+          await this.scheduleRetry(
+            userId,
+            alertId,
+            channel,
+            payload,
+            incidentId,
+          );
         }
-
       } catch (error) {
         console.error(`Failed to send ${channel} notification:`, error);
-        
+
         // Log failed notification
         await this.logNotification(
           userId,
           alertId,
           incidentId,
           this.channelToNotificationType(channel),
-          { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
-          payload
+          {
+            success: false,
+            error: error instanceof Error ? error.message : "Unknown error",
+          },
+          payload,
         );
       }
     }
@@ -165,19 +181,19 @@ export class NotificationService {
    */
   private async sendEmailNotification(
     recipient: string,
-    payload: NotificationPayload
+    payload: NotificationPayload,
   ): Promise<NotificationResult> {
     if (!this.emailConfig || !this.nodemailer) {
       return {
         success: false,
-        error: 'Email service not configured',
-        retryable: false
+        error: "Email service not configured",
+        retryable: false,
       };
     }
 
     try {
       const transporter = this.nodemailer.createTransporter(this.emailConfig);
-      
+
       const html = this.generateEmailHTML(payload);
       const text = this.generateEmailText(payload);
 
@@ -196,8 +212,8 @@ export class NotificationService {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        retryable: true
+        error: error instanceof Error ? error.message : "Unknown error",
+        retryable: true,
       };
     }
   }
@@ -207,13 +223,13 @@ export class NotificationService {
    */
   private async sendDiscordNotification(
     userId: string,
-    payload: NotificationPayload
+    payload: NotificationPayload,
   ): Promise<NotificationResult> {
     try {
       // Get user's Discord webhook URL from user settings
       const user = await db.user.findUnique({
         where: { id: userId },
-        select: { settings: true }
+        select: { settings: true },
       });
 
       const settings = user?.settings as any;
@@ -222,21 +238,21 @@ export class NotificationService {
       if (!webhookUrl) {
         return {
           success: false,
-          error: 'Discord webhook not configured',
-          retryable: false
+          error: "Discord webhook not configured",
+          retryable: false,
         };
       }
 
       const embed = this.generateDiscordEmbed(payload);
-      
+
       const response = await fetch(webhookUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: 'WatchTower Pro',
-          avatar_url: 'https://watchtowerpro.com/logo.png',
+          username: "WatchTower Pro",
+          avatar_url: "https://watchtowerpro.com/logo.png",
           embeds: [embed],
         }),
       });
@@ -247,13 +263,13 @@ export class NotificationService {
 
       return {
         success: true,
-        messageId: response.headers.get('x-ratelimit-reset-after') || undefined,
+        messageId: response.headers.get("x-ratelimit-reset-after") || undefined,
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        retryable: true
+        error: error instanceof Error ? error.message : "Unknown error",
+        retryable: true,
       };
     }
   }
@@ -263,20 +279,20 @@ export class NotificationService {
    */
   private async sendWhopNotification(
     userId: string,
-    payload: NotificationPayload
+    payload: NotificationPayload,
   ): Promise<NotificationResult> {
     try {
       // Get user's Whop ID
       const user = await db.user.findUnique({
         where: { id: userId },
-        select: { whopId: true }
+        select: { whopId: true },
       });
 
       if (!user?.whopId) {
         return {
           success: false,
-          error: 'Whop user ID not found',
-          retryable: false
+          error: "Whop user ID not found",
+          retryable: false,
         };
       }
 
@@ -292,7 +308,7 @@ export class NotificationService {
       };
 
       // TODO: Replace with actual Whop SDK notification method when available
-      console.log('Sending Whop notification:', notification);
+      console.log("Sending Whop notification:", notification);
 
       return {
         success: true,
@@ -301,8 +317,8 @@ export class NotificationService {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        retryable: true
+        error: error instanceof Error ? error.message : "Unknown error",
+        retryable: true,
       };
     }
   }
@@ -312,13 +328,13 @@ export class NotificationService {
    */
   private async sendWebhookNotification(
     userId: string,
-    payload: NotificationPayload
+    payload: NotificationPayload,
   ): Promise<NotificationResult> {
     try {
       // Get user's webhook URL from settings
       const user = await db.user.findUnique({
         where: { id: userId },
-        select: { settings: true }
+        select: { settings: true },
       });
 
       const settings = user?.settings as any;
@@ -327,22 +343,22 @@ export class NotificationService {
       if (!webhookUrl) {
         return {
           success: false,
-          error: 'Webhook URL not configured',
-          retryable: false
+          error: "Webhook URL not configured",
+          retryable: false,
         };
       }
 
       const webhookPayload = {
         ...payload,
         timestamp: payload.timestamp || new Date(),
-        source: 'WatchTower Pro',
+        source: "WatchTower Pro",
       };
 
       const response = await fetch(webhookUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'User-Agent': 'WatchTower Pro/1.0',
+          "Content-Type": "application/json",
+          "User-Agent": "WatchTower Pro/1.0",
         },
         body: JSON.stringify(webhookPayload),
       });
@@ -353,13 +369,13 @@ export class NotificationService {
 
       return {
         success: true,
-        messageId: response.headers.get('x-request-id') || undefined,
+        messageId: response.headers.get("x-request-id") || undefined,
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        retryable: true
+        error: error instanceof Error ? error.message : "Unknown error",
+        retryable: true,
       };
     }
   }
@@ -367,27 +383,32 @@ export class NotificationService {
   /**
    * Get allowed notification channels based on plan type
    */
-  private getAllowedChannels(planType: PlanType, requestedChannels: AlertChannel[]): AlertChannel[] {
+  private getAllowedChannels(
+    planType: PlanType,
+    requestedChannels: AlertChannel[],
+  ): AlertChannel[] {
     const allowedChannels: AlertChannel[] = [];
 
     for (const channel of requestedChannels) {
       switch (channel) {
-        case 'EMAIL':
+        case "EMAIL":
           // Email is available for all plans
           allowedChannels.push(channel);
           break;
-        case 'DISCORD':
-        case 'WEBHOOK':
+        case "DISCORD":
+        case "WEBHOOK":
           // Advanced channels for Pro and Enterprise
-          if (PricingService.hasFeatureAccess(planType, 'advancedNotifications')) {
+          if (
+            PricingService.hasFeatureAccess(planType, "advancedNotifications")
+          ) {
             allowedChannels.push(channel);
           }
           break;
-        case 'PUSH':
+        case "PUSH":
           // Whop native notifications for all plans
           allowedChannels.push(channel);
           break;
-        case 'SMS':
+        case "SMS":
           // SMS for Enterprise only
           if (planType === PlanType.ENTERPRISE) {
             allowedChannels.push(channel);
@@ -410,13 +431,15 @@ export class NotificationService {
     incidentId: string | undefined,
     type: NotificationType,
     result: NotificationResult,
-    payload: NotificationPayload
+    payload: NotificationPayload,
   ): Promise<void> {
     try {
       await db.notification.create({
         data: {
           type,
-          status: result.success ? NotificationStatus.SENT : NotificationStatus.FAILED,
+          status: result.success
+            ? NotificationStatus.SENT
+            : NotificationStatus.FAILED,
           recipient: userId,
           subject: payload.title,
           content: payload.message,
@@ -434,7 +457,7 @@ export class NotificationService {
         },
       });
     } catch (error) {
-      console.error('Failed to log notification:', error);
+      console.error("Failed to log notification:", error);
     }
   }
 
@@ -446,7 +469,7 @@ export class NotificationService {
     alertId: string,
     channel: AlertChannel,
     payload: NotificationPayload,
-    incidentId?: string
+    incidentId?: string,
   ): Promise<void> {
     // TODO: Implement retry queue using a job queue system
     // For now, just log the retry requirement
@@ -463,13 +486,13 @@ export class NotificationService {
    */
   private generateEmailHTML(payload: NotificationPayload): string {
     const severityColors = {
-      low: '#22c55e',
-      medium: '#f59e0b',
-      high: '#ef4444',
-      critical: '#dc2626',
+      low: "#22c55e",
+      medium: "#f59e0b",
+      high: "#ef4444",
+      critical: "#dc2626",
     };
 
-    const color = severityColors[payload.severity] || '#6b7280';
+    const color = severityColors[payload.severity] || "#6b7280";
 
     return `
       <!DOCTYPE html>
@@ -497,7 +520,7 @@ export class NotificationService {
             <div class="content">
               <h2 style="margin: 0 0 10px 0; color: #1f2937;">${payload.title}</h2>
               <p style="margin: 0 0 20px 0; color: #4b5563; line-height: 1.5;">${payload.message}</p>
-              ${payload.url ? `<a href="${payload.url}" class="button">View Details</a>` : ''}
+              ${payload.url ? `<a href="${payload.url}" class="button">View Details</a>` : ""}
             </div>
             <div class="footer">
               <p style="margin: 0;">This alert was sent by WatchTower Pro monitoring system.</p>
@@ -520,7 +543,7 @@ ${payload.title}
 
 ${payload.message}
 
-${payload.url ? `View Details: ${payload.url}` : ''}
+${payload.url ? `View Details: ${payload.url}` : ""}
 
 Time: ${payload.timestamp?.toLocaleString() || new Date().toLocaleString()}
 
@@ -546,20 +569,24 @@ This alert was sent by WatchTower Pro monitoring system.
       color: severityColors[payload.severity] || 0x6b7280,
       timestamp: payload.timestamp?.toISOString() || new Date().toISOString(),
       footer: {
-        text: 'WatchTower Pro',
-        icon_url: 'https://watchtowerpro.com/logo.png',
+        text: "WatchTower Pro",
+        icon_url: "https://watchtowerpro.com/logo.png",
       },
       fields: [
         {
-          name: 'Severity',
+          name: "Severity",
           value: payload.severity.toUpperCase(),
           inline: true,
         },
-        ...(payload.url ? [{
-          name: 'Details',
-          value: `[View Dashboard](${payload.url})`,
-          inline: true,
-        }] : []),
+        ...(payload.url
+          ? [
+              {
+                name: "Details",
+                value: `[View Dashboard](${payload.url})`,
+                inline: true,
+              },
+            ]
+          : []),
       ],
     };
   }
@@ -569,15 +596,15 @@ This alert was sent by WatchTower Pro monitoring system.
    */
   private channelToNotificationType(channel: AlertChannel): NotificationType {
     switch (channel) {
-      case 'EMAIL':
+      case "EMAIL":
         return NotificationType.EMAIL;
-      case 'DISCORD':
+      case "DISCORD":
         return NotificationType.DISCORD;
-      case 'WEBHOOK':
+      case "WEBHOOK":
         return NotificationType.WEBHOOK;
-      case 'SMS':
+      case "SMS":
         return NotificationType.SMS;
-      case 'PUSH':
+      case "PUSH":
         return NotificationType.PUSH;
       default:
         return NotificationType.EMAIL;
@@ -585,4 +612,4 @@ This alert was sent by WatchTower Pro monitoring system.
   }
 }
 
-export default NotificationService; 
+export default NotificationService;

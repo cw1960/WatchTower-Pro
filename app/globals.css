@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* Import iframe compatibility styles */
-@import '../lib/styles/iframe-compatibility.css';
+@import "../lib/styles/iframe-compatibility.css";
 
 @import "@whop/react/styles.css";
 

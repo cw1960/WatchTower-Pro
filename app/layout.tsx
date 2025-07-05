@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { WhopUserProvider } from "@/lib/context/WhopUserContext";
 import { getCurrentWhopUser } from "@/lib/auth/whop-auth-middleware";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -40,7 +41,10 @@ export default async function RootLayout({
         {/* Add meta tags for iframe compatibility */}
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta httpEquiv="X-Frame-Options" content="ALLOWALL" />
-        <meta httpEquiv="Content-Security-Policy" content="frame-ancestors *;" />
+        <meta
+          httpEquiv="Content-Security-Policy"
+          content="frame-ancestors *;"
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
@@ -53,11 +57,11 @@ export default async function RootLayout({
         }}
       >
         <WhopApp>
-          <WhopUserProvider initialUser={initialUser}>
-            <div className="w-full h-full">
-              {children}
-            </div>
-          </WhopUserProvider>
+          <ErrorBoundary>
+            <WhopUserProvider initialUser={initialUser}>
+              <div className="w-full h-full">{children}</div>
+            </WhopUserProvider>
+          </ErrorBoundary>
         </WhopApp>
       </body>
     </html>

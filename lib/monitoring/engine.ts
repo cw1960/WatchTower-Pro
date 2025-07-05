@@ -549,7 +549,9 @@ export class MonitoringEngine {
     try {
       const checkData = {
         monitorId: monitor.id,
-        status: scrapeResult.success ? "SUCCESS" as const : "FAILED" as const,
+        status: scrapeResult.success
+          ? ("SUCCESS" as const)
+          : ("FAILED" as const),
         responseTime: scrapeResult.responseTime,
         statusCode: scrapeResult.data?.statusCode || null,
         responseSize: scrapeResult.data?.html?.length || null,
@@ -662,7 +664,9 @@ export class MonitoringEngine {
   ): Promise<void> {
     try {
       // Import notification service
-      const NotificationService = (await import('@/lib/notifications/notification-service')).default;
+      const NotificationService = (
+        await import("@/lib/notifications/notification-service")
+      ).default;
       const notificationService = NotificationService.getInstance();
 
       // Determine severity based on alert type and response
@@ -681,7 +685,7 @@ export class MonitoringEngine {
           error: scrapeResult.error,
           alertType: alert.type,
         },
-                 url: `${typeof process !== 'undefined' && process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard?monitor=${monitor.id}`,
+        url: `${(typeof process !== "undefined" && process.env.NEXT_PUBLIC_APP_URL) || "http://localhost:3000"}/dashboard?monitor=${monitor.id}`,
         timestamp: new Date(),
       };
 
@@ -692,10 +696,9 @@ export class MonitoringEngine {
           alert.id,
           alert.channels,
           payload,
-          incident.id
+          incident.id,
         );
       }
-
     } catch (error) {
       this.log(
         `Error sending notifications: ${error instanceof Error ? error.message : "Unknown error"}`,
@@ -703,24 +706,34 @@ export class MonitoringEngine {
     }
   }
 
-  private determineSeverityLevel(alert: Alert, scrapeResult: ScrapeResult): 'low' | 'medium' | 'high' | 'critical' {
+  private determineSeverityLevel(
+    alert: Alert,
+    scrapeResult: ScrapeResult,
+  ): "low" | "medium" | "high" | "critical" {
     // Determine severity based on alert type and response
-    if (alert.type === 'DOWN') {
-      return 'critical';
-    } else if (alert.type === 'SLOW_RESPONSE') {
-      return 'high';
-    } else if (alert.type === 'SSL_EXPIRY') {
-      return 'medium';
-    } else if (alert.type === 'WHOP_THRESHOLD' || alert.type === 'WHOP_ANOMALY') {
-      return 'high';
+    if (alert.type === "DOWN") {
+      return "critical";
+    } else if (alert.type === "SLOW_RESPONSE") {
+      return "high";
+    } else if (alert.type === "SSL_EXPIRY") {
+      return "medium";
+    } else if (
+      alert.type === "WHOP_THRESHOLD" ||
+      alert.type === "WHOP_ANOMALY"
+    ) {
+      return "high";
     } else {
-      return 'medium';
+      return "medium";
     }
   }
 
-  private generateAlertMessage(alert: Alert, monitor: Monitor, scrapeResult: ScrapeResult): string {
+  private generateAlertMessage(
+    alert: Alert,
+    monitor: Monitor,
+    scrapeResult: ScrapeResult,
+  ): string {
     const baseMessage = `Monitor "${monitor.name}" has triggered an alert: ${alert.name}`;
-    
+
     if (!scrapeResult.success && scrapeResult.error) {
       return `${baseMessage}\n\nError: ${scrapeResult.error}`;
     }

@@ -1,7 +1,8 @@
 /* Iframe Compatibility Styles for WatchTower Pro */
 
 /* Ensure the app fills the iframe properly */
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -42,7 +43,7 @@ body {
   body {
     font-size: 14px;
   }
-  
+
   .container {
     padding-left: 1rem;
     padding-right: 1rem;
@@ -68,7 +69,11 @@ body {
 }
 
 /* Ensure buttons and interactive elements work properly */
-button, a, input, select, textarea {
+button,
+a,
+input,
+select,
+textarea {
   touch-action: manipulation;
 }
 
@@ -155,14 +160,18 @@ form {
   width: 100%;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   width: 100%;
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
   padding: 0.5rem;
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -222,15 +231,17 @@ button:disabled {
     background-color: #111827;
     color: #f9fafb;
   }
-  
+
   .card {
     background-color: #1f2937;
     border-color: #374151;
   }
-  
-  input, select, textarea {
+
+  input,
+  select,
+  textarea {
     background-color: #374151;
     border-color: #4b5563;
     color: #f9fafb;
   }
-} 
+}

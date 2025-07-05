@@ -18,9 +18,12 @@ export async function GET(request: NextRequest) {
     const alertId = searchParams.get("alertId");
     const status = searchParams.get("status");
     const severity = searchParams.get("severity");
-    
+
     if (!userId) {
-      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User ID is required" },
+        { status: 400 },
+      );
     }
 
     // Validate user access
@@ -31,10 +34,10 @@ export async function GET(request: NextRequest) {
 
     // Build where clause based on filters
     const where: any = {};
-    
+
     // Filter by user's monitors
     where.monitor = {
-      userId: userId
+      userId: userId,
     };
 
     if (monitorId) {
@@ -84,7 +87,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(incidents);
   } catch (error) {
     console.error("Error fetching incidents:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -93,9 +99,12 @@ export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
     const { id, userId, ...updateData } = body;
-    
+
     if (!id || !userId) {
-      return NextResponse.json({ error: "Incident ID and User ID are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Incident ID and User ID are required" },
+        { status: 400 },
+      );
     }
 
     // Validate user access
@@ -106,23 +115,29 @@ export async function PUT(request: NextRequest) {
 
     // Check if incident exists and belongs to user's monitors
     const existingIncident = await db.incident.findFirst({
-      where: { 
+      where: {
         id,
         monitor: {
-          userId: userId
-        }
+          userId: userId,
+        },
       },
     });
 
     if (!existingIncident) {
-      return NextResponse.json({ error: "Incident not found or unauthorized" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Incident not found or unauthorized" },
+        { status: 404 },
+      );
     }
 
     // Validate input
     const validatedData = updateIncidentSchema.parse(updateData);
 
     // If marking as resolved, set resolvedAt timestamp
-    if (validatedData.status === "RESOLVED" || validatedData.status === "CLOSED") {
+    if (
+      validatedData.status === "RESOLVED" ||
+      validatedData.status === "CLOSED"
+    ) {
       (validatedData as any).resolvedAt = new Date();
     }
 
@@ -158,11 +173,17 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(incident);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: "Validation error", details: error.errors }, { status: 400 });
+      return NextResponse.json(
+        { error: "Validation error", details: error.errors },
+        { status: 400 },
+      );
     }
-    
+
     console.error("Error updating incident:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -172,9 +193,12 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
     const userId = searchParams.get("userId");
-    
+
     if (!id || !userId) {
-      return NextResponse.json({ error: "Incident ID and User ID are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Incident ID and User ID are required" },
+        { status: 400 },
+      );
     }
 
     // Validate user access
@@ -185,16 +209,19 @@ export async function DELETE(request: NextRequest) {
 
     // Check if incident exists and belongs to user's monitors
     const existingIncident = await db.incident.findFirst({
-      where: { 
+      where: {
         id,
         monitor: {
-          userId: userId
-        }
+          userId: userId,
+        },
       },
     });
 
     if (!existingIncident) {
-      return NextResponse.json({ error: "Incident not found or unauthorized" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Incident not found or unauthorized" },
+        { status: 404 },
+      );
     }
 
     // Delete the incident (cascading deletes will handle related notifications)
@@ -205,6 +232,9 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ message: "Incident deleted successfully" });
   } catch (error) {
     console.error("Error deleting incident:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
-} 
+}

@@ -45,20 +45,20 @@ pnpm monitoring:demo
 
 ```javascript
 // Price monitoring example
-const monitor = await fetch('/api/monitors', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+const monitor = await fetch("/api/monitors", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
-    userId: 'user_123',
-    name: 'Amazon Product Price Monitor',
-    url: 'https://amazon.com/dp/B08N5WRWNW',
-    type: 'HTTP',
+    userId: "user_123",
+    name: "Amazon Product Price Monitor",
+    url: "https://amazon.com/dp/B08N5WRWNW",
+    type: "HTTP",
     interval: 600, // 10 minutes
     whopMetrics: {
       extractPrices: true,
-      priceSelectors: ['.a-price-whole', '#priceblock_dealprice']
-    }
-  })
+      priceSelectors: [".a-price-whole", "#priceblock_dealprice"],
+    },
+  }),
 });
 ```
 
@@ -66,20 +66,21 @@ const monitor = await fetch('/api/monitors', {
 
 ```javascript
 // Run a monitor immediately
-const result = await fetch('/api/monitoring', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+const result = await fetch("/api/monitoring", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
-    action: 'run_monitor',
-    monitorId: 'monitor_123',
-    userId: 'user_123'
-  })
+    action: "run_monitor",
+    monitorId: "monitor_123",
+    userId: "user_123",
+  }),
 });
 ```
 
 ## 🎯 Test Scenarios (Already Supported)
 
 ### 1. **Price Change Detection**
+
 ```javascript
 {
   name: 'E-commerce Price Monitor',
@@ -92,6 +93,7 @@ const result = await fetch('/api/monitoring', {
 ```
 
 ### 2. **Campaign Metrics (CPM Tracking)**
+
 ```javascript
 {
   name: 'Facebook Ads CPM Monitor',
@@ -107,6 +109,7 @@ const result = await fetch('/api/monitoring', {
 ```
 
 ### 3. **Availability Monitoring**
+
 ```javascript
 {
   name: 'Website Uptime Monitor',
@@ -119,6 +122,7 @@ const result = await fetch('/api/monitoring', {
 ```
 
 ### 4. **Content Change Detection**
+
 ```javascript
 {
   name: 'Competitor News Monitor',
@@ -134,6 +138,7 @@ const result = await fetch('/api/monitoring', {
 ```
 
 ### 5. **Whop Business Metrics**
+
 ```javascript
 {
   name: 'Whop Revenue Monitor',
@@ -246,4 +251,4 @@ The only remaining tasks are fixing the TypeScript compilation issues and config
 
 ---
 
-**🚀 Ready to monitor the web with WatchTower Pro!** 
+**🚀 Ready to monitor the web with WatchTower Pro!**

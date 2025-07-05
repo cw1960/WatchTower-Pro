@@ -23,9 +23,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
     const whopId = searchParams.get("whopId");
-    
+
     if (!userId && !whopId) {
-      return NextResponse.json({ error: "User ID or Whop ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User ID or Whop ID is required" },
+        { status: 400 },
+      );
     }
 
     // Validate user access if userId is provided
@@ -37,7 +40,7 @@ export async function GET(request: NextRequest) {
     }
 
     const where = userId ? { id: userId } : { whopId: whopId! };
-    
+
     const user = await db.user.findUnique({
       where,
       include: {
@@ -69,11 +72,14 @@ export async function GET(request: NextRequest) {
 
     // Remove sensitive information
     const { ...userProfile } = user;
-    
+
     return NextResponse.json(userProfile);
   } catch (error) {
     console.error("Error fetching user:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -81,7 +87,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     // Validate input
     const validatedData = createUserSchema.parse(body);
 
@@ -91,7 +97,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingUser) {
-      return NextResponse.json({ error: "User already exists" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User already exists" },
+        { status: 400 },
+      );
     }
 
     // Create the user
@@ -126,11 +135,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(user, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: "Validation error", details: error.errors }, { status: 400 });
+      return NextResponse.json(
+        { error: "Validation error", details: error.errors },
+        { status: 400 },
+      );
     }
-    
+
     console.error("Error creating user:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -139,9 +154,12 @@ export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
     const { userId, ...updateData } = body;
-    
+
     if (!userId) {
-      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User ID is required" },
+        { status: 400 },
+      );
     }
 
     // Validate user access
@@ -192,11 +210,17 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(user);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: "Validation error", details: error.errors }, { status: 400 });
+      return NextResponse.json(
+        { error: "Validation error", details: error.errors },
+        { status: 400 },
+      );
     }
-    
+
     console.error("Error updating user:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -205,9 +229,12 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
-    
+
     if (!userId) {
-      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User ID is required" },
+        { status: 400 },
+      );
     }
 
     // Validate user access
@@ -233,6 +260,9 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ message: "User deleted successfully" });
   } catch (error) {
     console.error("Error deleting user:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
-} 
+}

@@ -1,8 +1,14 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { WhopUser } from '@/lib/auth/whop-auth-middleware';
-import { PlanType } from '@prisma/client';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { WhopUser } from "@/lib/auth/whop-auth-middleware";
+import { PlanType } from "@prisma/client";
 
 interface WhopUserContextType {
   user: WhopUser | null;
@@ -14,14 +20,19 @@ interface WhopUserContextType {
   logout: () => Promise<void>;
 }
 
-const WhopUserContext = createContext<WhopUserContextType | undefined>(undefined);
+const WhopUserContext = createContext<WhopUserContextType | undefined>(
+  undefined,
+);
 
 interface WhopUserProviderProps {
   children: ReactNode;
   initialUser?: WhopUser | null;
 }
 
-export function WhopUserProvider({ children, initialUser }: WhopUserProviderProps) {
+export function WhopUserProvider({
+  children,
+  initialUser,
+}: WhopUserProviderProps) {
   const [user, setUser] = useState<WhopUser | null>(initialUser || null);
   const [loading, setLoading] = useState(!initialUser);
   const [error, setError] = useState<string | null>(null);
@@ -30,11 +41,11 @@ export function WhopUserProvider({ children, initialUser }: WhopUserProviderProp
     try {
       setLoading(true);
       setError(null);
-      
-      const response = await fetch('/api/auth/me', {
-        credentials: 'include',
+
+      const response = await fetch("/api/auth/me", {
+        credentials: "include",
       });
-      
+
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);
@@ -42,10 +53,10 @@ export function WhopUserProvider({ children, initialUser }: WhopUserProviderProp
         // User is not authenticated
         setUser(null);
       } else {
-        throw new Error('Failed to fetch user data');
+        throw new Error("Failed to fetch user data");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load user');
+      setError(err instanceof Error ? err.message : "Failed to load user");
       setUser(null);
     } finally {
       setLoading(false);
@@ -54,40 +65,40 @@ export function WhopUserProvider({ children, initialUser }: WhopUserProviderProp
 
   const updateUserPlan = async (plan: PlanType) => {
     try {
-      const response = await fetch('/api/auth/update-plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/auth/update-plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan }),
-        credentials: 'include',
+        credentials: "include",
       });
 
       if (response.ok) {
         const updatedUser = await response.json();
         setUser(updatedUser);
       } else {
-        throw new Error('Failed to update plan');
+        throw new Error("Failed to update plan");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update plan');
+      setError(err instanceof Error ? err.message : "Failed to update plan");
     }
   };
 
   const logout = async () => {
     try {
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
       });
 
       if (response.ok) {
         setUser(null);
         // Redirect to home page or login page
-        window.location.href = '/';
+        window.location.href = "/";
       } else {
-        throw new Error('Failed to logout');
+        throw new Error("Failed to logout");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to logout');
+      setError(err instanceof Error ? err.message : "Failed to logout");
     }
   };
 
@@ -118,7 +129,7 @@ export function WhopUserProvider({ children, initialUser }: WhopUserProviderProp
 export function useWhopUser() {
   const context = useContext(WhopUserContext);
   if (context === undefined) {
-    throw new Error('useWhopUser must be used within a WhopUserProvider');
+    throw new Error("useWhopUser must be used within a WhopUserProvider");
   }
   return context;
 }
@@ -126,15 +137,36 @@ export function useWhopUser() {
 // Hook for checking user permissions
 export function useWhopPermissions() {
   const { user } = useWhopUser();
-  
+
   const hasFeature = (feature: string): boolean => {
     if (!user) return false;
-    
+
     const planFeatures = {
-      [PlanType.FREE]: ['basic_monitoring', 'email_alerts'],
-      [PlanType.STARTER]: ['basic_monitoring', 'email_alerts', 'push_notifications'],
-      [PlanType.PROFESSIONAL]: ['basic_monitoring', 'email_alerts', 'push_notifications', 'slack_integration', 'whop_metrics', 'custom_webhooks'],
-      [PlanType.ENTERPRISE]: ['basic_monitoring', 'email_alerts', 'push_notifications', 'slack_integration', 'whop_metrics', 'custom_webhooks', 'api_access', 'sms_notifications', 'priority_support']
+      [PlanType.FREE]: ["basic_monitoring", "email_alerts"],
+      [PlanType.STARTER]: [
+        "basic_monitoring",
+        "email_alerts",
+        "push_notifications",
+      ],
+      [PlanType.PROFESSIONAL]: [
+        "basic_monitoring",
+        "email_alerts",
+        "push_notifications",
+        "slack_integration",
+        "whop_metrics",
+        "custom_webhooks",
+      ],
+      [PlanType.ENTERPRISE]: [
+        "basic_monitoring",
+        "email_alerts",
+        "push_notifications",
+        "slack_integration",
+        "whop_metrics",
+        "custom_webhooks",
+        "api_access",
+        "sms_notifications",
+        "priority_support",
+      ],
     };
 
     return planFeatures[user.plan as PlanType]?.includes(feature) || false;
@@ -142,12 +174,16 @@ export function useWhopPermissions() {
 
   const getUsageLimits = () => {
     if (!user) return { monitors: 0, alerts: 0, notifications: 0 };
-    
+
     const planLimits = {
       [PlanType.FREE]: { monitors: 5, alerts: 1, notifications: 100 },
       [PlanType.STARTER]: { monitors: 25, alerts: 5, notifications: 500 },
-      [PlanType.PROFESSIONAL]: { monitors: 100, alerts: 25, notifications: 2000 },
-      [PlanType.ENTERPRISE]: { monitors: -1, alerts: -1, notifications: -1 } // unlimited
+      [PlanType.PROFESSIONAL]: {
+        monitors: 100,
+        alerts: 25,
+        notifications: 2000,
+      },
+      [PlanType.ENTERPRISE]: { monitors: -1, alerts: -1, notifications: -1 }, // unlimited
     };
 
     return planLimits[user.plan as PlanType];
@@ -155,26 +191,30 @@ export function useWhopPermissions() {
 
   const canCreateMonitor = async (): Promise<boolean> => {
     if (!user) return false;
-    
+
     try {
-      const response = await fetch(`/api/auth/check-limit?action=create_monitor&userId=${user.id}`);
+      const response = await fetch(
+        `/api/auth/check-limit?action=create_monitor&userId=${user.id}`,
+      );
       const data = await response.json();
       return data.allowed;
     } catch (error) {
-      console.error('Error checking monitor limit:', error);
+      console.error("Error checking monitor limit:", error);
       return false;
     }
   };
 
   const canCreateAlert = async (): Promise<boolean> => {
     if (!user) return false;
-    
+
     try {
-      const response = await fetch(`/api/auth/check-limit?action=create_alert&userId=${user.id}`);
+      const response = await fetch(
+        `/api/auth/check-limit?action=create_alert&userId=${user.id}`,
+      );
       const data = await response.json();
       return data.allowed;
     } catch (error) {
-      console.error('Error checking alert limit:', error);
+      console.error("Error checking alert limit:", error);
       return false;
     }
   };
@@ -184,15 +224,16 @@ export function useWhopPermissions() {
     getUsageLimits,
     canCreateMonitor,
     canCreateAlert,
-    isAdmin: user?.accessLevel === 'admin',
-    isCustomer: user?.accessLevel === 'customer',
+    isAdmin: user?.accessLevel === "admin",
+    isCustomer: user?.accessLevel === "customer",
   };
 }
 
 // Hook for authentication state
 export function useWhopAuth() {
-  const { user, loading, error, isAuthenticated, refreshUser, logout } = useWhopUser();
-  
+  const { user, loading, error, isAuthenticated, refreshUser, logout } =
+    useWhopUser();
+
   return {
     user,
     loading,
@@ -206,19 +247,19 @@ export function useWhopAuth() {
 // Hook for billing operations
 export function useWhopBilling() {
   const { user, updateUserPlan } = useWhopUser();
-  
+
   const createCheckoutSession = async (planType: PlanType) => {
-    if (!user) throw new Error('User not authenticated');
-    
-    const response = await fetch('/api/billing/create-checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    if (!user) throw new Error("User not authenticated");
+
+    const response = await fetch("/api/billing/create-checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ planType }),
-      credentials: 'include',
+      credentials: "include",
     });
 
     if (!response.ok) {
-      throw new Error('Failed to create checkout session');
+      throw new Error("Failed to create checkout session");
     }
 
     const data = await response.json();
@@ -226,15 +267,15 @@ export function useWhopBilling() {
   };
 
   const cancelSubscription = async () => {
-    if (!user) throw new Error('User not authenticated');
-    
-    const response = await fetch('/api/billing/cancel', {
-      method: 'POST',
-      credentials: 'include',
+    if (!user) throw new Error("User not authenticated");
+
+    const response = await fetch("/api/billing/cancel", {
+      method: "POST",
+      credentials: "include",
     });
 
     if (!response.ok) {
-      throw new Error('Failed to cancel subscription');
+      throw new Error("Failed to cancel subscription");
     }
 
     await updateUserPlan(PlanType.FREE);
@@ -254,7 +295,11 @@ interface RequireAuthProps {
   redirectTo?: string;
 }
 
-export function RequireAuth({ children, fallback, redirectTo = '/auth/login' }: RequireAuthProps) {
+export function RequireAuth({
+  children,
+  fallback,
+  redirectTo = "/auth/login",
+}: RequireAuthProps) {
   const { isAuthenticated, loading } = useWhopAuth();
 
   if (loading) {
@@ -269,12 +314,12 @@ export function RequireAuth({ children, fallback, redirectTo = '/auth/login' }: 
     if (fallback) {
       return <>{fallback}</>;
     }
-    
+
     // Redirect to login page
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       window.location.href = redirectTo;
     }
-    
+
     return null;
   }
 
@@ -289,7 +334,12 @@ interface RequirePlanProps {
   fallback?: ReactNode;
 }
 
-export function RequirePlan({ children, plan, feature, fallback }: RequirePlanProps) {
+export function RequirePlan({
+  children,
+  plan,
+  feature,
+  fallback,
+}: RequirePlanProps) {
   const { user } = useWhopUser();
   const { hasFeature } = useWhopPermissions();
 
@@ -318,4 +368,4 @@ export function RequirePlan({ children, plan, feature, fallback }: RequirePlanPr
   }
 
   return <>{children}</>;
-} 
+}

@@ -3,6 +3,7 @@
 ## Prerequisites
 
 ✅ **Completed Setup:**
+
 - [x] WatchTower Pro project created and configured
 - [x] GitHub repository: https://github.com/cw1960/WatchTower-Pro.git
 - [x] Supabase project configured
@@ -17,12 +18,14 @@
 You'll need to add these environment variables in your Netlify dashboard:
 
 **Database Configuration:**
+
 ```
 DATABASE_URL=your_supabase_postgres_connection_string
 DIRECT_URL=your_supabase_direct_connection_string
 ```
 
 **Whop API Configuration:**
+
 ```
 WHOP_API_KEY=your_whop_api_key
 WHOP_APP_ID=your_whop_app_id
@@ -30,12 +33,14 @@ WHOP_WEBHOOK_SECRET=your_whop_webhook_secret
 ```
 
 **NextAuth Configuration:**
+
 ```
 NEXTAUTH_URL=https://your-netlify-domain.netlify.app
 NEXTAUTH_SECRET=your_nextauth_secret_key
 ```
 
 **Notification Services (Optional):**
+
 ```
 SMTP_HOST=your_smtp_host
 SMTP_PORT=587
@@ -72,6 +77,7 @@ TWILIO_PHONE_NUMBER=your_twilio_phone_number
 ### 3. Configure Build Settings
 
 The `netlify.toml` file should already be configured with:
+
 - Next.js plugin enabled
 - Proper redirects for SPA routing
 - Security headers
@@ -80,11 +86,13 @@ The `netlify.toml` file should already be configured with:
 ### 4. Database Setup
 
 1. **Run Prisma migrations:**
+
    ```bash
    npx prisma migrate deploy
    ```
 
 2. **Generate Prisma client:**
+
    ```bash
    npx prisma generate
    ```
@@ -97,6 +105,7 @@ The `netlify.toml` file should already be configured with:
 ### 5. Deploy
 
 1. Push your changes to GitHub:
+
    ```bash
    git add .
    git commit -m "Configure for Netlify deployment"
@@ -111,13 +120,15 @@ The `netlify.toml` file should already be configured with:
 ### Build Failures
 
 **Issue:** Build times out or fails
-**Solution:** 
+**Solution:**
+
 - Check build logs in Netlify dashboard
 - Ensure all environment variables are set
 - Verify database connection string is correct
 
 **Issue:** Next.js build manifest errors
 **Solution:**
+
 - Clear build cache in Netlify (Site settings → Build & deploy → Post processing)
 - Try deploying again
 
@@ -125,12 +136,14 @@ The `netlify.toml` file should already be configured with:
 
 **Issue:** Database connection fails
 **Solution:**
+
 - Verify `DATABASE_URL` and `DIRECT_URL` are correct
 - Check Supabase project is active and accessible
 - Ensure IP restrictions allow Netlify's servers
 
 **Issue:** Whop SDK errors
 **Solution:**
+
 - Verify `WHOP_API_KEY`, `WHOP_APP_ID` are correct
 - Check Whop app configuration in dashboard
 - Ensure webhook URL is updated to Netlify URL
@@ -139,6 +152,7 @@ The `netlify.toml` file should already be configured with:
 
 **Issue:** Slow initial load
 **Solution:**
+
 - Enable Edge Functions in Netlify (if available)
 - Configure proper caching headers
 - Optimize images and assets
@@ -175,11 +189,13 @@ After successful deployment:
 ## Monitoring and Maintenance
 
 ### Netlify Analytics
+
 - Enable Netlify Analytics for traffic insights
 - Monitor build performance and failures
 - Set up deploy notifications
 
 ### Application Monitoring
+
 - Monitor API response times
 - Track database performance
 - Set up error tracking (e.g., Sentry)
@@ -202,4 +218,4 @@ After successful deployment:
 
 ---
 
-**Note:** This project is configured for Netlify deployment with the Next.js plugin. The build process should handle most configurations automatically, but refer to this guide for any deployment issues. 
+**Note:** This project is configured for Netlify deployment with the Next.js plugin. The build process should handle most configurations automatically, but refer to this guide for any deployment issues.

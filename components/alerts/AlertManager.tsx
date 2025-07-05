@@ -1,24 +1,55 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertTriangle, Plus, Edit, Trash2, Bell, Clock, CheckCircle, XCircle, Mail, MessageSquare, Webhook } from "lucide-react";
+import {
+  AlertTriangle,
+  Plus,
+  Edit,
+  Trash2,
+  Bell,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Mail,
+  MessageSquare,
+  Webhook,
+} from "lucide-react";
 import { toast } from "sonner";
 
 interface Alert {
   id: string;
   name: string;
   type: string;
-  status: 'ACTIVE' | 'PAUSED' | 'DISABLED';
+  status: "ACTIVE" | "PAUSED" | "DISABLED";
   conditions: any;
   threshold?: number;
   duration?: number;
@@ -44,8 +75,8 @@ interface Incident {
   id: string;
   title: string;
   description?: string;
-  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  status: 'OPEN' | 'INVESTIGATING' | 'RESOLVED' | 'CLOSED';
+  severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+  status: "OPEN" | "INVESTIGATING" | "RESOLVED" | "CLOSED";
   createdAt: string;
   updatedAt: string;
   resolvedAt?: string;
@@ -62,8 +93,8 @@ interface Incident {
 
 interface Notification {
   id: string;
-  type: 'EMAIL' | 'DISCORD' | 'WEBHOOK' | 'SMS' | 'PUSH';
-  status: 'PENDING' | 'SENT' | 'DELIVERED' | 'FAILED' | 'BOUNCED';
+  type: "EMAIL" | "DISCORD" | "WEBHOOK" | "SMS" | "PUSH";
+  status: "PENDING" | "SENT" | "DELIVERED" | "FAILED" | "BOUNCED";
   recipient: string;
   subject?: string;
   content: string;
@@ -90,10 +121,14 @@ interface AlertManagerProps {
     type: string;
     status: string;
   }>;
-  userPlan: 'FREE' | 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE';
+  userPlan: "FREE" | "STARTER" | "PROFESSIONAL" | "ENTERPRISE";
 }
 
-const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan }) => {
+const AlertManager: React.FC<AlertManagerProps> = ({
+  userId,
+  monitors,
+  userPlan,
+}) => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -104,14 +139,14 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
 
   // Form state
   const [formData, setFormData] = useState({
-    name: '',
-    type: 'DOWN',
-    monitorId: '',
+    name: "",
+    type: "DOWN",
+    monitorId: "",
     conditions: {},
     threshold: 0,
     duration: 300,
     channels: [] as string[],
-    escalation: {}
+    escalation: {},
   });
 
   // Fetch data
@@ -130,7 +165,7 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
         setAlerts(data);
       }
     } catch (error) {
-      toast.error('Failed to fetch alerts');
+      toast.error("Failed to fetch alerts");
     } finally {
       setLoading(false);
     }
@@ -144,7 +179,7 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
         setIncidents(data);
       }
     } catch (error) {
-      console.error('Failed to fetch incidents:', error);
+      console.error("Failed to fetch incidents:", error);
     }
   };
 
@@ -156,16 +191,16 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
         setNotifications(data);
       }
     } catch (error) {
-      console.error('Failed to fetch notifications:', error);
+      console.error("Failed to fetch notifications:", error);
     }
   };
 
   const handleCreateAlert = async () => {
     try {
-      const response = await fetch('/api/alerts', {
-        method: 'POST',
+      const response = await fetch("/api/alerts", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           ...formData,
@@ -175,16 +210,16 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
       });
 
       if (response.ok) {
-        toast.success('Alert created successfully');
+        toast.success("Alert created successfully");
         setIsCreateDialogOpen(false);
         resetForm();
         fetchAlerts();
       } else {
         const error = await response.json();
-        toast.error(error.error || 'Failed to create alert');
+        toast.error(error.error || "Failed to create alert");
       }
     } catch (error) {
-      toast.error('Failed to create alert');
+      toast.error("Failed to create alert");
     }
   };
 
@@ -192,10 +227,10 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
     if (!selectedAlert) return;
 
     try {
-      const response = await fetch('/api/alerts', {
-        method: 'PUT',
+      const response = await fetch("/api/alerts", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           id: selectedAlert.id,
@@ -206,49 +241,52 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
       });
 
       if (response.ok) {
-        toast.success('Alert updated successfully');
+        toast.success("Alert updated successfully");
         setIsEditDialogOpen(false);
         resetForm();
         fetchAlerts();
       } else {
         const error = await response.json();
-        toast.error(error.error || 'Failed to update alert');
+        toast.error(error.error || "Failed to update alert");
       }
     } catch (error) {
-      toast.error('Failed to update alert');
+      toast.error("Failed to update alert");
     }
   };
 
   const handleDeleteAlert = async (alertId: string) => {
-    if (!confirm('Are you sure you want to delete this alert?')) return;
+    if (!confirm("Are you sure you want to delete this alert?")) return;
 
     try {
-      const response = await fetch(`/api/alerts?id=${alertId}&userId=${userId}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(
+        `/api/alerts?id=${alertId}&userId=${userId}`,
+        {
+          method: "DELETE",
+        },
+      );
 
       if (response.ok) {
-        toast.success('Alert deleted successfully');
+        toast.success("Alert deleted successfully");
         fetchAlerts();
       } else {
         const error = await response.json();
-        toast.error(error.error || 'Failed to delete alert');
+        toast.error(error.error || "Failed to delete alert");
       }
     } catch (error) {
-      toast.error('Failed to delete alert');
+      toast.error("Failed to delete alert");
     }
   };
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      type: 'DOWN',
-      monitorId: '',
+      name: "",
+      type: "DOWN",
+      monitorId: "",
       conditions: {},
       threshold: 0,
       duration: 300,
       channels: [],
-      escalation: {}
+      escalation: {},
     });
     setSelectedAlert(null);
   };
@@ -258,77 +296,115 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
     setFormData({
       name: alert.name,
       type: alert.type,
-      monitorId: alert.monitorId || '',
-      conditions: typeof alert.conditions === 'string' ? JSON.parse(alert.conditions) : alert.conditions,
+      monitorId: alert.monitorId || "",
+      conditions:
+        typeof alert.conditions === "string"
+          ? JSON.parse(alert.conditions)
+          : alert.conditions,
       threshold: alert.threshold || 0,
       duration: alert.duration || 300,
       channels: alert.channels || [],
-      escalation: alert.escalation || {}
+      escalation: alert.escalation || {},
     });
     setIsEditDialogOpen(true);
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'ACTIVE': return 'bg-green-100 text-green-800 border-green-300';
-      case 'PAUSED': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'DISABLED': return 'bg-gray-100 text-gray-800 border-gray-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+      case "ACTIVE":
+        return "bg-green-100 text-green-800 border-green-300";
+      case "PAUSED":
+        return "bg-yellow-100 text-yellow-800 border-yellow-300";
+      case "DISABLED":
+        return "bg-gray-100 text-gray-800 border-gray-300";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-300";
     }
   };
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'CRITICAL': return 'bg-red-100 text-red-800 border-red-300';
-      case 'HIGH': return 'bg-orange-100 text-orange-800 border-orange-300';
-      case 'MEDIUM': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'LOW': return 'bg-blue-100 text-blue-800 border-blue-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+      case "CRITICAL":
+        return "bg-red-100 text-red-800 border-red-300";
+      case "HIGH":
+        return "bg-orange-100 text-orange-800 border-orange-300";
+      case "MEDIUM":
+        return "bg-yellow-100 text-yellow-800 border-yellow-300";
+      case "LOW":
+        return "bg-blue-100 text-blue-800 border-blue-300";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-300";
     }
   };
 
   const getChannelIcon = (channel: string) => {
     switch (channel) {
-      case 'EMAIL': return <Mail className="w-4 h-4" />;
-      case 'DISCORD': return <MessageSquare className="w-4 h-4" />;
-      case 'WEBHOOK': return <Webhook className="w-4 h-4" />;
-      default: return <Bell className="w-4 h-4" />;
+      case "EMAIL":
+        return <Mail className="w-4 h-4" />;
+      case "DISCORD":
+        return <MessageSquare className="w-4 h-4" />;
+      case "WEBHOOK":
+        return <Webhook className="w-4 h-4" />;
+      default:
+        return <Bell className="w-4 h-4" />;
     }
   };
 
   const getNotificationStatusIcon = (status: string) => {
     switch (status) {
-      case 'DELIVERED': return <CheckCircle className="w-4 h-4 text-green-600" />;
-      case 'SENT': return <Clock className="w-4 h-4 text-blue-600" />;
-      case 'FAILED': return <XCircle className="w-4 h-4 text-red-600" />;
-      case 'PENDING': return <Clock className="w-4 h-4 text-yellow-600" />;
-      default: return <Clock className="w-4 h-4 text-gray-600" />;
+      case "DELIVERED":
+        return <CheckCircle className="w-4 h-4 text-green-600" />;
+      case "SENT":
+        return <Clock className="w-4 h-4 text-blue-600" />;
+      case "FAILED":
+        return <XCircle className="w-4 h-4 text-red-600" />;
+      case "PENDING":
+        return <Clock className="w-4 h-4 text-yellow-600" />;
+      default:
+        return <Clock className="w-4 h-4 text-gray-600" />;
     }
   };
 
   const getPlanLimits = () => {
     switch (userPlan) {
-      case 'FREE': return { alerts: 1, channels: ['EMAIL'] };
-      case 'STARTER': return { alerts: 5, channels: ['EMAIL', 'PUSH'] };
-      case 'PROFESSIONAL': return { alerts: 25, channels: ['EMAIL', 'PUSH', 'DISCORD', 'WEBHOOK'] };
-      case 'ENTERPRISE': return { alerts: -1, channels: ['EMAIL', 'PUSH', 'DISCORD', 'WEBHOOK', 'SMS'] };
-      default: return { alerts: 1, channels: ['EMAIL'] };
+      case "FREE":
+        return { alerts: 1, channels: ["EMAIL"] };
+      case "STARTER":
+        return { alerts: 5, channels: ["EMAIL", "PUSH"] };
+      case "PROFESSIONAL":
+        return {
+          alerts: 25,
+          channels: ["EMAIL", "PUSH", "DISCORD", "WEBHOOK"],
+        };
+      case "ENTERPRISE":
+        return {
+          alerts: -1,
+          channels: ["EMAIL", "PUSH", "DISCORD", "WEBHOOK", "SMS"],
+        };
+      default:
+        return { alerts: 1, channels: ["EMAIL"] };
     }
   };
 
   const planLimits = getPlanLimits();
-  const canCreateAlert = planLimits.alerts === -1 || alerts.length < planLimits.alerts;
+  const canCreateAlert =
+    planLimits.alerts === -1 || alerts.length < planLimits.alerts;
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Alert Management</h2>
-          <p className="text-gray-600">Manage your monitoring alerts and notification preferences</p>
+          <p className="text-gray-600">
+            Manage your monitoring alerts and notification preferences
+          </p>
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button disabled={!canCreateAlert} className="flex items-center gap-2">
+            <Button
+              disabled={!canCreateAlert}
+              className="flex items-center gap-2"
+            >
               <Plus className="w-4 h-4" />
               Create Alert
             </Button>
@@ -340,7 +416,7 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
                 Configure a new alert to monitor your services
               </DialogDescription>
             </DialogHeader>
-            <AlertForm 
+            <AlertForm
               formData={formData}
               setFormData={setFormData}
               monitors={monitors}
@@ -358,8 +434,8 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
             <div className="flex items-center gap-2 text-amber-800">
               <AlertTriangle className="w-5 h-5" />
               <span className="font-medium">
-                You've reached the limit of {planLimits.alerts} alerts for your {userPlan} plan.
-                Upgrade to create more alerts.
+                You've reached the limit of {planLimits.alerts} alerts for your{" "}
+                {userPlan} plan. Upgrade to create more alerts.
               </span>
             </div>
           </CardContent>
@@ -369,8 +445,12 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
       <Tabs defaultValue="alerts" className="space-y-4">
         <TabsList>
           <TabsTrigger value="alerts">Alerts ({alerts.length})</TabsTrigger>
-          <TabsTrigger value="incidents">Incidents ({incidents.length})</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications ({notifications.length})</TabsTrigger>
+          <TabsTrigger value="incidents">
+            Incidents ({incidents.length})
+          </TabsTrigger>
+          <TabsTrigger value="notifications">
+            Notifications ({notifications.length})
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="alerts" className="space-y-4">
@@ -382,11 +462,16 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
             <Card>
               <CardContent className="flex flex-col items-center justify-center p-8 text-center">
                 <AlertTriangle className="w-12 h-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No alerts configured</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  No alerts configured
+                </h3>
                 <p className="text-gray-600 mb-4">
                   Create your first alert to get notified when monitors fail
                 </p>
-                <Button onClick={() => setIsCreateDialogOpen(true)} disabled={!canCreateAlert}>
+                <Button
+                  onClick={() => setIsCreateDialogOpen(true)}
+                  disabled={!canCreateAlert}
+                >
                   <Plus className="w-4 h-4 mr-2" />
                   Create Alert
                 </Button>
@@ -395,12 +480,17 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
           ) : (
             <div className="grid gap-4">
               {alerts.map((alert) => (
-                <Card key={alert.id} className="hover:shadow-md transition-shadow">
+                <Card
+                  key={alert.id}
+                  className="hover:shadow-md transition-shadow"
+                >
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <CardTitle className="text-lg">{alert.name}</CardTitle>
+                          <CardTitle className="text-lg">
+                            {alert.name}
+                          </CardTitle>
                           <Badge className={getStatusColor(alert.status)}>
                             {alert.status}
                           </Badge>
@@ -440,7 +530,10 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <span>Channels:</span>
                           {alert.channels.map((channel) => (
-                            <div key={channel} className="flex items-center gap-1">
+                            <div
+                              key={channel}
+                              className="flex items-center gap-1"
+                            >
                               {getChannelIcon(channel)}
                               <span>{channel}</span>
                             </div>
@@ -464,7 +557,9 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
             <Card>
               <CardContent className="flex flex-col items-center justify-center p-8 text-center">
                 <CheckCircle className="w-12 h-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No incidents</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  No incidents
+                </h3>
                 <p className="text-gray-600">
                   All your monitors are running smoothly
                 </p>
@@ -478,15 +573,21 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <CardTitle className="text-lg">{incident.title}</CardTitle>
-                          <Badge className={getSeverityColor(incident.severity)}>
+                          <CardTitle className="text-lg">
+                            {incident.title}
+                          </CardTitle>
+                          <Badge
+                            className={getSeverityColor(incident.severity)}
+                          >
                             {incident.severity}
                           </Badge>
                           <Badge variant="outline" className="text-xs">
                             {incident.status}
                           </Badge>
                         </div>
-                        <CardDescription>{incident.description}</CardDescription>
+                        <CardDescription>
+                          {incident.description}
+                        </CardDescription>
                       </div>
                     </div>
                   </CardHeader>
@@ -499,9 +600,15 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
                         )}
                       </div>
                       <div className="flex items-center gap-4">
-                        <span>Created: {new Date(incident.createdAt).toLocaleString()}</span>
+                        <span>
+                          Created:{" "}
+                          {new Date(incident.createdAt).toLocaleString()}
+                        </span>
                         {incident.resolvedAt && (
-                          <span>Resolved: {new Date(incident.resolvedAt).toLocaleString()}</span>
+                          <span>
+                            Resolved:{" "}
+                            {new Date(incident.resolvedAt).toLocaleString()}
+                          </span>
                         )}
                       </div>
                     </div>
@@ -517,7 +624,9 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
             <Card>
               <CardContent className="flex flex-col items-center justify-center p-8 text-center">
                 <Bell className="w-12 h-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No notifications</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  No notifications
+                </h3>
                 <p className="text-gray-600">
                   Notification history will appear here
                 </p>
@@ -531,17 +640,25 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <CardTitle className="text-lg">{notification.subject || 'Notification'}</CardTitle>
+                          <CardTitle className="text-lg">
+                            {notification.subject || "Notification"}
+                          </CardTitle>
                           <div className="flex items-center gap-2">
                             {getNotificationStatusIcon(notification.status)}
-                            <span className="text-sm text-gray-600">{notification.status}</span>
+                            <span className="text-sm text-gray-600">
+                              {notification.status}
+                            </span>
                           </div>
                           <div className="flex items-center gap-2">
                             {getChannelIcon(notification.type)}
-                            <span className="text-sm text-gray-600">{notification.type}</span>
+                            <span className="text-sm text-gray-600">
+                              {notification.type}
+                            </span>
                           </div>
                         </div>
-                        <CardDescription>{notification.content}</CardDescription>
+                        <CardDescription>
+                          {notification.content}
+                        </CardDescription>
                       </div>
                     </div>
                   </CardHeader>
@@ -557,9 +674,15 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
                         )}
                       </div>
                       <div className="flex items-center gap-4">
-                        <span>Created: {new Date(notification.createdAt).toLocaleString()}</span>
+                        <span>
+                          Created:{" "}
+                          {new Date(notification.createdAt).toLocaleString()}
+                        </span>
                         {notification.sentAt && (
-                          <span>Sent: {new Date(notification.sentAt).toLocaleString()}</span>
+                          <span>
+                            Sent:{" "}
+                            {new Date(notification.sentAt).toLocaleString()}
+                          </span>
                         )}
                       </div>
                     </div>
@@ -585,7 +708,7 @@ const AlertManager: React.FC<AlertManagerProps> = ({ userId, monitors, userPlan 
               Update your alert configuration
             </DialogDescription>
           </DialogHeader>
-          <AlertForm 
+          <AlertForm
             formData={formData}
             setFormData={setFormData}
             monitors={monitors}
@@ -620,20 +743,23 @@ interface AlertFormProps {
   isEdit?: boolean;
 }
 
-const AlertForm: React.FC<AlertFormProps> = ({ 
-  formData, 
-  setFormData, 
-  monitors, 
-  planLimits, 
-  onSubmit, 
-  onCancel, 
-  isEdit = false 
+const AlertForm: React.FC<AlertFormProps> = ({
+  formData,
+  setFormData,
+  monitors,
+  planLimits,
+  onSubmit,
+  onCancel,
+  isEdit = false,
 }) => {
   const handleChannelChange = (channel: string, checked: boolean) => {
     if (checked) {
       setFormData({ ...formData, channels: [...formData.channels, channel] });
     } else {
-      setFormData({ ...formData, channels: formData.channels.filter((c: string) => c !== channel) });
+      setFormData({
+        ...formData,
+        channels: formData.channels.filter((c: string) => c !== channel),
+      });
     }
   };
 
@@ -651,7 +777,10 @@ const AlertForm: React.FC<AlertFormProps> = ({
         </div>
         <div>
           <Label htmlFor="type">Alert Type</Label>
-          <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
+          <Select
+            value={formData.type}
+            onValueChange={(value) => setFormData({ ...formData, type: value })}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select alert type" />
             </SelectTrigger>
@@ -672,7 +801,12 @@ const AlertForm: React.FC<AlertFormProps> = ({
 
       <div>
         <Label htmlFor="monitor">Monitor</Label>
-        <Select value={formData.monitorId} onValueChange={(value) => setFormData({ ...formData, monitorId: value })}>
+        <Select
+          value={formData.monitorId}
+          onValueChange={(value) =>
+            setFormData({ ...formData, monitorId: value })
+          }
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select monitor" />
           </SelectTrigger>
@@ -693,7 +827,9 @@ const AlertForm: React.FC<AlertFormProps> = ({
             id="threshold"
             type="number"
             value={formData.threshold}
-            onChange={(e) => setFormData({ ...formData, threshold: Number(e.target.value) })}
+            onChange={(e) =>
+              setFormData({ ...formData, threshold: Number(e.target.value) })
+            }
             placeholder="Enter threshold value"
           />
         </div>
@@ -703,7 +839,9 @@ const AlertForm: React.FC<AlertFormProps> = ({
             id="duration"
             type="number"
             value={formData.duration}
-            onChange={(e) => setFormData({ ...formData, duration: Number(e.target.value) })}
+            onChange={(e) =>
+              setFormData({ ...formData, duration: Number(e.target.value) })
+            }
             placeholder="Enter duration in seconds"
           />
         </div>
@@ -717,7 +855,9 @@ const AlertForm: React.FC<AlertFormProps> = ({
               <Checkbox
                 id={channel}
                 checked={formData.channels.includes(channel)}
-                onCheckedChange={(checked) => handleChannelChange(channel, checked as boolean)}
+                onCheckedChange={(checked) =>
+                  handleChannelChange(channel, checked as boolean)
+                }
               />
               <Label htmlFor={channel} className="text-sm font-normal">
                 {channel}
@@ -732,11 +872,11 @@ const AlertForm: React.FC<AlertFormProps> = ({
           Cancel
         </Button>
         <Button onClick={onSubmit}>
-          {isEdit ? 'Update Alert' : 'Create Alert'}
+          {isEdit ? "Update Alert" : "Create Alert"}
         </Button>
       </div>
     </div>
   );
 };
 
-export default AlertManager; 
+export default AlertManager;

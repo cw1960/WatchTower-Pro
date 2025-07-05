@@ -5,11 +5,11 @@ import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
   const authResult = await requireWhopAuthForPage();
-  
-  if ('redirect' in authResult) {
+
+  if ("redirect" in authResult) {
     redirect(authResult.redirect);
   }
-  
+
   const { user } = authResult;
 
   return (

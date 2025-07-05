@@ -5,7 +5,9 @@ WatchTower Pro now supports comprehensive monitoring of your Whop business metri
 ## Features
 
 ### 1. Membership Count Monitoring
+
 Track membership changes for your experiences:
+
 - Total member count
 - Active member count
 - New members (daily, weekly, monthly)
@@ -14,7 +16,9 @@ Track membership changes for your experiences:
 - Members by status (active/inactive)
 
 ### 2. Sales & Revenue Metrics
+
 Monitor your business performance:
+
 - Total balance in your Whop ledger
 - Pending balance
 - Revenue trends (daily, weekly, monthly)
@@ -23,7 +27,9 @@ Monitor your business performance:
 - Revenue by product
 
 ### 3. Community Activity Metrics
+
 Track engagement in your community:
+
 - Total conversations
 - Active conversations
 - Message volume
@@ -32,7 +38,9 @@ Track engagement in your community:
 - Engagement rate
 
 ### 4. Access Pass Performance
+
 Monitor your access pass metrics:
+
 - Active user count
 - Review averages
 - Waitlist size
@@ -49,6 +57,7 @@ POST /api/whop-monitors
 ```
 
 **Request Body:**
+
 ```json
 {
   "type": "membership|revenue|community|access-pass|comprehensive",
@@ -87,6 +96,7 @@ PUT /api/whop-monitors
 ```
 
 **Request Body:**
+
 ```json
 {
   "id": "monitor_id",
@@ -104,6 +114,7 @@ DELETE /api/whop-monitors?id=monitor_id
 ## Monitor Types
 
 ### 1. Membership Monitor
+
 ```json
 {
   "type": "membership",
@@ -116,6 +127,7 @@ DELETE /api/whop-monitors?id=monitor_id
 ```
 
 ### 2. Revenue Monitor
+
 ```json
 {
   "type": "revenue",
@@ -127,6 +139,7 @@ DELETE /api/whop-monitors?id=monitor_id
 ```
 
 ### 3. Community Monitor
+
 ```json
 {
   "type": "community",
@@ -138,6 +151,7 @@ DELETE /api/whop-monitors?id=monitor_id
 ```
 
 ### 4. Access Pass Monitor
+
 ```json
 {
   "type": "access-pass",
@@ -150,6 +164,7 @@ DELETE /api/whop-monitors?id=monitor_id
 ```
 
 ### 5. Comprehensive Monitor
+
 ```json
 {
   "type": "comprehensive",
@@ -164,6 +179,7 @@ DELETE /api/whop-monitors?id=monitor_id
 ## Alert Conditions
 
 ### Membership Alerts
+
 - `total_members` - Total member count
 - `active_members` - Active member count
 - `new_members_today` - New members today
@@ -172,6 +188,7 @@ DELETE /api/whop-monitors?id=monitor_id
 - `churn_rate` - Churn rate percentage
 
 ### Revenue Alerts
+
 - `total_balance` - Total balance in ledger
 - `pending_balance` - Pending balance
 - `daily_revenue` - Daily revenue
@@ -179,11 +196,13 @@ DELETE /api/whop-monitors?id=monitor_id
 - `monthly_revenue` - Monthly revenue
 
 ### Community Alerts
+
 - `total_conversations` - Total conversations
 - `active_conversations` - Active conversations
 - `engagement_rate` - Engagement rate percentage
 
 ### Access Pass Alerts
+
 - `active_users` - Active users count
 - `reviews_average` - Average review rating
 - `waitlist_count` - Waitlist size
@@ -191,6 +210,7 @@ DELETE /api/whop-monitors?id=monitor_id
 ## Example Alert Configurations
 
 ### Membership Drop Alert
+
 ```json
 {
   "name": "Membership Drop Alert",
@@ -207,6 +227,7 @@ DELETE /api/whop-monitors?id=monitor_id
 ```
 
 ### Revenue Threshold Alert
+
 ```json
 {
   "name": "Revenue Milestone",
@@ -222,6 +243,7 @@ DELETE /api/whop-monitors?id=monitor_id
 ```
 
 ### Community Engagement Alert
+
 ```json
 {
   "name": "Low Engagement Alert",
@@ -248,42 +270,44 @@ The Whop-native monitoring features work seamlessly alongside your existing webs
 ## Usage Examples
 
 ### JavaScript/TypeScript
+
 ```typescript
 // Create a comprehensive Whop monitor
-const monitor = await fetch('/api/whop-monitors', {
-  method: 'POST',
+const monitor = await fetch("/api/whop-monitors", {
+  method: "POST",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   body: JSON.stringify({
-    type: 'comprehensive',
-    companyId: 'biz_XXXXXXXX',
-    name: 'Complete Business Metrics',
+    type: "comprehensive",
+    companyId: "biz_XXXXXXXX",
+    name: "Complete Business Metrics",
     interval: 60,
-    userId: 'user_XXXXXXXX',
-    accessPassId: 'prod_XXXXXXXX',
+    userId: "user_XXXXXXXX",
+    accessPassId: "prod_XXXXXXXX",
     alerts: [
       {
-        name: 'Revenue Drop Alert',
-        type: 'DOWN',
+        name: "Revenue Drop Alert",
+        type: "DOWN",
         conditions: {
-          operator: 'DECREASED_BY',
+          operator: "DECREASED_BY",
           value: 15,
-          field: 'total_balance',
-          percentage: true
+          field: "total_balance",
+          percentage: true,
         },
-        channels: ['EMAIL', 'SLACK'],
-        enabled: true
-      }
-    ]
-  })
+        channels: ["EMAIL", "SLACK"],
+        enabled: true,
+      },
+    ],
+  }),
 });
 
 const result = await monitor.json();
-console.log('Monitor created:', result.monitor);
+console.log("Monitor created:", result.monitor);
 ```
 
 ### cURL
+
 ```bash
 # Create a membership monitor
 curl -X POST http://localhost:3000/api/whop-monitors \
@@ -300,7 +324,7 @@ curl -X POST http://localhost:3000/api/whop-monitors \
 
 ## Best Practices
 
-1. **Monitor Intervals**: 
+1. **Monitor Intervals**:
    - Revenue: 30-60 minutes
    - Membership: 60-120 minutes
    - Community: 120-240 minutes
@@ -361,7 +385,8 @@ For questions or issues with Whop-native monitoring:
 ## Changelog
 
 ### Version 1.0.0
+
 - Initial release of Whop-native monitoring
 - Support for membership, revenue, community, and access pass monitoring
 - Integration with existing alerting system
-- Comprehensive monitoring configuration options 
+- Comprehensive monitoring configuration options

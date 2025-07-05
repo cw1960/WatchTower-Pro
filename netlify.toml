@@ -1,23 +1,204 @@
+# ================================
+# BUILD CONFIGURATION
+# ================================
 [build]
   command = "npm run build"
   publish = ".next"
+  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "18"
+  NPM_VERSION = "10"
+  # Enable faster builds
+  NEXT_TELEMETRY_DISABLED = "1"
+  # Optimize builds
+  NETLIFY_NEXT_PLUGIN_SKIP = "false"
 
+# ================================
+# PLUGINS
+# ================================
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-[context.production.environment]
-  NODE_ENV = "production"
+# Optional: Bundle analyzer for debugging
+# [[plugins]]
+#   package = "netlify-plugin-bundle-analyzer"
 
-# Handle Next.js dynamic routes
+# ================================
+# CONTEXT-SPECIFIC SETTINGS
+# ================================
+[context.production]
+  command = "npm run build"
+  [context.production.environment]
+    NODE_ENV = "production"
+    NEXT_TELEMETRY_DISABLED = "1"
+
+[context.deploy-preview]
+  command = "npm run build"
+  [context.deploy-preview.environment]
+    NODE_ENV = "production"
+    NEXT_PUBLIC_APP_URL = "$DEPLOY_PRIME_URL"
+
+[context.branch-deploy]
+  command = "npm run build"
+  [context.branch-deploy.environment]
+    NODE_ENV = "development"
+
+# ================================
+# REDIRECTS & REWRITES
+# ================================
+
+# Next.js dynamic routes
 [[redirects]]
   from = "/experiences/:experienceId"
   to = "/experiences/[experienceId]"
   status = 200
 
+# API routes
 [[redirects]]
   from = "/api/*"
   to = "/api/:splat"
-  status = 200 
+  status = 200
+
+# Whop iframe routes
+[[redirects]]
+  from = "/whop/*"
+  to = "/:splat"
+  status = 200
+
+# Health check endpoint
+[[redirects]]
+  from = "/health"
+  to = "/api/health"
+  status = 200
+
+# Legacy redirects (if needed)
+[[redirects]]
+  from = "/old-path/*"
+  to = "/new-path/:splat"
+  status = 301
+
+# Catch-all for SPA routes
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# ================================
+# HEADERS & SECURITY
+# ================================
+
+# Security headers for all pages
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Content Security Policy
+    Content-Security-Policy = """
+      default-src 'self';
+      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://whop.com https://*.whop.com https://www.googletagmanager.com https://www.google-analytics.com;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com;
+      img-src 'self' data: https: blob:;
+      connect-src 'self' https://whop.com https://*.whop.com https://api.whop.com https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com;
+      frame-src 'self' https://whop.com https://*.whop.com;
+      worker-src 'self' blob:;
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self';
+      frame-ancestors 'self' https://whop.com https://*.whop.com;
+    """
+    # Other security headers
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+
+# API-specific headers
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    # CORS headers for API routes
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization, X-Requested-With"
+    Access-Control-Max-Age = "86400"
+    # API rate limiting info
+    X-RateLimit-Limit = "100"
+    X-RateLimit-Window = "900"
+
+# Static assets caching
+[[headers]]
+  for = "/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Font caching
+[[headers]]
+  for = "*.woff2"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# ================================
+# EDGE FUNCTIONS (if needed)
+# ================================
+# [[edge_functions]]
+#   path = "/api/edge/*"
+#   function = "edge-handler"
+
+# ================================
+# ENVIRONMENT VARIABLES
+# ================================
+# Note: Sensitive environment variables should be set in Netlify UI
+# This section is for documentation purposes
+
+# Required Environment Variables for Production:
+# - DATABASE_URL
+# - WHOP_API_KEY
+# - NEXT_PUBLIC_WHOP_APP_ID
+# - NEXTAUTH_SECRET
+# - JWT_SECRET
+# - SENTRY_DSN (recommended)
+# - EMAIL service keys (SENDGRID_API_KEY or SMTP credentials)
+
+# ================================
+# FUNCTIONS CONFIGURATION
+# ================================
+[functions]
+  # Increase timeout for monitoring functions
+  included_files = ["lib/**", "prisma/**"]
+
+# ================================
+# DEV CONFIGURATION
+# ================================
+[dev]
+  framework = "next"
+  command = "npm run dev"
+  port = 3000
+  publish = ".next"
+
+# ================================
+# BUILD OPTIMIZATION
+# ================================
+[build.processing]
+  skip_processing = false
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = true
+  minify = true
+
+[build.processing.html]
+  pretty_urls = true
+
+[build.processing.images]
+  compress = true 

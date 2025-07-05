@@ -23,9 +23,12 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get("type");
     const status = searchParams.get("status");
     const limit = searchParams.get("limit");
-    
+
     if (!userId) {
-      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User ID is required" },
+        { status: 400 },
+      );
     }
 
     // Validate user access
@@ -36,7 +39,7 @@ export async function GET(request: NextRequest) {
 
     // Build where clause based on filters
     const where: any = {
-      userId: userId
+      userId: userId,
     };
 
     if (alertId) {
@@ -81,7 +84,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(notifications);
   } catch (error) {
     console.error("Error fetching notifications:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -90,9 +96,12 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { action, userId, ...actionData } = body;
-    
+
     if (!userId) {
-      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User ID is required" },
+        { status: 400 },
+      );
     }
 
     // Validate user access
@@ -102,14 +111,14 @@ export async function POST(request: NextRequest) {
     }
 
     switch (action) {
-      case 'retry': {
+      case "retry": {
         const { notificationId } = retryNotificationSchema.parse(actionData);
-        
+
         // Get the notification
         const notification = await db.notification.findFirst({
-          where: { 
+          where: {
             id: notificationId,
-            userId: userId 
+            userId: userId,
           },
           include: {
             alert: true,
@@ -118,54 +127,74 @@ export async function POST(request: NextRequest) {
         });
 
         if (!notification) {
-          return NextResponse.json({ error: "Notification not found or unauthorized" }, { status: 404 });
+          return NextResponse.json(
+            { error: "Notification not found or unauthorized" },
+            { status: 404 },
+          );
         }
 
         // Only retry failed notifications
-        if (notification.status !== 'FAILED') {
-          return NextResponse.json({ error: "Only failed notifications can be retried" }, { status: 400 });
+        if (notification.status !== "FAILED") {
+          return NextResponse.json(
+            { error: "Only failed notifications can be retried" },
+            { status: 400 },
+          );
         }
 
         // Import and use notification service to retry
-        const NotificationService = (await import('@/lib/notifications/notification-service')).default;
+        const NotificationService = (
+          await import("@/lib/notifications/notification-service")
+        ).default;
         const notificationService = NotificationService.getInstance();
 
         // Create payload from existing notification
         const payload = {
-          title: notification.subject || 'Retry Notification',
+          title: notification.subject || "Retry Notification",
           message: notification.content,
-          severity: 'medium' as const,
-          metadata: notification.metadata ? JSON.parse(notification.metadata as string) : {},
+          severity: "medium" as const,
+          metadata: notification.metadata
+            ? JSON.parse(notification.metadata as string)
+            : {},
           timestamp: new Date(),
         };
 
         // Determine channel from notification type
-        const channels = [notification.type === 'EMAIL' ? 'EMAIL' : 
-                        notification.type === 'DISCORD' ? 'DISCORD' :
-                        notification.type === 'WEBHOOK' ? 'WEBHOOK' :
-                        notification.type === 'SMS' ? 'SMS' : 'PUSH'] as any[];
+        const channels = [
+          notification.type === "EMAIL"
+            ? "EMAIL"
+            : notification.type === "DISCORD"
+              ? "DISCORD"
+              : notification.type === "WEBHOOK"
+                ? "WEBHOOK"
+                : notification.type === "SMS"
+                  ? "SMS"
+                  : "PUSH",
+        ] as any[];
 
         // Send notification
         await notificationService.sendNotification(
           userId,
-          notification.alertId || '',
+          notification.alertId || "",
           channels,
           payload,
-          notification.incidentId || undefined
+          notification.incidentId || undefined,
         );
 
         return NextResponse.json({ message: "Notification retry initiated" });
       }
 
-      case 'test': {
+      case "test": {
         // Send a test notification
-        const NotificationService = (await import('@/lib/notifications/notification-service')).default;
+        const NotificationService = (
+          await import("@/lib/notifications/notification-service")
+        ).default;
         const notificationService = NotificationService.getInstance();
 
         const payload = {
-          title: 'Test Notification from WatchTower Pro',
-          message: 'This is a test notification to verify your notification settings are working correctly.',
-          severity: 'low' as const,
+          title: "Test Notification from WatchTower Pro",
+          message:
+            "This is a test notification to verify your notification settings are working correctly.",
+          severity: "low" as const,
           metadata: { test: true },
           timestamp: new Date(),
         };
@@ -173,9 +202,9 @@ export async function POST(request: NextRequest) {
         // Send test notification via email (available for all plans)
         await notificationService.sendNotification(
           userId,
-          'test-alert',
-          ['EMAIL'],
-          payload
+          "test-alert",
+          ["EMAIL"],
+          payload,
         );
 
         return NextResponse.json({ message: "Test notification sent" });
@@ -186,11 +215,17 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: "Validation error", details: error.errors }, { status: 400 });
+      return NextResponse.json(
+        { error: "Validation error", details: error.errors },
+        { status: 400 },
+      );
     }
-    
+
     console.error("Error processing notification action:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -199,9 +234,12 @@ export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
     const { id, userId, ...updateData } = body;
-    
+
     if (!id || !userId) {
-      return NextResponse.json({ error: "Notification ID and User ID are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Notification ID and User ID are required" },
+        { status: 400 },
+      );
     }
 
     // Validate user access
@@ -212,14 +250,17 @@ export async function PUT(request: NextRequest) {
 
     // Check if notification exists and belongs to user
     const existingNotification = await db.notification.findFirst({
-      where: { 
+      where: {
         id,
-        userId: userId 
+        userId: userId,
       },
     });
 
     if (!existingNotification) {
-      return NextResponse.json({ error: "Notification not found or unauthorized" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Notification not found or unauthorized" },
+        { status: 404 },
+      );
     }
 
     // Validate input
@@ -230,7 +271,9 @@ export async function PUT(request: NextRequest) {
       where: { id },
       data: {
         ...validatedData,
-        deliveredAt: validatedData.deliveredAt ? new Date(validatedData.deliveredAt) : undefined,
+        deliveredAt: validatedData.deliveredAt
+          ? new Date(validatedData.deliveredAt)
+          : undefined,
       },
       include: {
         alert: {
@@ -254,11 +297,17 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(notification);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: "Validation error", details: error.errors }, { status: 400 });
+      return NextResponse.json(
+        { error: "Validation error", details: error.errors },
+        { status: 400 },
+      );
     }
-    
+
     console.error("Error updating notification:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -269,9 +318,12 @@ export async function DELETE(request: NextRequest) {
     const id = searchParams.get("id");
     const userId = searchParams.get("userId");
     const action = searchParams.get("action");
-    
+
     if (!userId) {
-      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User ID is required" },
+        { status: 400 },
+      );
     }
 
     // Validate user access
@@ -280,37 +332,45 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (action === 'clear-all') {
+    if (action === "clear-all") {
       // Clear all notifications for user (keep last 30 days for safety)
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
       await db.notification.deleteMany({
-        where: { 
+        where: {
           userId: userId,
           createdAt: {
-            lt: thirtyDaysAgo
-          }
+            lt: thirtyDaysAgo,
+          },
         },
       });
 
-      return NextResponse.json({ message: "Old notifications cleared successfully" });
+      return NextResponse.json({
+        message: "Old notifications cleared successfully",
+      });
     }
 
     if (!id) {
-      return NextResponse.json({ error: "Notification ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Notification ID is required" },
+        { status: 400 },
+      );
     }
 
     // Check if notification exists and belongs to user
     const existingNotification = await db.notification.findFirst({
-      where: { 
+      where: {
         id,
-        userId: userId 
+        userId: userId,
       },
     });
 
     if (!existingNotification) {
-      return NextResponse.json({ error: "Notification not found or unauthorized" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Notification not found or unauthorized" },
+        { status: 404 },
+      );
     }
 
     // Delete the notification
@@ -321,6 +381,9 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ message: "Notification deleted successfully" });
   } catch (error) {
     console.error("Error deleting notification:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
-} 
+}

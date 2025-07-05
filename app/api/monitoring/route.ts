@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { whopAuth } from "@/lib/whop-sdk";
 import { z } from "zod";
-import { 
-  initializeMonitoring, 
-  shutdownMonitoring, 
-  healthCheck, 
-  getMonitoringEngine 
+import {
+  initializeMonitoring,
+  shutdownMonitoring,
+  healthCheck,
+  getMonitoringEngine,
 } from "@/lib/monitoring/init";
 
 const testMonitorSchema = z.object({
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
           const engine = getMonitoringEngine();
           const stats = engine.getStats();
           const schedulerMetrics = engine.getSchedulerMetrics();
-          
+
           return NextResponse.json({
             status: "running",
             stats,
@@ -62,10 +62,10 @@ export async function GET(request: NextRequest) {
         try {
           const engine = getMonitoringEngine();
           const stats = engine.getStats();
-          
+
           // Get additional database stats
           const dbStats = await db.monitor.groupBy({
-            by: ['status'],
+            by: ["status"],
             _count: true,
           });
 
@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
         } catch (error) {
           return NextResponse.json(
             { error: "Failed to get stats" },
-            { status: 500 }
+            { status: 500 },
           );
         }
       }
@@ -104,16 +104,13 @@ export async function GET(request: NextRequest) {
       }
 
       default:
-        return NextResponse.json(
-          { error: "Invalid action" },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
   } catch (error) {
     console.error("Error in monitoring API:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -137,7 +134,7 @@ export async function POST(request: NextRequest) {
         try {
           const engine = await initializeMonitoring();
           const stats = engine.getStats();
-          
+
           return NextResponse.json({
             success: true,
             message: "Monitoring system started successfully",
@@ -147,12 +144,12 @@ export async function POST(request: NextRequest) {
         } catch (error) {
           console.error("Error starting monitoring:", error);
           return NextResponse.json(
-            { 
-              success: false, 
+            {
+              success: false,
               error: "Failed to start monitoring system",
-              details: error instanceof Error ? error.message : "Unknown error"
+              details: error instanceof Error ? error.message : "Unknown error",
             },
-            { status: 500 }
+            { status: 500 },
           );
         }
       }
@@ -160,7 +157,7 @@ export async function POST(request: NextRequest) {
       case "stop": {
         try {
           await shutdownMonitoring();
-          
+
           return NextResponse.json({
             success: true,
             message: "Monitoring system stopped successfully",
@@ -169,12 +166,12 @@ export async function POST(request: NextRequest) {
         } catch (error) {
           console.error("Error stopping monitoring:", error);
           return NextResponse.json(
-            { 
-              success: false, 
+            {
+              success: false,
               error: "Failed to stop monitoring system",
-              details: error instanceof Error ? error.message : "Unknown error"
+              details: error instanceof Error ? error.message : "Unknown error",
             },
-            { status: 500 }
+            { status: 500 },
           );
         }
       }
@@ -183,7 +180,7 @@ export async function POST(request: NextRequest) {
         if (!monitorId || !userId) {
           return NextResponse.json(
             { error: "monitorId and userId are required for test action" },
-            { status: 400 }
+            { status: 400 },
           );
         }
 
@@ -197,7 +194,7 @@ export async function POST(request: NextRequest) {
           if (!monitor) {
             return NextResponse.json(
               { error: "Monitor not found or unauthorized" },
-              { status: 404 }
+              { status: 404 },
             );
           }
 
@@ -234,34 +231,31 @@ export async function POST(request: NextRequest) {
         } catch (error) {
           console.error("Error testing monitor:", error);
           return NextResponse.json(
-            { 
-              success: false, 
+            {
+              success: false,
               error: "Failed to test monitor",
-              details: error instanceof Error ? error.message : "Unknown error"
+              details: error instanceof Error ? error.message : "Unknown error",
             },
-            { status: 500 }
+            { status: 500 },
           );
         }
       }
 
       default:
-        return NextResponse.json(
-          { error: "Invalid action" },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Validation error", details: error.errors },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.error("Error in monitoring API:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -275,7 +269,7 @@ export async function PUT(request: NextRequest) {
     if (!userId) {
       return NextResponse.json(
         { error: "User ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -287,7 +281,7 @@ export async function PUT(request: NextRequest) {
 
     // Update monitoring configuration
     // This could be extended to update scheduler settings, etc.
-    
+
     return NextResponse.json({
       success: true,
       message: "Monitoring configuration updated",
@@ -297,7 +291,7 @@ export async function PUT(request: NextRequest) {
     console.error("Error updating monitoring config:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -308,9 +302,12 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
     const action = searchParams.get("action");
-    
+
     if (!userId) {
-      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User ID is required" },
+        { status: 400 },
+      );
     }
 
     // Validate user access
@@ -325,13 +322,13 @@ export async function DELETE(request: NextRequest) {
         const oldChecks = await db.monitorCheck.deleteMany({
           where: {
             monitor: { userId },
-            createdAt: { lt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } // 30 days old
-          }
+            createdAt: { lt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }, // 30 days old
+          },
         });
-        
-        return NextResponse.json({ 
+
+        return NextResponse.json({
           message: "Old checks cleared",
-          deleted: oldChecks.count 
+          deleted: oldChecks.count,
         });
 
       case "clear_incidents":
@@ -340,13 +337,13 @@ export async function DELETE(request: NextRequest) {
           where: {
             monitor: { userId },
             status: "RESOLVED",
-            createdAt: { lt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } // 7 days old
-          }
+            createdAt: { lt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }, // 7 days old
+          },
         });
-        
-        return NextResponse.json({ 
+
+        return NextResponse.json({
           message: "Old incidents cleared",
-          deleted: oldIncidents.count 
+          deleted: oldIncidents.count,
         });
 
       default:
@@ -354,6 +351,9 @@ export async function DELETE(request: NextRequest) {
     }
   } catch (error) {
     console.error("Error clearing monitoring data:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
-} 
+}
