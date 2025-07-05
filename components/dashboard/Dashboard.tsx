@@ -6,6 +6,7 @@ import { PlanType } from "@/lib/whop-sdk";
 interface DashboardProps {
   userId: string;
   userPlan: PlanType;
+  authToken: string | null;
 }
 
 interface Monitor {
@@ -33,7 +34,7 @@ interface Alert {
   };
 }
 
-export default function Dashboard({ userId, userPlan }: DashboardProps) {
+export default function Dashboard({ userId, userPlan, authToken }: DashboardProps) {
   const [monitors, setMonitors] = useState<Monitor[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,9 +67,12 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
       
       console.log("🔍 Dashboard: Starting to fetch data...");
       
+      // Create headers with authentication token
+      const headers: HeadersInit = authToken ? { 'x-whop-user-token': authToken } : {};
+      
       // Fetch monitors
       console.log("🔍 Dashboard: Fetching monitors...");
-      const monitorsRes = await fetch('/api/monitors');
+      const monitorsRes = await fetch('/api/monitors', { headers });
       console.log("📊 Dashboard: Monitors response status:", monitorsRes.status);
       
       if (!monitorsRes.ok) {
@@ -82,7 +86,7 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
       
       // Fetch alerts
       console.log("🔍 Dashboard: Fetching alerts...");
-      const alertsRes = await fetch('/api/alerts');
+      const alertsRes = await fetch('/api/alerts', { headers });
       console.log("📊 Dashboard: Alerts response status:", alertsRes.status);
       
       if (!alertsRes.ok) {
@@ -109,7 +113,8 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
   const fetchMonitoringStats = async () => {
     try {
       console.log("🔍 Dashboard: Fetching monitoring stats...");
-      const response = await fetch('/api/monitoring?action=stats');
+      const headers: HeadersInit = authToken ? { 'x-whop-user-token': authToken } : {};
+      const response = await fetch('/api/monitoring?action=stats', { headers });
       console.log("📊 Dashboard: Monitoring stats response status:", response.status);
       
       if (response.ok) {
@@ -126,7 +131,8 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
       // Check if monitoring is stopped
       try {
         console.log("🔍 Dashboard: Checking monitoring status...");
-        const statusResponse = await fetch('/api/monitoring?action=status');
+        const headers: HeadersInit = authToken ? { 'x-whop-user-token': authToken } : {};
+        const statusResponse = await fetch('/api/monitoring?action=status', { headers });
         console.log("📊 Dashboard: Monitoring status response:", statusResponse.status);
         
         if (statusResponse.ok) {

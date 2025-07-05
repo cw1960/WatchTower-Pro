@@ -1,5 +1,6 @@
 import Dashboard from "@/components/dashboard/Dashboard";
-import { validateWhopAuth } from "@/lib/auth/whop-auth-middleware";
+import { whopSdk } from "@/lib/whop-sdk";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { PlanType } from "@prisma/client";
 import Link from "next/link";
@@ -9,18 +10,23 @@ export default async function DashboardPage() {
   try {
     console.log("🔍 DashboardPage: Starting authentication");
     
-    const authResult = await validateWhopAuth();
+    // Get headers from the request
+    const headersList = await headers();
+    
+    // Extract the user ID from the verified auth JWT token
+    const { userId } = await whopSdk.verifyUserToken(headersList);
+    console.log("✅ DashboardPage: User authenticated:", userId);
 
-    if (!authResult.success || !authResult.user) {
-      console.error("❌ DashboardPage: Authentication failed:", authResult.error);
-      redirect("/");
-    }
+    // Load the user's public profile information
+    const user = await whopSdk.users.getUser({ userId: userId });
+    console.log("✅ DashboardPage: User profile loaded:", { userId: user.id, name: user.name });
 
-    const user = authResult.user;
-    console.log("✅ DashboardPage: User authenticated:", { userId: user.id, name: user.name });
+    // For now, default to STARTER plan since Whop user profile doesn't include plan info
+    // TODO: Get actual user plan from our database or Whop business logic
+    const userPlan = PlanType.STARTER;
 
-    // Cast the plan string to PlanType enum
-    const userPlan = user.plan as PlanType;
+    // Get the authentication token to pass to the client component
+    const authToken = headersList.get('x-whop-user-token');
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
@@ -37,11 +43,11 @@ export default async function DashboardPage() {
           </div>
         </div>
         
-        <Dashboard userId={user.id} userPlan={userPlan} />
+        <Dashboard userId={user.id} userPlan={userPlan} authToken={authToken} />
       </div>
     );
   } catch (error) {
-    console.error("❌ DashboardPage: Error:", error);
+    console.error("❌ DashboardPage: Authentication failed:", error);
     redirect("/");
   }
 }
