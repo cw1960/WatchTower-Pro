@@ -1,46 +1,59 @@
-import { requireWhopAuthForPage } from "@/lib/auth/whop-auth-middleware";
+import { validateWhopAuth } from "@/lib/auth/whop-auth-middleware";
 import { redirect } from "next/navigation";
 import MonitorCreatorWrapper from "@/components/monitors/MonitorCreatorWrapper";
 import Link from "next/link";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { PlanType } from "@prisma/client";
 
 export default async function CreateMonitorPage() {
-  const result = await requireWhopAuthForPage();
+  try {
+    console.log("🔍 CreateMonitorPage: Starting authentication");
+    
+    const authResult = await validateWhopAuth();
 
-  if ("redirect" in result) {
-    redirect(result.redirect);
-  }
+    if (!authResult.success || !authResult.user) {
+      console.error("❌ CreateMonitorPage: Authentication failed:", authResult.error);
+      redirect("/");
+    }
 
-  const { user } = result;
+    const user = authResult.user;
+    console.log("✅ CreateMonitorPage: User authenticated:", { userId: user.id, name: user.name });
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 mb-4 transition-colors"
-          >
-            <ArrowLeftIcon className="w-4 h-4 mr-2" />
-            Back to Dashboard
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Create Monitor</h1>
-            <p className="text-gray-600 mt-2">
-              Set up monitoring for your websites and services
-            </p>
+    // Cast the plan string to PlanType enum
+    const userPlan = user.plan as PlanType;
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Header */}
+          <div className="mb-8">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center text-sm font-medium text-blue-300 hover:text-blue-100 mb-4 transition-colors"
+            >
+              <ArrowLeftIcon className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </Link>
+            <div>
+              <h1 className="text-3xl font-bold text-white">Create Monitor</h1>
+              <p className="text-gray-300 mt-2">
+                Set up monitoring for your websites and services
+              </p>
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div className="max-w-4xl">
+            <MonitorCreatorWrapper
+              userId={user.id}
+              userPlan={userPlan}
+            />
           </div>
         </div>
-
-        {/* Main Content */}
-        <div className="max-w-4xl">
-          <MonitorCreatorWrapper
-            userId={user.id}
-            userPlan={user.plan}
-          />
-        </div>
       </div>
-    </div>
-  );
+    );
+  } catch (error) {
+    console.error("❌ CreateMonitorPage: Error:", error);
+    redirect("/");
+  }
 }

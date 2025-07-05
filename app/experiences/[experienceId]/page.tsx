@@ -1,6 +1,7 @@
 import { whopSdk } from "@/lib/whop-sdk";
 import { headers } from "next/headers";
 import { validateWhopAuth } from "@/lib/auth/whop-auth-middleware";
+import Link from "next/link";
 
 export default async function ExperiencePage({
   params,
@@ -141,7 +142,7 @@ export default async function ExperiencePage({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div className="bg-slate-700/50 rounded p-3">
                   <p className="text-gray-400">User ID</p>
-                  <p className="text-white font-mono">{userId}</p>
+                  <p className="text-white font-mono text-xs">{userId}</p>
                 </div>
                 <div className="bg-slate-700/50 rounded p-3">
                   <p className="text-gray-400">Plan</p>
@@ -156,36 +157,29 @@ export default async function ExperiencePage({
 
             {/* Quick Actions */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-600/50 hover:border-blue-500/50 transition-colors">
-                <div className="text-blue-400 text-2xl mb-2">📊</div>
+              <Link href="/dashboard" className="bg-slate-800/50 rounded-lg p-6 border border-slate-600/50 hover:border-blue-500/50 transition-colors cursor-pointer group">
+                <div className="text-blue-400 text-2xl mb-2 group-hover:scale-110 transition-transform">📊</div>
                 <h3 className="text-white font-semibold mb-1">Dashboard</h3>
                 <p className="text-gray-400 text-sm">View all monitors</p>
-              </div>
+              </Link>
               
-              <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-600/50 hover:border-green-500/50 transition-colors">
-                <div className="text-green-400 text-2xl mb-2">➕</div>
+              <Link href="/monitors/create" className="bg-slate-800/50 rounded-lg p-6 border border-slate-600/50 hover:border-green-500/50 transition-colors cursor-pointer group">
+                <div className="text-green-400 text-2xl mb-2 group-hover:scale-110 transition-transform">➕</div>
                 <h3 className="text-white font-semibold mb-1">Add Monitor</h3>
                 <p className="text-gray-400 text-sm">Create new monitor</p>
-              </div>
+              </Link>
               
-              <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-600/50 hover:border-yellow-500/50 transition-colors">
-                <div className="text-yellow-400 text-2xl mb-2">🔔</div>
+              <Link href="/alerts" className="bg-slate-800/50 rounded-lg p-6 border border-slate-600/50 hover:border-yellow-500/50 transition-colors cursor-pointer group">
+                <div className="text-yellow-400 text-2xl mb-2 group-hover:scale-110 transition-transform">🔔</div>
                 <h3 className="text-white font-semibold mb-1">Alerts</h3>
                 <p className="text-gray-400 text-sm">Manage alerts</p>
-              </div>
+              </Link>
               
-              <div className="bg-slate-800/50 rounded-lg p-6 border border-slate-600/50 hover:border-purple-500/50 transition-colors">
-                <div className="text-purple-400 text-2xl mb-2">💰</div>
+              <Link href="/billing" className="bg-slate-800/50 rounded-lg p-6 border border-slate-600/50 hover:border-purple-500/50 transition-colors cursor-pointer group">
+                <div className="text-purple-400 text-2xl mb-2 group-hover:scale-110 transition-transform">💰</div>
                 <h3 className="text-white font-semibold mb-1">Billing</h3>
                 <p className="text-gray-400 text-sm">Upgrade plan</p>
-              </div>
-            </div>
-
-            {/* Debug Info (can be removed later) */}
-            <div className="mt-8 bg-slate-800/30 rounded-lg p-4 border border-slate-600/30">
-              <p className="text-xs text-gray-400">
-                Debug: Experience ID: {experienceId} | User ID: {userId} | Access: {result?.accessLevel || 'customer'}
-              </p>
+              </Link>
             </div>
 
             {/* Status */}
