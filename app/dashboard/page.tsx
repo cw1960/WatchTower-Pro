@@ -1,6 +1,5 @@
 import Dashboard from "@/components/dashboard/Dashboard";
-import { whopSdk } from "@/lib/whop-sdk";
-import { headers } from "next/headers";
+import { validateWhopAuth } from "@/lib/auth/whop-auth-middleware";
 import { redirect } from "next/navigation";
 import { PlanType } from "@prisma/client";
 import Link from "next/link";
@@ -10,23 +9,20 @@ export default async function DashboardPage() {
   try {
     console.log("🔍 DashboardPage: Starting authentication");
     
-    // Get headers from the request
-    const headersList = await headers();
-    
-    // Extract the user ID from the verified auth JWT token
-    const { userId } = await whopSdk.verifyUserToken(headersList);
-    console.log("✅ DashboardPage: User authenticated:", userId);
+    // Use the working authentication system (same as experience page)
+    const authResult = await validateWhopAuth();
+    console.log("🔍 DashboardPage: Auth result:", { success: authResult.success, error: authResult.error });
 
-    // Load the user's public profile information
-    const user = await whopSdk.users.getUser({ userId: userId });
-    console.log("✅ DashboardPage: User profile loaded:", { userId: user.id, name: user.name });
+    if (!authResult.success || !authResult.user) {
+      console.error("❌ DashboardPage: Authentication failed:", authResult.error);
+      redirect("/");
+    }
 
-    // For now, default to STARTER plan since Whop user profile doesn't include plan info
-    // TODO: Get actual user plan from our database or Whop business logic
-    const userPlan = PlanType.STARTER;
+    const user = authResult.user;
+    console.log("✅ DashboardPage: User authenticated:", { userId: user.id, name: user.name });
 
-    // Get the authentication token to pass to the client component
-    const authToken = headersList.get('x-whop-user-token');
+    // Cast the plan string to PlanType enum
+    const userPlan = user.plan as PlanType;
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
@@ -43,11 +39,11 @@ export default async function DashboardPage() {
           </div>
         </div>
         
-        <Dashboard userId={user.id} userPlan={userPlan} authToken={authToken} />
+        <Dashboard userId={user.id} userPlan={userPlan} />
       </div>
     );
   } catch (error) {
-    console.error("❌ DashboardPage: Authentication failed:", error);
+    console.error("❌ DashboardPage: Error:", error);
     redirect("/");
   }
 }
