@@ -33,6 +33,7 @@ interface Alert {
   };
 }
 
+// Force rebuild to include new Tailwind gradient classes
 export default function Dashboard({ userId, userPlan }: DashboardProps) {
   const [monitors, setMonitors] = useState<Monitor[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
