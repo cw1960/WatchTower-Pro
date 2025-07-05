@@ -78,11 +78,7 @@
   to = "/new-path/:splat"
   status = 301
 
-# Catch-all for SPA routes
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# Next.js handles routing - no catch-all needed
 
 # ================================
 # HEADERS & SECURITY
