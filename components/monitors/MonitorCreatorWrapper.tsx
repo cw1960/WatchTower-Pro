@@ -24,4 +24,4 @@ export default function MonitorCreatorWrapper({
       onMonitorCreated={handleMonitorCreated}
     />
   );
-} 
+}

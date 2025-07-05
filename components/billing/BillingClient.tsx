@@ -197,7 +197,9 @@ export default function BillingClient({ user }: BillingClientProps) {
               </p>
               <p className="text-2xl font-bold text-gray-900 mt-2">
                 {planFeatures[user.plan].price}
-                <span className="text-sm font-normal text-gray-600">/month</span>
+                <span className="text-sm font-normal text-gray-600">
+                  /month
+                </span>
               </p>
             </div>
             {user.plan !== PlanType.FREE && (
@@ -238,7 +240,9 @@ export default function BillingClient({ user }: BillingClientProps) {
                   <h3 className="text-xl font-bold text-gray-900 mb-2">
                     {plan.name}
                   </h3>
-                  <p className="text-gray-600 text-sm mb-4">{plan.description}</p>
+                  <p className="text-gray-600 text-sm mb-4">
+                    {plan.description}
+                  </p>
                   <div className="text-3xl font-bold text-gray-900">
                     {plan.price}
                     <span className="text-sm font-normal text-gray-600">
@@ -249,7 +253,9 @@ export default function BillingClient({ user }: BillingClientProps) {
 
                 <div className="space-y-4">
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Included:</h4>
+                    <h4 className="font-medium text-gray-900 mb-2">
+                      Included:
+                    </h4>
                     <ul className="space-y-1">
                       {plan.features.map((feature, index) => (
                         <li key={index} className="flex items-center text-sm">
@@ -344,4 +350,4 @@ export default function BillingClient({ user }: BillingClientProps) {
       </div>
     </div>
   );
-} 
+}

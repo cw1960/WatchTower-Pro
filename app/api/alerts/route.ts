@@ -124,13 +124,13 @@ export async function GET(request: NextRequest) {
     } catch (dbError) {
       console.warn("⚠️ AlertsAPI: Database unavailable, using fallback");
       console.error("Database error:", dbError);
-      
+
       // Return empty array instead of failing
       return NextResponse.json([]);
     }
   } catch (error) {
     console.error("❌ AlertsAPI: Unexpected error:", error);
-    
+
     // Always return empty array as fallback
     return NextResponse.json([]);
   }
@@ -155,7 +155,10 @@ export async function POST(request: NextRequest) {
 
     // Get user's plan and check alert limits
     const userPlan = "STARTER" as const; // TODO: Get actual user plan from database
-    const canCreateAlertResult = await PricingService.canCreateAlert(userId, userPlan);
+    const canCreateAlertResult = await PricingService.canCreateAlert(
+      userId,
+      userPlan,
+    );
 
     if (!canCreateAlertResult.allowed) {
       return NextResponse.json(
@@ -394,5 +397,3 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
-
-

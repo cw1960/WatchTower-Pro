@@ -54,9 +54,11 @@ export async function GET(request: NextRequest) {
           );
       }
     } catch (engineError) {
-      console.warn("⚠️ MonitoringAPI: Monitoring engine unavailable, using fallback");
+      console.warn(
+        "⚠️ MonitoringAPI: Monitoring engine unavailable, using fallback",
+      );
       console.error("Engine error:", engineError);
-      
+
       // Return default stats instead of failing
       const defaultStats = {
         totalMonitors: 0,
@@ -98,7 +100,7 @@ export async function GET(request: NextRequest) {
     }
   } catch (error) {
     console.error("❌ MonitoringAPI: Unexpected error:", error);
-    
+
     // Return default stopped status
     return NextResponse.json({
       status: "stopped",

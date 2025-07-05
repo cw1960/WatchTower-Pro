@@ -59,7 +59,9 @@ export default async function RootLayout({
         <WhopIframeSdkProvider>
           <ErrorBoundary>
             <WhopUserProvider initialUser={initialUser}>
-              <div className="w-full h-full bg-slate-900 min-h-screen">{children}</div>
+              <div className="w-full h-full bg-slate-900 min-h-screen">
+                {children}
+              </div>
             </WhopUserProvider>
           </ErrorBoundary>
         </WhopIframeSdkProvider>

@@ -8,16 +8,22 @@ import { PlanType } from "@prisma/client";
 export default async function CreateMonitorPage() {
   try {
     console.log("🔍 CreateMonitorPage: Starting authentication");
-    
+
     const authResult = await validateWhopAuth();
 
     if (!authResult.success || !authResult.user) {
-      console.error("❌ CreateMonitorPage: Authentication failed:", authResult.error);
+      console.error(
+        "❌ CreateMonitorPage: Authentication failed:",
+        authResult.error,
+      );
       redirect("/");
     }
 
     const user = authResult.user;
-    console.log("✅ CreateMonitorPage: User authenticated:", { userId: user.id, name: user.name });
+    console.log("✅ CreateMonitorPage: User authenticated:", {
+      userId: user.id,
+      name: user.name,
+    });
 
     // Cast the plan string to PlanType enum
     const userPlan = user.plan as PlanType;
@@ -59,10 +65,7 @@ export default async function CreateMonitorPage() {
 
           {/* Main Content */}
           <div className="max-w-4xl">
-            <MonitorCreatorWrapper
-              userId={user.id}
-              userPlan={userPlan}
-            />
+            <MonitorCreatorWrapper userId={user.id} userPlan={userPlan} />
           </div>
         </div>
       </div>

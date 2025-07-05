@@ -8,18 +8,27 @@ import { HomeIcon } from "@heroicons/react/24/outline";
 export default async function DashboardPage() {
   try {
     console.log("🔍 DashboardPage: Starting authentication");
-    
+
     // Use the working authentication system (same as experience page)
     const authResult = await validateWhopAuth();
-    console.log("🔍 DashboardPage: Auth result:", { success: authResult.success, error: authResult.error });
+    console.log("🔍 DashboardPage: Auth result:", {
+      success: authResult.success,
+      error: authResult.error,
+    });
 
     if (!authResult.success || !authResult.user) {
-      console.error("❌ DashboardPage: Authentication failed:", authResult.error);
+      console.error(
+        "❌ DashboardPage: Authentication failed:",
+        authResult.error,
+      );
       redirect("/");
     }
 
     const user = authResult.user;
-    console.log("✅ DashboardPage: User authenticated:", { userId: user.id, name: user.name });
+    console.log("✅ DashboardPage: User authenticated:", {
+      userId: user.id,
+      name: user.name,
+    });
 
     // Cast the plan string to PlanType enum
     const userPlan = user.plan as PlanType;
@@ -38,7 +47,7 @@ export default async function DashboardPage() {
             </Link>
           </div>
         </div>
-        
+
         <Dashboard userId={user.id} userPlan={userPlan} />
       </div>
     );

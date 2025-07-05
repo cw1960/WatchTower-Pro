@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default async function BillingPage() {
   try {
     console.log("🔍 BillingPage: Starting authentication");
-    
+
     const authResult = await validateWhopAuth();
 
     if (!authResult.success || !authResult.user) {
@@ -23,7 +23,10 @@ export default async function BillingPage() {
     }
 
     const user = authResult.user;
-    console.log("✅ BillingPage: User authenticated:", { userId: user.id, name: user.name });
+    console.log("✅ BillingPage: User authenticated:", {
+      userId: user.id,
+      name: user.name,
+    });
 
     // Cast the plan string to PlanType enum
     const userPlan = user.plan as PlanType;
@@ -42,7 +45,7 @@ export default async function BillingPage() {
             </Link>
           </div>
         </div>
-        
+
         <BillingClient
           user={{
             id: user.id,

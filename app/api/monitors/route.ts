@@ -85,13 +85,13 @@ export async function GET(request: NextRequest) {
     } catch (dbError) {
       console.warn("⚠️ MonitorsAPI: Database unavailable, using fallback");
       console.error("Database error:", dbError);
-      
+
       // Return empty array instead of failing
       return NextResponse.json([]);
     }
   } catch (error) {
     console.error("❌ MonitorsAPI: Unexpected error:", error);
-    
+
     // Always return empty array as fallback
     return NextResponse.json([]);
   }
