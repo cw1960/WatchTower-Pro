@@ -11,30 +11,32 @@
   :root {
     --radius: 0.5rem;
   }
-
-  /* Essential iframe compatibility styles */
-  html,
+  
+  /* Dark theme for the entire app */
+  html {
+    background-color: #0f172a;
+    color: #f1f5f9;
+  }
+  
   body {
+    background-color: #0f172a;
+    color: #f1f5f9;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
     height: 100%;
     margin: 0;
     padding: 0;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
   }
-
+  
   /* Root app container */
   #__next {
     height: 100%;
     width: 100%;
   }
-
-  /* Ensure proper font rendering */
-  body {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-  }
-
+  
   /* Prevent content from breaking out */
   * {
     box-sizing: border-box;

@@ -36,7 +36,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning data-whop-theme="dark">
       <head>
         {/* Add meta tags for iframe compatibility */}
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -47,7 +47,7 @@ export default async function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-900`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-900 text-slate-100`}
         style={{
           // Ensure iframe compatibility
           margin: 0,
@@ -59,7 +59,7 @@ export default async function RootLayout({
         <WhopIframeSdkProvider>
           <ErrorBoundary>
             <WhopUserProvider initialUser={initialUser}>
-              <div className="w-full h-full">{children}</div>
+              <div className="w-full h-full bg-slate-900 min-h-screen">{children}</div>
             </WhopUserProvider>
           </ErrorBoundary>
         </WhopIframeSdkProvider>
