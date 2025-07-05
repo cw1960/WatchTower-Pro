@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { whopAuth } from "@/lib/whop-sdk";
+import { whopSdk } from "@/lib/whop-sdk";
 import { PricingService } from "@/lib/pricing";
 import { z } from "zod";
+import { headers } from "next/headers";
 
 const createAlertSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -54,69 +55,70 @@ const updateAlertSchema = z.object({
 // GET /api/alerts - Get alerts for the current user
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId");
-    const monitorId = searchParams.get("monitorId");
-    const type = searchParams.get("type");
-    const status = searchParams.get("status");
+    console.log("🔍 AlertsAPI: GET request received");
 
-    if (!userId) {
-      return NextResponse.json(
-        { error: "User ID is required" },
-        { status: 400 },
-      );
-    }
+    // Use the new Whop authentication
+    const headersList = await headers();
+    
+    try {
+      // Extract the user ID from the verified auth JWT token
+      const { userId } = await whopSdk.verifyUserToken(headersList);
+      console.log("✅ AlertsAPI: User authenticated:", userId);
 
-    // Validate user access
-    const hasAccess = await whopAuth.validateUserAccess(userId);
-    if (!hasAccess) {
+      const { searchParams } = new URL(request.url);
+      const monitorId = searchParams.get("monitorId");
+      const type = searchParams.get("type");
+      const status = searchParams.get("status");
+
+      // Build where clause based on filters
+      const where: any = {
+        monitor: {
+          userId: userId,
+        },
+      };
+
+      if (monitorId) {
+        where.monitorId = monitorId;
+      }
+
+      if (type) {
+        where.type = type;
+      }
+
+      if (status) {
+        where.status = status;
+      }
+
+      const alerts = await db.alert.findMany({
+        where,
+        include: {
+          monitor: {
+            select: {
+              id: true,
+              name: true,
+              url: true,
+              type: true,
+              status: true,
+            },
+          },
+          _count: {
+            select: {
+              incidents: true,
+              notifications: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+
+      console.log("✅ AlertsAPI: Found", alerts.length, "alerts");
+      return NextResponse.json(alerts);
+    } catch (authError) {
+      console.error("❌ AlertsAPI: Authentication failed:", authError);
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    // Build where clause based on filters
-    const where: any = {
-      monitor: {
-        userId: userId,
-      },
-    };
-
-    if (monitorId) {
-      where.monitorId = monitorId;
-    }
-
-    if (type) {
-      where.type = type;
-    }
-
-    if (status) {
-      where.status = status;
-    }
-
-    const alerts = await db.alert.findMany({
-      where,
-      include: {
-        monitor: {
-          select: {
-            id: true,
-            name: true,
-            url: true,
-            type: true,
-            status: true,
-          },
-        },
-        _count: {
-          select: {
-            incidents: true,
-            notifications: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    return NextResponse.json(alerts);
   } catch (error) {
-    console.error("Error fetching alerts:", error);
+    console.error("❌ AlertsAPI: Error fetching alerts:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
@@ -127,154 +129,36 @@ export async function GET(request: NextRequest) {
 // POST /api/alerts - Create a new alert
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { userId, ...alertData } = body;
+    console.log("🔍 AlertsAPI: POST request received");
 
-    if (!userId) {
-      return NextResponse.json(
-        { error: "User ID is required" },
-        { status: 400 },
-      );
-    }
+    // Use the new Whop authentication
+    const headersList = await headers();
+    
+    try {
+      // Extract the user ID from the verified auth JWT token
+      const { userId } = await whopSdk.verifyUserToken(headersList);
+      console.log("✅ AlertsAPI: User authenticated:", userId);
 
-    // Validate user access
-    const hasAccess = await whopAuth.validateUserAccess(userId);
-    if (!hasAccess) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+      const body = await request.json();
+      const { ...alertData } = body;
 
-    // Get user's plan and check alert limits
-    const userPlan = "STARTER" as const; // TODO: Get actual user plan from database
-    const canCreateAlertResult = await PricingService.canCreateAlert(userId, userPlan);
-
-    if (!canCreateAlertResult.allowed) {
-      return NextResponse.json(
-        {
-          error: canCreateAlertResult.message || "Alert limit reached",
-        },
-        { status: 400 },
-      );
-    }
-
-    // Validate input
-    const validatedData = createAlertSchema.parse(alertData);
-
-    // Check if selected channels are available for user's plan
-    const invalidChannels = validatedData.channels.filter(
-      (channel) => !PricingService.hasChannelAccess(userPlan, channel as any),
-    );
-
-    if (invalidChannels.length > 0) {
-      return NextResponse.json(
-        {
-          error: `Channels not available for your ${userPlan} plan: ${invalidChannels.join(", ")}`,
-        },
-        { status: 400 },
-      );
-    }
-
-    // Check if monitor exists and belongs to user
-    const monitor = await db.monitor.findFirst({
-      where: {
-        id: validatedData.monitorId,
-        userId: userId,
-      },
-    });
-
-    if (!monitor) {
-      return NextResponse.json(
-        { error: "Monitor not found or unauthorized" },
-        { status: 404 },
-      );
-    }
-
-    // Create the alert
-    const alert = await db.alert.create({
-      data: {
-        ...validatedData,
-        userId: userId, // Add the userId field required by the database
-        escalation: validatedData.escalation
-          ? JSON.stringify(validatedData.escalation)
-          : undefined,
-      },
-      include: {
-        monitor: {
-          select: {
-            id: true,
-            name: true,
-            url: true,
-            type: true,
-            status: true,
-          },
-        },
-        _count: {
-          select: {
-            incidents: true,
-            notifications: true,
-          },
-        },
-      },
-    });
-
-    return NextResponse.json(alert);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: "Validation error", details: error.errors },
-        { status: 400 },
-      );
-    }
-
-    console.error("Error creating alert:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
-  }
-}
-
-// PUT /api/alerts - Update an existing alert
-export async function PUT(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { id, userId, ...updateData } = body;
-
-    if (!id || !userId) {
-      return NextResponse.json(
-        { error: "Alert ID and User ID are required" },
-        { status: 400 },
-      );
-    }
-
-    // Validate user access
-    const hasAccess = await whopAuth.validateUserAccess(userId);
-    if (!hasAccess) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Check if alert exists and belongs to user's monitors
-    const existingAlert = await db.alert.findFirst({
-      where: {
-        id,
-        monitor: {
-          userId: userId,
-        },
-      },
-    });
-
-    if (!existingAlert) {
-      return NextResponse.json(
-        { error: "Alert not found or unauthorized" },
-        { status: 404 },
-      );
-    }
-
-    // Validate input
-    const validatedData = updateAlertSchema.parse(updateData);
-
-    // If updating channels, check if they're available for user's plan
-    if (validatedData.channels) {
+      // Get user's plan and check alert limits
       const userPlan = "STARTER" as const; // TODO: Get actual user plan from database
+      const canCreateAlertResult = await PricingService.canCreateAlert(userId, userPlan);
+
+      if (!canCreateAlertResult.allowed) {
+        return NextResponse.json(
+          {
+            error: canCreateAlertResult.message || "Alert limit reached",
+          },
+          { status: 400 },
+        );
+      }
+
+      // Validate input
+      const validatedData = createAlertSchema.parse(alertData);
+
+      // Check if selected channels are available for user's plan
       const invalidChannels = validatedData.channels.filter(
         (channel) => !PricingService.hasChannelAccess(userPlan, channel as any),
       );
@@ -287,37 +171,56 @@ export async function PUT(request: NextRequest) {
           { status: 400 },
         );
       }
+
+      // Check if monitor exists and belongs to user
+      const monitor = await db.monitor.findFirst({
+        where: {
+          id: validatedData.monitorId,
+          userId: userId,
+        },
+      });
+
+      if (!monitor) {
+        return NextResponse.json(
+          { error: "Monitor not found or unauthorized" },
+          { status: 404 },
+        );
+      }
+
+      // Create the alert
+      const alert = await db.alert.create({
+        data: {
+          ...validatedData,
+          userId: userId, // Add the userId field required by the database
+          escalation: validatedData.escalation
+            ? JSON.stringify(validatedData.escalation)
+            : undefined,
+        },
+        include: {
+          monitor: {
+            select: {
+              id: true,
+              name: true,
+              url: true,
+              type: true,
+              status: true,
+            },
+          },
+          _count: {
+            select: {
+              incidents: true,
+              notifications: true,
+            },
+          },
+        },
+      });
+
+      console.log("✅ AlertsAPI: Created alert:", alert.id);
+      return NextResponse.json(alert);
+    } catch (authError) {
+      console.error("❌ AlertsAPI: Authentication failed:", authError);
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    // Update the alert
-    const alert = await db.alert.update({
-      where: { id },
-      data: {
-        ...validatedData,
-        escalation: validatedData.escalation
-          ? JSON.stringify(validatedData.escalation)
-          : undefined,
-      },
-      include: {
-        monitor: {
-          select: {
-            id: true,
-            name: true,
-            url: true,
-            type: true,
-            status: true,
-          },
-        },
-        _count: {
-          select: {
-            incidents: true,
-            notifications: true,
-          },
-        },
-      },
-    });
-
-    return NextResponse.json(alert);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -326,7 +229,117 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    console.error("Error updating alert:", error);
+    console.error("❌ AlertsAPI: Error creating alert:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
+  }
+}
+
+// PUT /api/alerts - Update an existing alert
+export async function PUT(request: NextRequest) {
+  try {
+    console.log("🔍 AlertsAPI: PUT request received");
+
+    // Use the new Whop authentication
+    const headersList = await headers();
+    
+    try {
+      // Extract the user ID from the verified auth JWT token
+      const { userId } = await whopSdk.verifyUserToken(headersList);
+      console.log("✅ AlertsAPI: User authenticated:", userId);
+
+      const body = await request.json();
+      const { id, ...updateData } = body;
+
+      if (!id) {
+        return NextResponse.json(
+          { error: "Alert ID is required" },
+          { status: 400 },
+        );
+      }
+
+      // Check if alert exists and belongs to user's monitors
+      const existingAlert = await db.alert.findFirst({
+        where: {
+          id,
+          monitor: {
+            userId: userId,
+          },
+        },
+      });
+
+      if (!existingAlert) {
+        return NextResponse.json(
+          { error: "Alert not found or unauthorized" },
+          { status: 404 },
+        );
+      }
+
+      // Validate input
+      const validatedData = updateAlertSchema.parse(updateData);
+
+      // If updating channels, check if they're available for user's plan
+      if (validatedData.channels) {
+        const userPlan = "STARTER" as const; // TODO: Get actual user plan from database
+        const invalidChannels = validatedData.channels.filter(
+          (channel) => !PricingService.hasChannelAccess(userPlan, channel as any),
+        );
+
+        if (invalidChannels.length > 0) {
+          return NextResponse.json(
+            {
+              error: `Channels not available for your ${userPlan} plan: ${invalidChannels.join(", ")}`,
+            },
+            { status: 400 },
+          );
+        }
+      }
+
+      // Update the alert
+      const alert = await db.alert.update({
+        where: { id },
+        data: {
+          ...validatedData,
+          escalation: validatedData.escalation
+            ? JSON.stringify(validatedData.escalation)
+            : undefined,
+        },
+        include: {
+          monitor: {
+            select: {
+              id: true,
+              name: true,
+              url: true,
+              type: true,
+              status: true,
+            },
+          },
+          _count: {
+            select: {
+              incidents: true,
+              notifications: true,
+            },
+          },
+        },
+      });
+
+      console.log("✅ AlertsAPI: Updated alert:", alert.id);
+      return NextResponse.json(alert);
+    } catch (authError) {
+      console.error("❌ AlertsAPI: Authentication failed:", authError);
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Validation error", details: error.errors },
+        { status: 400 },
+      );
+    }
+
+    console.error("❌ AlertsAPI: Error updating alert:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
@@ -337,48 +350,56 @@ export async function PUT(request: NextRequest) {
 // DELETE /api/alerts - Delete an alert
 export async function DELETE(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
-    const userId = searchParams.get("userId");
+    console.log("🔍 AlertsAPI: DELETE request received");
 
-    if (!id || !userId) {
-      return NextResponse.json(
-        { error: "Alert ID and User ID are required" },
-        { status: 400 },
-      );
-    }
+    // Use the new Whop authentication
+    const headersList = await headers();
+    
+    try {
+      // Extract the user ID from the verified auth JWT token
+      const { userId } = await whopSdk.verifyUserToken(headersList);
+      console.log("✅ AlertsAPI: User authenticated:", userId);
 
-    // Validate user access
-    const hasAccess = await whopAuth.validateUserAccess(userId);
-    if (!hasAccess) {
+      const { searchParams } = new URL(request.url);
+      const id = searchParams.get("id");
+
+      if (!id) {
+        return NextResponse.json(
+          { error: "Alert ID is required" },
+          { status: 400 },
+        );
+      }
+
+      // Check if alert exists and belongs to user's monitors
+      const existingAlert = await db.alert.findFirst({
+        where: {
+          id,
+          monitor: {
+            userId: userId,
+          },
+        },
+      });
+
+      if (!existingAlert) {
+        return NextResponse.json(
+          { error: "Alert not found or unauthorized" },
+          { status: 404 },
+        );
+      }
+
+      // Delete the alert
+      await db.alert.delete({
+        where: { id },
+      });
+
+      console.log("✅ AlertsAPI: Deleted alert:", id);
+      return NextResponse.json({ message: "Alert deleted successfully" });
+    } catch (authError) {
+      console.error("❌ AlertsAPI: Authentication failed:", authError);
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    // Check if alert exists and belongs to user's monitors
-    const existingAlert = await db.alert.findFirst({
-      where: {
-        id,
-        monitor: {
-          userId: userId,
-        },
-      },
-    });
-
-    if (!existingAlert) {
-      return NextResponse.json(
-        { error: "Alert not found or unauthorized" },
-        { status: 404 },
-      );
-    }
-
-    // Delete the alert (cascading deletes will handle related incidents and notifications)
-    await db.alert.delete({
-      where: { id },
-    });
-
-    return NextResponse.json({ message: "Alert deleted successfully" });
   } catch (error) {
-    console.error("Error deleting alert:", error);
+    console.error("❌ AlertsAPI: Error deleting alert:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

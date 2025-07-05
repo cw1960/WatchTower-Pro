@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { whopAuth } from "@/lib/whop-sdk";
+import { whopSdk } from "@/lib/whop-sdk";
 import { z } from "zod";
 import {
   initializeMonitoring,
@@ -8,6 +8,7 @@ import {
   healthCheck,
   getMonitoringEngine,
 } from "@/lib/monitoring/init";
+import { headers } from "next/headers";
 
 const testMonitorSchema = z.object({
   monitorId: z.string(),
@@ -23,15 +24,22 @@ const monitoringActionSchema = z.object({
 // GET /api/monitoring - Get monitoring system status and stats
 export async function GET(request: NextRequest) {
   try {
+    console.log("🔍 MonitoringAPI: GET request received");
+
     const { searchParams } = new URL(request.url);
     const action = searchParams.get("action") || "status";
-    const userId = searchParams.get("userId");
     const monitorId = searchParams.get("monitorId");
 
-    // Validate user access if userId provided
-    if (userId) {
-      const hasAccess = await whopAuth.validateUserAccess(userId);
-      if (!hasAccess) {
+    // For monitoring stats, we need to authenticate the user
+    if (action === "stats") {
+      const headersList = await headers();
+      
+      try {
+        // Extract the user ID from the verified auth JWT token
+        const { userId } = await whopSdk.verifyUserToken(headersList);
+        console.log("✅ MonitoringAPI: User authenticated:", userId);
+      } catch (authError) {
+        console.error("❌ MonitoringAPI: Authentication failed:", authError);
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
     }
@@ -81,6 +89,7 @@ export async function GET(request: NextRequest) {
             },
           });
 
+          console.log("✅ MonitoringAPI: Retrieved stats");
           return NextResponse.json({
             engineStats: stats,
             monitorCounts: dbStats,
@@ -91,6 +100,7 @@ export async function GET(request: NextRequest) {
             timestamp: new Date().toISOString(),
           });
         } catch (error) {
+          console.error("❌ MonitoringAPI: Failed to get stats:", error);
           return NextResponse.json(
             { error: "Failed to get stats" },
             { status: 500 },
@@ -107,7 +117,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
   } catch (error) {
-    console.error("Error in monitoring API:", error);
+    console.error("❌ MonitoringAPI: Error in monitoring API:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
@@ -118,13 +128,21 @@ export async function GET(request: NextRequest) {
 // POST /api/monitoring - Control monitoring system and test monitors
 export async function POST(request: NextRequest) {
   try {
+    console.log("🔍 MonitoringAPI: POST request received");
+
     const body = await request.json();
     const { action, monitorId, userId } = monitoringActionSchema.parse(body);
 
-    // Validate user access
-    if (userId) {
-      const hasAccess = await whopAuth.validateUserAccess(userId);
-      if (!hasAccess) {
+    // For actions that need authentication
+    if (action === "test" || action === "start" || action === "stop") {
+      const headersList = await headers();
+      
+      try {
+        // Extract the user ID from the verified auth JWT token
+        const { userId: authenticatedUserId } = await whopSdk.verifyUserToken(headersList);
+        console.log("✅ MonitoringAPI: User authenticated:", authenticatedUserId);
+      } catch (authError) {
+        console.error("❌ MonitoringAPI: Authentication failed:", authError);
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
     }
@@ -135,6 +153,7 @@ export async function POST(request: NextRequest) {
           const engine = await initializeMonitoring();
           const stats = engine.getStats();
 
+          console.log("✅ MonitoringAPI: Monitoring system started");
           return NextResponse.json({
             success: true,
             message: "Monitoring system started successfully",
@@ -142,7 +161,7 @@ export async function POST(request: NextRequest) {
             timestamp: new Date().toISOString(),
           });
         } catch (error) {
-          console.error("Error starting monitoring:", error);
+          console.error("❌ MonitoringAPI: Error starting monitoring:", error);
           return NextResponse.json(
             {
               success: false,
@@ -158,13 +177,14 @@ export async function POST(request: NextRequest) {
         try {
           await shutdownMonitoring();
 
+          console.log("✅ MonitoringAPI: Monitoring system stopped");
           return NextResponse.json({
             success: true,
             message: "Monitoring system stopped successfully",
             timestamp: new Date().toISOString(),
           });
         } catch (error) {
-          console.error("Error stopping monitoring:", error);
+          console.error("❌ MonitoringAPI: Error stopping monitoring:", error);
           return NextResponse.json(
             {
               success: false,
@@ -262,98 +282,20 @@ export async function POST(request: NextRequest) {
 
 // PUT /api/monitoring - Update monitoring configuration
 export async function PUT(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { userId, config } = body;
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: "User ID is required" },
-        { status: 400 },
-      );
-    }
-
-    // Validate user access
-    const hasAccess = await whopAuth.validateUserAccess(userId);
-    if (!hasAccess) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Update monitoring configuration
-    // This could be extended to update scheduler settings, etc.
-
-    return NextResponse.json({
-      success: true,
-      message: "Monitoring configuration updated",
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
-    console.error("Error updating monitoring config:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
-  }
+  // For now, monitoring configuration updates aren't needed
+  return NextResponse.json({
+    success: true,
+    message: "Monitoring configuration update not implemented",
+    timestamp: new Date().toISOString(),
+  });
 }
 
 // DELETE /api/monitoring - Clear monitoring data or reset engine
 export async function DELETE(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId");
-    const action = searchParams.get("action");
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: "User ID is required" },
-        { status: 400 },
-      );
-    }
-
-    // Validate user access
-    const hasAccess = await whopAuth.validateUserAccess(userId);
-    if (!hasAccess) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    switch (action) {
-      case "clear_checks":
-        // Clear old monitor checks for the user
-        const oldChecks = await db.monitorCheck.deleteMany({
-          where: {
-            monitor: { userId },
-            createdAt: { lt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }, // 30 days old
-          },
-        });
-
-        return NextResponse.json({
-          message: "Old checks cleared",
-          deleted: oldChecks.count,
-        });
-
-      case "clear_incidents":
-        // Clear resolved incidents for the user
-        const oldIncidents = await db.incident.deleteMany({
-          where: {
-            monitor: { userId },
-            status: "RESOLVED",
-            createdAt: { lt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }, // 7 days old
-          },
-        });
-
-        return NextResponse.json({
-          message: "Old incidents cleared",
-          deleted: oldIncidents.count,
-        });
-
-      default:
-        return NextResponse.json({ error: "Unknown action" }, { status: 400 });
-    }
-  } catch (error) {
-    console.error("Error clearing monitoring data:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
-  }
+  // For now, monitoring data clearing isn't needed  
+  return NextResponse.json({
+    success: true,
+    message: "Monitoring data clearing not implemented",
+    timestamp: new Date().toISOString(),
+  });
 }

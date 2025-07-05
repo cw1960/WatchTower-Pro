@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { whopAuth, whopPricing, PlanType } from "@/lib/whop-sdk";
+import { whopSdk, PlanType } from "@/lib/whop-sdk";
 import { z } from "zod";
 import { getMonitoringEngine } from "@/lib/monitoring/engine";
 import {
@@ -10,6 +10,7 @@ import {
   requirePlanAccess,
 } from "@/lib/middleware/pricing-middleware";
 import PricingService from "@/lib/pricing";
+import { headers } from "next/headers";
 
 const createMonitorSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -43,39 +44,38 @@ const createMonitorSchema = z.object({
 // GET /api/monitors - Get all monitors for the current user
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId");
+    console.log("🔍 MonitorsAPI: GET request received");
 
-    if (!userId) {
-      return NextResponse.json(
-        { error: "User ID is required" },
-        { status: 400 },
-      );
-    }
+    // Use the new Whop authentication
+    const headersList = await headers();
+    
+    try {
+      // Extract the user ID from the verified auth JWT token
+      const { userId } = await whopSdk.verifyUserToken(headersList);
+      console.log("✅ MonitorsAPI: User authenticated:", userId);
 
-    // Validate user access
-    const hasAccess = await whopAuth.validateUserAccess(userId);
-    if (!hasAccess) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const monitors = await db.monitor.findMany({
-      where: { userId },
-      include: {
-        alerts: true,
-        _count: {
-          select: {
-            checks: true,
-            incidents: true,
+      const monitors = await db.monitor.findMany({
+        where: { userId },
+        include: {
+          alerts: true,
+          _count: {
+            select: {
+              checks: true,
+              incidents: true,
+            },
           },
         },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+        orderBy: { createdAt: "desc" },
+      });
 
-    return NextResponse.json(monitors);
+      console.log("✅ MonitorsAPI: Found", monitors.length, "monitors");
+      return NextResponse.json(monitors);
+    } catch (authError) {
+      console.error("❌ MonitorsAPI: Authentication failed:", authError);
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
   } catch (error) {
-    console.error("Error fetching monitors:", error);
+    console.error("❌ MonitorsAPI: Error fetching monitors:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
@@ -86,97 +86,100 @@ export async function GET(request: NextRequest) {
 // POST /api/monitors - Create a new monitor
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { userId, companyId, ...monitorData } = body;
+    console.log("🔍 MonitorsAPI: POST request received");
 
-    if (!userId) {
-      return NextResponse.json(
-        { error: "User ID is required" },
-        { status: 400 },
-      );
-    }
+    // Use the new Whop authentication
+    const headersList = await headers();
+    
+    try {
+      // Extract the user ID from the verified auth JWT token
+      const { userId } = await whopSdk.verifyUserToken(headersList);
+      console.log("✅ MonitorsAPI: User authenticated:", userId);
 
-    // Validate user access
-    const hasAccess = await whopAuth.validateUserAccess(userId);
-    if (!hasAccess) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+      const body = await request.json();
+      const { companyId, ...monitorData } = body;
 
-    // Validate input
-    const validatedData = createMonitorSchema.parse(monitorData);
+      // Validate input
+      const validatedData = createMonitorSchema.parse(monitorData);
 
-    // Check if user can create more monitors based on their plan
-    const usageCheck = await requireUsageLimit(request, userId, {
-      type: "monitors",
-      redirectUrl: "/billing/upgrade?feature=monitors",
-    });
+      // Check if user can create more monitors based on their plan
+      const usageCheck = await requireUsageLimit(request, userId, {
+        type: "monitors",
+        redirectUrl: "/billing/upgrade?feature=monitors",
+      });
 
-    if (usageCheck) {
-      return usageCheck;
-    }
+      if (usageCheck) {
+        return usageCheck;
+      }
 
-    // Check frequency limits
-    const frequencyCheck = await requireFrequencyLimit(request, userId, {
-      intervalSeconds: validatedData.interval,
-      redirectUrl: "/billing/upgrade?feature=frequency",
-    });
+      // Check frequency limits
+      const frequencyCheck = await requireFrequencyLimit(request, userId, {
+        intervalSeconds: validatedData.interval,
+        redirectUrl: "/billing/upgrade?feature=frequency",
+      });
 
-    if (frequencyCheck) {
-      return frequencyCheck;
-    }
+      if (frequencyCheck) {
+        return frequencyCheck;
+      }
 
-    // Check feature access for specific monitor types
-    const featureRequirements = [];
+      // Check feature access for specific monitor types
+      const featureRequirements = [];
 
-    if (validatedData.type.startsWith("WHOP_")) {
-      featureRequirements.push("whopMetrics");
-    }
+      if (validatedData.type.startsWith("WHOP_")) {
+        featureRequirements.push("whopMetrics");
+      }
 
-    if (validatedData.sslCheck) {
-      featureRequirements.push("sslMonitoring");
-    }
+      if (validatedData.sslCheck) {
+        featureRequirements.push("sslMonitoring");
+      }
 
-    // Check all feature requirements
-    const planAccessCheck = await requirePlanAccess(request, userId, {
-      features: featureRequirements as any[],
-      usageChecks: [{ type: "monitors" }],
-      frequencyCheck: { intervalSeconds: validatedData.interval },
-    });
+      // Check all feature requirements
+      const planAccessCheck = await requirePlanAccess(request, userId, {
+        features: featureRequirements as any[],
+        usageChecks: [{ type: "monitors" }],
+        frequencyCheck: { intervalSeconds: validatedData.interval },
+      });
 
-    if (planAccessCheck) {
-      return planAccessCheck;
-    }
+      if (planAccessCheck) {
+        return planAccessCheck;
+      }
 
-    // Create the monitor
-    const monitor = await db.monitor.create({
-      data: {
-        ...validatedData,
-        userId,
-        companyId,
-        status: "ACTIVE",
-      },
-      include: {
-        alerts: true,
-        _count: {
-          select: {
-            checks: true,
-            incidents: true,
+      // Create the monitor
+      const monitor = await db.monitor.create({
+        data: {
+          ...validatedData,
+          userId,
+          companyId,
+          status: "ACTIVE",
+        },
+        include: {
+          alerts: true,
+          _count: {
+            select: {
+              checks: true,
+              incidents: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    // Add monitor to the monitoring engine
-    try {
-      const monitoringEngine = getMonitoringEngine();
-      // The engine will handle adding the monitor to the scheduler internally
-      // This is handled automatically when the engine syncs monitors
-    } catch (error) {
-      console.error("Error accessing monitoring engine:", error);
-      // Don't fail the request if monitoring engine fails
+      console.log("✅ MonitorsAPI: Created monitor:", monitor.id);
+
+      // Add monitor to the monitoring engine
+      try {
+        const monitoringEngine = getMonitoringEngine();
+        // The engine will handle adding the monitor to the scheduler internally
+        // This is handled automatically when the engine syncs monitors
+      } catch (error) {
+        console.error("Error accessing monitoring engine:", error);
+        // Don't fail the request if monitoring engine fails
+      }
+
+      return NextResponse.json(monitor, { status: 201 });
+    } catch (authError) {
+      console.error("❌ MonitorsAPI: Authentication failed:", authError);
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    return NextResponse.json(monitor, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -185,7 +188,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.error("Error creating monitor:", error);
+    console.error("❌ MonitorsAPI: Error creating monitor:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
@@ -207,7 +210,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Validate user access
-    const hasAccess = await whopAuth.validateUserAccess(userId);
+    const hasAccess = await whopSdk.validateUserAccess(userId);
     if (!hasAccess) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -283,7 +286,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Validate user access
-    const hasAccess = await whopAuth.validateUserAccess(userId);
+    const hasAccess = await whopSdk.validateUserAccess(userId);
     if (!hasAccess) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

@@ -63,8 +63,8 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
     try {
       setLoading(true);
       const [monitorsRes, alertsRes] = await Promise.all([
-        fetch(`/api/monitors?userId=${userId}`),
-        fetch(`/api/alerts?userId=${userId}`),
+        fetch('/api/monitors'),
+        fetch('/api/alerts'),
       ]);
 
       if (!monitorsRes.ok || !alertsRes.ok) {
@@ -85,9 +85,7 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
 
   const fetchMonitoringStats = async () => {
     try {
-      const response = await fetch(
-        `/api/monitoring?action=stats&userId=${userId}`,
-      );
+      const response = await fetch('/api/monitoring?action=stats');
       if (response.ok) {
         const stats = await response.json();
         setMonitoringStats(stats);
@@ -97,9 +95,7 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
       console.warn("Failed to fetch monitoring stats:", err);
       // Check if monitoring is stopped
       try {
-        const statusResponse = await fetch(
-          `/api/monitoring?action=status&userId=${userId}`,
-        );
+        const statusResponse = await fetch('/api/monitoring?action=status');
         if (statusResponse.ok) {
           const statusData = await statusResponse.json();
           setMonitoringStatus(
