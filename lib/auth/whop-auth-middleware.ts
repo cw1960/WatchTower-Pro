@@ -87,11 +87,13 @@ export async function validateWhopAuth(
     }
 
     // Production Whop authentication logic
+    console.log("🔧 Production mode: Starting Whop authentication");
     const headersList = await headers();
+    console.log("🔧 Got headers, checking Whop SDK configuration");
 
     // Check if Whop SDK is configured
     if (!whopSdk) {
-      console.error("Whop SDK not configured");
+      console.error("❌ Whop SDK not configured");
       return {
         success: false,
         error: "Whop SDK not configured",
@@ -100,10 +102,18 @@ export async function validateWhopAuth(
       };
     }
 
+    console.log("🔧 Whop SDK configured, verifying user token");
+    console.log("🔧 Environment variables check:", {
+      WHOP_API_KEY: process.env.WHOP_API_KEY ? "✅ Set" : "❌ Missing",
+      NEXT_PUBLIC_WHOP_APP_ID: process.env.NEXT_PUBLIC_WHOP_APP_ID ? "✅ Set" : "❌ Missing",
+    });
+
     // Verify the user token from Whop
     const { userId } = await whopSdk.verifyUserToken(headersList);
+    console.log("🔧 User token verification result:", { userId });
 
     if (!userId) {
+      console.error("❌ No userId returned from token verification");
       return {
         success: false,
         error: "Invalid or missing user token",
@@ -112,10 +122,13 @@ export async function validateWhopAuth(
       };
     }
 
+    console.log("🔧 Getting user information from Whop for userId:", userId);
     // Get user information from Whop
     const whopUser = await whopSdk.users.getUser({ userId });
+    console.log("🔧 Got user from Whop:", whopUser?.name);
 
     if (!whopUser) {
+      console.error("❌ User not found in Whop");
       return {
         success: false,
         error: "User not found in Whop",
@@ -124,6 +137,7 @@ export async function validateWhopAuth(
       };
     }
 
+    console.log("🔧 Checking/creating user in database");
     // Check if user exists in our database, if not create them
     let dbUser = await db.user.findUnique({
       where: { whopId: userId },
@@ -137,6 +151,7 @@ export async function validateWhopAuth(
     });
 
     if (!dbUser) {
+      console.log("🔧 Creating new user in database");
       // Create new user in our database
       dbUser = await db.user.create({
         data: {
@@ -156,6 +171,7 @@ export async function validateWhopAuth(
         },
       });
     } else {
+      console.log("🔧 Updating existing user in database");
       // Update existing user with latest info from Whop
       dbUser = await db.user.update({
         where: { whopId: userId },
@@ -173,6 +189,8 @@ export async function validateWhopAuth(
         },
       });
     }
+
+    console.log("🔧 User authenticated successfully:", { id: dbUser.id, name: dbUser.name });
 
     // Determine access level and experience access
     let accessLevel: "admin" | "customer" | "no_access" = "no_access";
@@ -198,22 +216,13 @@ export async function validateWhopAuth(
       },
     };
   } catch (error) {
-    console.error("Whop authentication error:", error);
-
-    // In development mode, return mock user even if there's an error
-    if (isDevelopmentMode()) {
-      console.log("🔧 Development mode: Returning mock user despite error");
-      return {
-        success: true,
-        user: getMockUser(),
-      };
-    }
-
+    console.error("❌ validateWhopAuth error:", error);
+    console.error("❌ Error stack:", error instanceof Error ? error.stack : "No stack");
+    console.error("❌ Error message:", error instanceof Error ? error.message : String(error));
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Authentication failed",
-      shouldRedirect: true,
-      redirectUrl: "/auth/login",
+      error: `Authentication failed: ${error instanceof Error ? error.message : String(error)}`,
+      shouldRedirect: false,
     };
   }
 }

@@ -11,10 +11,14 @@ export default async function ExperiencePage({
     // The experienceId is a path param
     const { experienceId } = await params;
 
+    console.log("🔍 ExperiencePage: Starting authentication for experience:", experienceId);
+
     // Use the development-mode aware authentication
     const authResult = await validateWhopAuth();
+    console.log("🔍 ExperiencePage: Auth result:", { success: authResult.success, error: authResult.error });
 
     if (!authResult.success || !authResult.user) {
+      console.error("❌ ExperiencePage: Authentication failed:", authResult.error);
       return (
         <div className="flex justify-center items-center h-screen px-8">
           <div className="text-center">
@@ -24,6 +28,9 @@ export default async function ExperiencePage({
             <p className="text-gray-600">
               Please authenticate to access this experience.
             </p>
+            <p className="text-sm text-gray-500 mt-2">
+              Error: {authResult.error}
+            </p>
           </div>
         </div>
       );
@@ -31,16 +38,24 @@ export default async function ExperiencePage({
 
     const authenticatedUser = authResult.user;
     const userId = authenticatedUser.whopId;
+    console.log("✅ ExperiencePage: User authenticated:", { userId, name: authenticatedUser.name });
 
+    console.log("🔍 ExperiencePage: Checking access for experience:", experienceId);
     const result = await whopSdk.access.checkIfUserHasAccessToExperience({
       userId,
       experienceId,
     });
+    console.log("🔍 ExperiencePage: Access check result:", result);
 
+    console.log("🔍 ExperiencePage: Getting user info from Whop");
     const whopUser = await whopSdk.users.getUser({ userId });
+    console.log("🔍 ExperiencePage: Got user info:", whopUser?.name);
+
+    console.log("🔍 ExperiencePage: Getting experience info");
     const experience = await whopSdk.experiences.getExperience({
       experienceId,
     });
+    console.log("🔍 ExperiencePage: Got experience info:", experience?.name);
 
     // Either: 'admin' | 'customer' | 'no_access';
     // 'admin' means the user is an admin of the whop, such as an owner or moderator
@@ -64,7 +79,10 @@ export default async function ExperiencePage({
       </div>
     );
   } catch (error) {
-    console.error("Error in ExperiencePage:", error);
+    console.error("❌ ExperiencePage: Detailed error:", error);
+    console.error("❌ ExperiencePage: Error stack:", error instanceof Error ? error.stack : "No stack");
+    console.error("❌ ExperiencePage: Error message:", error instanceof Error ? error.message : String(error));
+    
     return (
       <div className="flex justify-center items-center h-screen px-8">
         <div className="text-center">
@@ -74,6 +92,12 @@ export default async function ExperiencePage({
           <p className="text-gray-600">
             There was an error loading this experience. Please try again later.
           </p>
+          <details className="mt-4 text-left bg-gray-100 p-4 rounded">
+            <summary className="cursor-pointer font-semibold">Debug Info</summary>
+            <pre className="mt-2 text-xs text-gray-600">
+              {error instanceof Error ? error.message : String(error)}
+            </pre>
+          </details>
         </div>
       </div>
     );
