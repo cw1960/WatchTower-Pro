@@ -235,6 +235,12 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
     return `${uptime.toFixed(1)}%`;
   };
 
+  // Plan limits based on user plan
+  const planLimits = {
+    monitors: userPlan?.toUpperCase() === "PRO" ? 100 : userPlan?.toUpperCase() === "STARTER" ? 10 : 3,
+    alerts: userPlan?.toUpperCase() === "PRO" ? 1000 : userPlan?.toUpperCase() === "STARTER" ? 100 : 10,
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
@@ -268,39 +274,41 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white">🗼 WatchTower Pro Dashboard</h1>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+          🗼 WatchTower Pro Dashboard
+        </h1>
         <p className="mt-2 text-sm text-blue-300">
           Monitor your websites and get alerts when something goes wrong
         </p>
       </div>
 
       {/* Monitoring System Status */}
-      <div className="bg-slate-800/50 border border-slate-600/50 rounded-lg mb-6 p-6">
+      <div className="bg-gradient-to-r from-slate-800/90 via-blue-900/50 to-slate-800/90 border border-blue-500/30 rounded-lg mb-6 p-6 shadow-xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-medium text-white">
             Monitoring System Status
           </h3>
           <div className="flex items-center space-x-2">
             {monitoringStatus === "running" ? (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400 border border-green-500/30">
-                <span className="w-2 h-2 bg-green-400 rounded-full mr-1"></span>
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg">
+                <span className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
                 Running
               </span>
             ) : monitoringStatus === "starting" ? (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
-                <div className="w-2 h-2 bg-yellow-400 rounded-full mr-1 animate-pulse"></div>
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg">
+                <div className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></div>
                 Starting...
               </span>
             ) : (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/20 text-red-400 border border-red-500/30">
-                <span className="w-2 h-2 bg-red-400 rounded-full mr-1"></span>
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg">
+                <span className="w-2 h-2 bg-white rounded-full mr-2"></span>
                 Stopped
               </span>
             )}
             {monitoringStatus === "stopped" ? (
               <button
                 onClick={startMonitoring}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm font-medium border border-blue-500/50"
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg transform hover:scale-105 transition-all duration-200"
               >
                 Start Monitoring
               </button>
@@ -309,7 +317,7 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
                 onClick={() =>
                   (window.location.href = "/api/monitoring?action=health")
                 }
-                className="text-sm text-blue-400 hover:text-blue-300"
+                className="text-sm text-cyan-400 hover:text-cyan-300 font-medium"
               >
                 Health Check
               </button>
@@ -318,32 +326,32 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
         </div>
         {monitoringStats ? (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="text-center bg-slate-700/50 rounded-lg p-4">
+            <div className="text-center bg-gradient-to-br from-blue-600/20 to-cyan-600/20 backdrop-blur-sm rounded-xl p-4 border border-blue-400/30 shadow-lg">
               <div className="text-2xl font-bold text-white">
                 {monitoringStats.recentChecks?.count || 0}
               </div>
-              <div className="text-sm text-gray-400">Checks (24h)</div>
+              <div className="text-sm text-cyan-300">Checks (24h)</div>
             </div>
-            <div className="text-center bg-slate-700/50 rounded-lg p-4">
+            <div className="text-center bg-gradient-to-br from-purple-600/20 to-pink-600/20 backdrop-blur-sm rounded-xl p-4 border border-purple-400/30 shadow-lg">
               <div className="text-2xl font-bold text-white">
                 {Math.round(
                   monitoringStats.recentChecks?.averageResponseTime || 0,
                 )}
                 ms
               </div>
-              <div className="text-sm text-gray-400">Avg Response</div>
+              <div className="text-sm text-pink-300">Avg Response</div>
             </div>
-            <div className="text-center bg-slate-700/50 rounded-lg p-4">
+            <div className="text-center bg-gradient-to-br from-green-600/20 to-emerald-600/20 backdrop-blur-sm rounded-xl p-4 border border-green-400/30 shadow-lg">
               <div className="text-2xl font-bold text-white">
                 {monitoringStats.engineStats?.totalMonitors || 0}
               </div>
-              <div className="text-sm text-gray-400">Total Monitors</div>
+              <div className="text-sm text-emerald-300">Total Monitors</div>
             </div>
-            <div className="text-center bg-slate-700/50 rounded-lg p-4">
+            <div className="text-center bg-gradient-to-br from-orange-600/20 to-yellow-600/20 backdrop-blur-sm rounded-xl p-4 border border-orange-400/30 shadow-lg">
               <div className="text-2xl font-bold text-white">
                 {monitoringStats.engineStats?.activeMonitors || 0}
               </div>
-              <div className="text-sm text-gray-400">Active Monitors</div>
+              <div className="text-sm text-yellow-300">Active Monitors</div>
             </div>
           </div>
         ) : (
@@ -357,13 +365,13 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-slate-800/50 border border-slate-600/50 rounded-lg overflow-hidden">
-          <div className="p-5">
+        <div className="bg-gradient-to-br from-blue-600/10 to-cyan-600/10 backdrop-blur-sm border border-blue-400/30 rounded-xl overflow-hidden shadow-xl">
+          <div className="p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
                   <svg
-                    className="w-5 h-5 text-blue-400"
+                    className="w-6 h-6 text-white"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -379,10 +387,10 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-400 truncate">
+                  <dt className="text-sm font-medium text-cyan-300 truncate">
                     Total Monitors
                   </dt>
-                  <dd className="text-lg font-semibold text-white">
+                  <dd className="text-2xl font-bold text-white">
                     {monitors.length}
                   </dd>
                 </dl>
@@ -391,13 +399,13 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
           </div>
         </div>
 
-        <div className="bg-slate-800/50 border border-slate-600/50 rounded-lg overflow-hidden">
-          <div className="p-5">
+        <div className="bg-gradient-to-br from-green-600/10 to-emerald-600/10 backdrop-blur-sm border border-green-400/30 rounded-xl overflow-hidden shadow-xl">
+          <div className="p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
                   <svg
-                    className="w-5 h-5 text-green-400"
+                    className="w-6 h-6 text-white"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -413,10 +421,10 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-400 truncate">
+                  <dt className="text-sm font-medium text-emerald-300 truncate">
                     Active Monitors
                   </dt>
-                  <dd className="text-lg font-semibold text-white">
+                  <dd className="text-2xl font-bold text-white">
                     {
                       monitors.filter((m: Monitor) => m.status === "ACTIVE")
                         .length
@@ -428,13 +436,13 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
           </div>
         </div>
 
-        <div className="bg-slate-800/50 border border-slate-600/50 rounded-lg overflow-hidden">
-          <div className="p-5">
+        <div className="bg-gradient-to-br from-yellow-600/10 to-orange-600/10 backdrop-blur-sm border border-yellow-400/30 rounded-xl overflow-hidden shadow-xl">
+          <div className="p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-yellow-500/20 rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
                   <svg
-                    className="w-5 h-5 text-yellow-400"
+                    className="w-6 h-6 text-white"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -450,10 +458,10 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-400 truncate">
+                  <dt className="text-sm font-medium text-orange-300 truncate">
                     Active Alerts
                   </dt>
-                  <dd className="text-lg font-semibold text-white">
+                  <dd className="text-2xl font-bold text-white">
                     {alerts.filter((a: Alert) => a.status === "ACTIVE").length}
                   </dd>
                 </dl>
@@ -464,47 +472,49 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
       </div>
 
       {/* Monitors List */}
-      <div className="bg-slate-800/50 border border-slate-600/50 rounded-lg mb-8">
-        <div className="px-4 py-5 sm:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-white">
+      <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm border border-slate-600/50 rounded-xl mb-8 shadow-xl">
+        <div className="px-6 py-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-semibold text-white">
               Recent Monitors
             </h3>
             <a 
               href="/monitors/create"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium border border-blue-500/50 transition-colors"
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-2 rounded-lg text-sm font-medium shadow-lg transform hover:scale-105 transition-all duration-200"
             >
               Create Monitor
             </a>
           </div>
 
           {monitors.length === 0 ? (
-            <div className="text-center py-12">
-              <svg
-                className="w-16 h-16 text-gray-400 mx-auto mb-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                />
-              </svg>
-              <h3 className="text-lg font-semibold text-white mb-2">
+            <div className="text-center py-16">
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl">
+                <svg
+                  className="w-10 h-10 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-3">
                 No monitors yet
               </h3>
-              <p className="text-gray-400 mb-6">
+              <p className="text-gray-300 mb-8 max-w-md mx-auto">
                 Create your first monitor to start tracking website uptime and performance.
               </p>
               <a
                 href="/monitors/create"
-                className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md border border-blue-500/50 transition-colors"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white text-sm font-medium rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200"
               >
                 <svg
-                  className="w-4 h-4 mr-2"
+                  className="w-5 h-5 mr-2"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -521,92 +531,65 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-600">
-                <thead className="bg-slate-700/50">
+              <table className="min-w-full divide-y divide-slate-600/50">
+                <thead className="bg-gradient-to-r from-slate-700/80 to-slate-800/80">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      Monitor
+                    <th className="px-6 py-4 text-left text-xs font-medium text-cyan-300 uppercase tracking-wider">
+                      Name
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-medium text-cyan-300 uppercase tracking-wider">
+                      URL
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-cyan-300 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      Response Time
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      Uptime
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    <th className="px-6 py-4 text-left text-xs font-medium text-cyan-300 uppercase tracking-wider">
                       Last Check
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-slate-800/30 divide-y divide-slate-600">
-                  {monitors.slice(0, 5).map((monitor: Monitor) => (
-                    <tr key={monitor.id} className="hover:bg-slate-700/30">
+                <tbody className="bg-slate-800/40 divide-y divide-slate-600/30">
+                  {monitors.slice(0, 5).map((monitor: Monitor, index: number) => (
+                    <tr key={monitor.id} className="hover:bg-slate-700/50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-white">
-                            {monitor.name}
-                          </div>
-                          <div className="text-sm text-gray-400">
-                            {monitor.url}
-                          </div>
+                        <div className="text-sm font-medium text-white">
+                          {monitor.name}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-blue-300">
+                          {monitor.url}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(monitor.status)}`}
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium shadow-lg ${
+                            monitor.status === "ACTIVE"
+                              ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
+                              : monitor.status === "PAUSED"
+                              ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white"
+                              : "bg-gradient-to-r from-red-500 to-pink-500 text-white"
+                          }`}
                         >
+                          <span className={`w-2 h-2 rounded-full mr-2 ${
+                            monitor.status === "ACTIVE"
+                              ? "bg-white animate-pulse"
+                              : "bg-white"
+                          }`}></span>
                           {monitor.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                        {monitor.responseTime
-                          ? `${monitor.responseTime}ms`
-                          : "N/A"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                        {calculateUptime(monitor)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                        {monitor.lastCheck
-                          ? new Date(monitor.lastCheck).toLocaleString()
-                          : "Never"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                        <button
-                          onClick={() => testMonitor(monitor.id)}
-                          disabled={testingMonitor === monitor.id}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-xs font-medium border border-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center"
-                        >
-                          {testingMonitor === monitor.id ? (
-                            <>
-                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
-                              Testing...
-                            </>
-                          ) : (
-                            <>
-                              <svg
-                                className="w-3 h-3 mr-1"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-7 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
-                                />
-                              </svg>
-                              Test
-                            </>
-                          )}
-                        </button>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                        {monitor.lastCheck ? (
+                          <time
+                            dateTime={new Date(monitor.lastCheck).toISOString()}
+                            className="text-purple-300"
+                          >
+                            {new Date(monitor.lastCheck).toLocaleString()}
+                          </time>
+                        ) : (
+                          <span className="text-gray-400">Never</span>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -618,37 +601,91 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
       </div>
 
       {/* Plan Usage */}
-      <div className="bg-slate-800/50 border border-slate-600/50 rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg font-medium text-white mb-4">Plan Usage</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-slate-700/50 p-4 rounded-lg border border-slate-600/30">
+      <div className="bg-gradient-to-br from-purple-600/10 to-pink-600/10 backdrop-blur-sm border border-purple-400/30 rounded-xl shadow-xl">
+        <div className="px-6 py-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-semibold text-white">
+              Plan Usage
+            </h3>
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg">
+              <span className="w-2 h-2 bg-white rounded-full mr-2"></span>
+              {userPlan} Plan
+            </span>
+          </div>
+          <div className="space-y-4">
+            <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-300">
+                <span className="text-sm font-medium text-purple-300">
                   Monitors
                 </span>
-                <span className="text-sm text-gray-400">
-                  {monitors.length} used
+                <span className="text-sm text-white">
+                  {monitors.length} / {planLimits.monitors}
                 </span>
               </div>
-              <div className="text-xs text-gray-400">
-                Current Plan: {userPlan}
+              <div className="w-full bg-slate-700/50 rounded-full h-2">
+                <div
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full shadow-lg"
+                  style={{
+                    width: `${Math.min((monitors.length / planLimits.monitors) * 100, 100)}%`,
+                  }}
+                ></div>
               </div>
             </div>
-            <div className="bg-slate-700/50 p-4 rounded-lg border border-slate-600/30">
+            <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-300">
+                <span className="text-sm font-medium text-purple-300">
                   Alerts
                 </span>
-                <span className="text-sm text-gray-400">
-                  {alerts.length} used
+                <span className="text-sm text-white">
+                  {alerts.length} / {planLimits.alerts}
                 </span>
               </div>
-              <div className="text-xs text-gray-400">
-                Active:{" "}
-                {alerts.filter((a: Alert) => a.status === "ACTIVE").length}
+              <div className="w-full bg-slate-700/50 rounded-full h-2">
+                <div
+                  className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full shadow-lg"
+                  style={{
+                    width: `${Math.min((alerts.length / planLimits.alerts) * 100, 100)}%`,
+                  }}
+                ></div>
               </div>
             </div>
+            {planLimits.monitors > 0 && monitors.length >= planLimits.monitors && (
+              <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-400/30 rounded-lg p-4 mt-4">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <svg
+                      className="w-5 h-5 text-orange-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="ml-3 flex-1">
+                    <h4 className="text-sm font-medium text-orange-300">
+                      Monitor limit reached
+                    </h4>
+                    <p className="text-sm text-orange-200 mt-1">
+                      You've reached your plan limit. Upgrade to add more monitors.
+                    </p>
+                  </div>
+                  <div className="ml-4 flex-shrink-0">
+                    <a
+                      href="/billing"
+                      className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg transform hover:scale-105 transition-all duration-200"
+                    >
+                      Upgrade
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
