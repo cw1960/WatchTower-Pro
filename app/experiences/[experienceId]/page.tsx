@@ -13,7 +13,7 @@ export default async function ExperiencePage({
 
     console.log("🔍 ExperiencePage: Starting authentication for experience:", experienceId);
 
-    // Use the development-mode aware authentication
+    // Use the simplified Whop authentication
     const authResult = await validateWhopAuth();
     console.log("🔍 ExperiencePage: Auth result:", { success: authResult.success, error: authResult.error });
 
