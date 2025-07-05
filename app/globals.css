@@ -43,6 +43,27 @@
   }
 }
 
+@layer components {
+  /* Ensure gradients work properly in dark theme */
+  .bg-gradient-to-r,
+  .bg-gradient-to-br,
+  .bg-gradient-to-l,
+  .bg-gradient-to-t,
+  .bg-gradient-to-b {
+    background-image: linear-gradient(var(--tw-gradient-stops));
+  }
+  
+  /* Ensure text gradients work */
+  .bg-clip-text {
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+  
+  .text-transparent {
+    color: transparent;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
