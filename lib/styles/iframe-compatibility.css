@@ -226,6 +226,8 @@ button:disabled {
 }
 
 /* Fix for potential dark mode issues in iframe */
+/* Removed conflicting dark mode styles to allow Tailwind gradients */
+/*
 @media (prefers-color-scheme: dark) {
   body {
     background-color: #111827;
@@ -245,3 +247,4 @@ button:disabled {
     color: #f9fafb;
   }
 }
+*/

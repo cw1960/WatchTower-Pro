@@ -1,4 +1,4 @@
-import { WhopApp } from "@whop/react/components";
+import { WhopIframeSdkProvider } from "@whop/react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { WhopUserProvider } from "@/lib/context/WhopUserContext";
@@ -47,7 +47,7 @@ export default async function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-900`}
         style={{
           // Ensure iframe compatibility
           margin: 0,
@@ -56,13 +56,13 @@ export default async function RootLayout({
           overflow: "auto",
         }}
       >
-        {/* <WhopApp> Temporarily commented out for build compatibility */}
+        <WhopIframeSdkProvider>
           <ErrorBoundary>
             <WhopUserProvider initialUser={initialUser}>
               <div className="w-full h-full">{children}</div>
             </WhopUserProvider>
           </ErrorBoundary>
-        {/* </WhopApp> */}
+        </WhopIframeSdkProvider>
       </body>
     </html>
   );

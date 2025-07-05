@@ -2,14 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import iframe compatibility styles */
-@import "../lib/styles/iframe-compatibility.css";
+/* Import iframe compatibility styles - temporarily removed due to conflicts */
+/* @import "../lib/styles/iframe-compatibility.css"; */
 
 @import "@whop/react/styles.css";
 
 @layer base {
   :root {
     --radius: 0.5rem;
+  }
+  
+  /* Essential iframe compatibility styles */
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Root app container */
+  #__next {
+    height: 100%;
+    width: 100%;
+  }
+  
+  /* Ensure proper font rendering */
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  /* Prevent content from breaking out */
+  * {
+    box-sizing: border-box;
   }
 }
 
