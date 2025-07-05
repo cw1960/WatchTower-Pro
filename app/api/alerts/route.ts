@@ -62,6 +62,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status");
 
     if (!userId) {
+      console.log("❌ AlertsAPI: No userId provided");
       return NextResponse.json(
         { error: "User ID is required" },
         { status: 400 },
@@ -69,6 +70,19 @@ export async function GET(request: NextRequest) {
     }
 
     console.log("✅ AlertsAPI: User ID from query:", userId);
+
+    // Test database connection first
+    console.log("🔍 AlertsAPI: Testing database connection...");
+    try {
+      await db.$queryRaw`SELECT 1`;
+      console.log("✅ AlertsAPI: Database connection successful");
+    } catch (dbError) {
+      console.error("❌ AlertsAPI: Database connection failed:", dbError);
+      return NextResponse.json(
+        { error: "Database connection failed", details: dbError instanceof Error ? dbError.message : String(dbError) },
+        { status: 500 },
+      );
+    }
 
     // Build where clause based on filters
     const where: any = {
@@ -89,6 +103,7 @@ export async function GET(request: NextRequest) {
       where.status = status;
     }
 
+    console.log("🔍 AlertsAPI: Fetching alerts for user:", userId);
     const alerts = await db.alert.findMany({
       where,
       include: {
@@ -114,9 +129,23 @@ export async function GET(request: NextRequest) {
     console.log("✅ AlertsAPI: Found", alerts.length, "alerts");
     return NextResponse.json(alerts);
   } catch (error) {
-    console.error("❌ AlertsAPI: Error fetching alerts:", error);
+    console.error("❌ AlertsAPI: Detailed error:", error);
+    console.error("❌ AlertsAPI: Error name:", error instanceof Error ? error.name : "Unknown");
+    console.error("❌ AlertsAPI: Error message:", error instanceof Error ? error.message : String(error));
+    console.error("❌ AlertsAPI: Error stack:", error instanceof Error ? error.stack : "No stack");
+    
+    // Check if it's a Prisma error
+    if (error && typeof error === 'object' && 'code' in error) {
+      console.error("❌ AlertsAPI: Prisma error code:", (error as any).code);
+      console.error("❌ AlertsAPI: Prisma error meta:", (error as any).meta);
+    }
+
     return NextResponse.json(
-      { error: "Internal server error" },
+      { 
+        error: "Internal server error", 
+        details: error instanceof Error ? error.message : String(error),
+        type: error instanceof Error ? error.name : "Unknown"
+      },
       { status: 500 },
     );
   }
