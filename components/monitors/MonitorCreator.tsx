@@ -24,9 +24,9 @@ const monitorTypes = [
     textClass: "text-blue-300",
     iconClass: "from-blue-500 to-cyan-500",
   },
-  { 
-    value: "PING", 
-    label: "Ping", 
+  {
+    value: "PING",
+    label: "Ping",
     description: "Monitor server availability",
     borderClass: "from-green-600 via-green-500 to-emerald-600",
     textClass: "text-green-300",
@@ -244,10 +244,12 @@ export default function MonitorCreator({
               </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {monitorTypes.map((type) => (
-                  <div 
+                  <div
                     key={type.value}
                     className={`bg-gradient-to-br ${type.borderClass} p-[2px] rounded-xl transition-all duration-300 ${
-                      formData.type === type.value ? 'scale-105 shadow-xl' : 'hover:scale-102'
+                      formData.type === type.value
+                        ? "scale-105 shadow-xl"
+                        : "hover:scale-102"
                     }`}
                   >
                     <button
@@ -257,11 +259,13 @@ export default function MonitorCreator({
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className={`font-medium ${
-                            formData.type === type.value 
-                              ? type.textClass 
-                              : "text-white"
-                          }`}>
+                          <p
+                            className={`font-medium ${
+                              formData.type === type.value
+                                ? type.textClass
+                                : "text-white"
+                            }`}
+                          >
                             {type.label}
                           </p>
                           <p className="text-sm text-slate-400 mt-1">
@@ -269,7 +273,9 @@ export default function MonitorCreator({
                           </p>
                         </div>
                         {formData.type === type.value && (
-                          <div className={`w-3 h-3 rounded-full bg-gradient-to-r ${type.iconClass} shadow-lg`} />
+                          <div
+                            className={`w-3 h-3 rounded-full bg-gradient-to-r ${type.iconClass} shadow-lg`}
+                          />
                         )}
                       </div>
                     </button>
@@ -301,7 +307,9 @@ export default function MonitorCreator({
                 </label>
                 <select
                   value={formData.interval}
-                  onChange={(e) => handleChange("interval", parseInt(e.target.value))}
+                  onChange={(e) =>
+                    handleChange("interval", parseInt(e.target.value))
+                  }
                   className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 >
                   <option value={60}>1 minute</option>
@@ -319,7 +327,9 @@ export default function MonitorCreator({
                 <input
                   type="number"
                   value={formData.timeout}
-                  onChange={(e) => handleChange("timeout", parseInt(e.target.value))}
+                  onChange={(e) =>
+                    handleChange("timeout", parseInt(e.target.value))
+                  }
                   className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                   min="1"
                   max="60"
@@ -333,7 +343,9 @@ export default function MonitorCreator({
                 <input
                   type="number"
                   value={formData.retries}
-                  onChange={(e) => handleChange("retries", parseInt(e.target.value))}
+                  onChange={(e) =>
+                    handleChange("retries", parseInt(e.target.value))
+                  }
                   className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                   min="0"
                   max="10"
@@ -394,7 +406,12 @@ export default function MonitorCreator({
                       <input
                         type="number"
                         value={formData.expectedStatus}
-                        onChange={(e) => handleChange("expectedStatus", parseInt(e.target.value))}
+                        onChange={(e) =>
+                          handleChange(
+                            "expectedStatus",
+                            parseInt(e.target.value),
+                          )
+                        }
                         className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                         min="100"
                         max="599"
@@ -407,7 +424,9 @@ export default function MonitorCreator({
                       </label>
                       <textarea
                         value={formData.expectedContent}
-                        onChange={(e) => handleChange("expectedContent", e.target.value)}
+                        onChange={(e) =>
+                          handleChange("expectedContent", e.target.value)
+                        }
                         className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                         rows={3}
                         placeholder="Text that should be present in the response"
@@ -419,7 +438,9 @@ export default function MonitorCreator({
                         type="checkbox"
                         id="sslCheck"
                         checked={formData.sslCheck}
-                        onChange={(e) => handleChange("sslCheck", e.target.checked)}
+                        onChange={(e) =>
+                          handleChange("sslCheck", e.target.checked)
+                        }
                         className="w-4 h-4 text-blue-600 bg-slate-700 border-slate-600 rounded focus:ring-blue-500 focus:ring-2"
                       />
                       <label htmlFor="sslCheck" className="text-sm text-white">
@@ -435,7 +456,12 @@ export default function MonitorCreator({
                         <input
                           type="number"
                           value={formData.sslExpiryDays}
-                          onChange={(e) => handleChange("sslExpiryDays", parseInt(e.target.value))}
+                          onChange={(e) =>
+                            handleChange(
+                              "sslExpiryDays",
+                              parseInt(e.target.value),
+                            )
+                          }
                           className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                           min="1"
                           max="365"
@@ -452,7 +478,12 @@ export default function MonitorCreator({
                   <input
                     type="number"
                     value={formData.responseTimeThreshold}
-                    onChange={(e) => handleChange("responseTimeThreshold", parseInt(e.target.value))}
+                    onChange={(e) =>
+                      handleChange(
+                        "responseTimeThreshold",
+                        parseInt(e.target.value),
+                      )
+                    }
                     className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                     min="100"
                     max="30000"

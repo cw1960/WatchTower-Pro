@@ -179,7 +179,9 @@ export default function BillingClient({ user }: BillingClientProps) {
               </p>
             </div>
             <div className="flex items-center space-x-4">
-              <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r ${currentPlan.gradient} text-white shadow-lg`}>
+              <span
+                className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r ${currentPlan.gradient} text-white shadow-lg`}
+              >
                 Current Plan: {currentPlan.name}
               </span>
             </div>
@@ -202,9 +204,7 @@ export default function BillingClient({ user }: BillingClientProps) {
               <h3 className="text-lg font-medium text-white">
                 {currentPlan.name} Plan
               </h3>
-              <p className="text-slate-300">
-                {currentPlan.description}
-              </p>
+              <p className="text-slate-300">{currentPlan.description}</p>
               <p className="text-2xl font-bold bg-gradient-to-r from-white to-blue-400 bg-clip-text text-transparent mt-2">
                 {currentPlan.price}
                 <span className="text-sm font-normal text-slate-400">
@@ -233,8 +233,8 @@ export default function BillingClient({ user }: BillingClientProps) {
               <div
                 key={planType}
                 className={`relative bg-gradient-to-br ${
-                  user.plan === planType 
-                    ? `from-${plan.color}-600/20 to-${plan.color}-500/20 border-${plan.color}-400/50` 
+                  user.plan === planType
+                    ? `from-${plan.color}-600/20 to-${plan.color}-500/20 border-${plan.color}-400/50`
                     : "from-slate-800/50 to-slate-700/50 border-slate-600/50"
                 } backdrop-blur-sm border rounded-xl p-6 transition-all duration-300 hover:scale-105 hover:shadow-2xl`}
               >
@@ -243,7 +243,7 @@ export default function BillingClient({ user }: BillingClientProps) {
                     <CheckIcon className="w-5 h-5 text-white" />
                   </div>
                 )}
-                
+
                 <div className="mb-4">
                   <h3 className="text-lg font-semibold text-white mb-2">
                     {plan.name}
@@ -252,25 +252,27 @@ export default function BillingClient({ user }: BillingClientProps) {
                     {plan.description}
                   </p>
                   <div className="flex items-baseline">
-                    <span className={`text-3xl font-bold bg-gradient-to-r ${plan.gradient} bg-clip-text text-transparent`}>
+                    <span
+                      className={`text-3xl font-bold bg-gradient-to-r ${plan.gradient} bg-clip-text text-transparent`}
+                    >
                       {plan.price}
                     </span>
-                    <span className="text-slate-400 text-sm ml-2">
-                      /month
-                    </span>
+                    <span className="text-slate-400 text-sm ml-2">/month</span>
                   </div>
                 </div>
 
                 <div className="space-y-3 mb-6">
                   {plan.features.map((feature, index) => (
                     <div key={index} className="flex items-center">
-                      <div className={`w-4 h-4 rounded-full bg-gradient-to-r ${plan.gradient} flex items-center justify-center mr-3 shadow-sm`}>
+                      <div
+                        className={`w-4 h-4 rounded-full bg-gradient-to-r ${plan.gradient} flex items-center justify-center mr-3 shadow-sm`}
+                      >
                         <CheckIcon className="w-3 h-3 text-white" />
                       </div>
                       <span className="text-slate-300 text-sm">{feature}</span>
                     </div>
                   ))}
-                  
+
                   {plan.limitations.length > 0 && (
                     <div className="pt-3 border-t border-slate-600/30">
                       {plan.limitations.map((limitation, index) => (
@@ -278,7 +280,9 @@ export default function BillingClient({ user }: BillingClientProps) {
                           <div className="w-4 h-4 rounded-full bg-slate-600/50 flex items-center justify-center mr-3">
                             <XMarkIcon className="w-3 h-3 text-slate-400" />
                           </div>
-                          <span className="text-slate-400 text-sm">{limitation}</span>
+                          <span className="text-slate-400 text-sm">
+                            {limitation}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -332,18 +336,17 @@ export default function BillingClient({ user }: BillingClientProps) {
                 </div>
               </div>
             </div>
-            
+
             <div>
               <h3 className="text-lg font-medium text-white mb-4">
                 Next Steps
               </h3>
               <div className="space-y-3">
                 <div className="p-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-400/30 rounded-xl">
-                  <h4 className="font-medium text-blue-300 mb-2">
-                    Need Help?
-                  </h4>
+                  <h4 className="font-medium text-blue-300 mb-2">Need Help?</h4>
                   <p className="text-blue-200 text-sm">
-                    Contact our support team if you have any questions about your billing or subscription.
+                    Contact our support team if you have any questions about
+                    your billing or subscription.
                   </p>
                 </div>
                 <div className="p-4 bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-400/30 rounded-xl">
@@ -351,7 +354,8 @@ export default function BillingClient({ user }: BillingClientProps) {
                     Manage Usage
                   </h4>
                   <p className="text-green-200 text-sm">
-                    Monitor your usage and upgrade when you need more monitoring capacity.
+                    Monitor your usage and upgrade when you need more monitoring
+                    capacity.
                   </p>
                 </div>
               </div>

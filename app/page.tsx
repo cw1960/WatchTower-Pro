@@ -1,112 +1,190 @@
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  BarChart3,
+  Shield,
+  Bell,
+  Settings,
+  TrendingUp,
+  Zap,
+} from "lucide-react";
+
 export default function Page() {
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-6xl sm:text-6xl font-bold text-gradient mb-6">
-            🗼 WatchTower Pro
-          </h1>
-          <p className="text-xl sm:text-xl max-w-2xl mx-auto">
+    <div className="min-h-screen bg-background p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="text-center space-y-4 mb-12">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <BarChart3 className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <h1 className="text-3xl font-bold">WatchTower Pro</h1>
+          </div>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Advanced website monitoring and alert platform for Whop creators.
-            Monitor your websites, track Whop metrics, and get intelligent
-            alerts.
+            Monitor your websites, track metrics, and get intelligent alerts.
           </p>
+          <Badge variant="secondary" className="text-sm">
+            Professional Monitoring Solution
+          </Badge>
         </div>
 
+        {/* Main Dashboard Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Dashboard Card */}
-          <div className="gradient-border">
-            <div className="gradient-border-content">
-              <div className="icon icon-blue">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-500/10 rounded-lg">
+                  <BarChart3 className="h-5 w-5 text-blue-500" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Dashboard</CardTitle>
+                  <CardDescription>
+                    Real-time monitoring overview
+                  </CardDescription>
+                </div>
               </div>
-              <h3 className="card-title">Dashboard</h3>
-              <p className="card-text">
-                Real-time monitoring dashboard with comprehensive analytics and
-                system overview.
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                View comprehensive analytics and system status at a glance.
               </p>
-            </div>
-          </div>
+              <Button size="sm" className="w-full">
+                View Dashboard
+              </Button>
+            </CardContent>
+          </Card>
 
-          {/* Monitoring Card */}
-          <div className="gradient-border">
-            <div className="gradient-border-content">
-              <div className="icon icon-blue">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+          {/* Monitors Card */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-green-500/10 rounded-lg">
+                  <Shield className="h-5 w-5 text-green-500" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Add Monitor</CardTitle>
+                  <CardDescription>Create new website monitors</CardDescription>
+                </div>
               </div>
-              <h3 className="card-title">Add Monitor</h3>
-              <p className="card-text">
-                Set up new website monitors with custom intervals and
-                conditions.
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Set up monitoring for your websites with custom intervals.
               </p>
-            </div>
-          </div>
+              <Button size="sm" variant="outline" className="w-full">
+                Create Monitor
+              </Button>
+            </CardContent>
+          </Card>
 
           {/* Alerts Card */}
-          <div className="gradient-border">
-            <div className="gradient-border-content">
-              <div className="icon icon-blue">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6l2 2-2 2H9V7z" />
-                </svg>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-orange-500/10 rounded-lg">
+                  <Bell className="h-5 w-5 text-orange-500" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Alerts</CardTitle>
+                  <CardDescription>Manage notifications</CardDescription>
+                </div>
               </div>
-              <h3 className="card-title">Alerts</h3>
-              <p className="card-text">
-                Manage notification preferences and alert configurations.
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Configure alert preferences and notification settings.
               </p>
-            </div>
-          </div>
+              <Button size="sm" variant="outline" className="w-full">
+                Manage Alerts
+              </Button>
+            </CardContent>
+          </Card>
 
           {/* Whop Integration Card */}
-          <div className="gradient-border">
-            <div className="gradient-border-content">
-              <div className="icon icon-blue">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                </svg>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-500/10 rounded-lg">
+                  <Zap className="h-5 w-5 text-purple-500" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Whop Integration</CardTitle>
+                  <CardDescription>Business metrics tracking</CardDescription>
+                </div>
               </div>
-              <h3 className="card-title">Whop Integration</h3>
-              <p className="card-text">
-                Monitor Whop-specific metrics and integrate with your business
-                data.
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Monitor Whop-specific metrics and business data.
               </p>
-            </div>
-          </div>
+              <Button size="sm" variant="outline" className="w-full">
+                View Metrics
+              </Button>
+            </CardContent>
+          </Card>
 
           {/* Analytics Card */}
-          <div className="gradient-border">
-            <div className="gradient-border-content">
-              <div className="icon icon-blue">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-cyan-500/10 rounded-lg">
+                  <TrendingUp className="h-5 w-5 text-cyan-500" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Analytics</CardTitle>
+                  <CardDescription>Performance insights</CardDescription>
+                </div>
               </div>
-              <h3 className="card-title">Analytics</h3>
-              <p className="card-text">
-                Detailed performance analytics and historical data insights.
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Detailed analytics and historical performance data.
               </p>
-            </div>
-          </div>
+              <Button size="sm" variant="outline" className="w-full">
+                View Analytics
+              </Button>
+            </CardContent>
+          </Card>
 
           {/* Settings Card */}
-          <div className="gradient-border">
-            <div className="gradient-border-content">
-              <div className="icon icon-blue">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gray-500/10 rounded-lg">
+                  <Settings className="h-5 w-5 text-gray-500" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Settings</CardTitle>
+                  <CardDescription>Account configuration</CardDescription>
+                </div>
               </div>
-              <h3 className="card-title">Settings</h3>
-              <p className="card-text">
-                Configure account preferences, API keys, and system settings.
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Configure account preferences and system settings.
               </p>
-            </div>
+              <Button size="sm" variant="outline" className="w-full">
+                Open Settings
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Status Section */}
+        <div className="mt-12 text-center">
+          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <span>System Operational</span>
           </div>
         </div>
       </div>

@@ -39,7 +39,10 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning data-whop-theme="dark">
       <head>
         {/* Critical meta tags for Whop iframe compatibility */}
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+        />
         <meta httpEquiv="X-Frame-Options" content="ALLOWALL" />
         <meta
           httpEquiv="Content-Security-Policy"
@@ -51,7 +54,7 @@ export default async function RootLayout({
         <meta name="format-detection" content="telephone=no" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased iframe-background`}
+        className={`${geistSans.variable} ${geistMono.variable}`}
         style={{
           // Critical iframe compatibility styles
           margin: 0,
@@ -73,8 +76,8 @@ export default async function RootLayout({
         <WhopIframeSdkProvider>
           <ErrorBoundary>
             <WhopUserProvider initialUser={initialUser}>
-              <div 
-                className="w-full h-full min-h-screen iframe-background iframe-safe"
+              <div
+                className="w-full h-full"
                 style={{
                   backgroundColor: "#0f172a",
                   minHeight: "100vh",
