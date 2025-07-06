@@ -1,21 +1,21 @@
 export default function Page() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen iframe-background py-8 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: "#0f172a" }}>
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-6xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent mb-6">
+          <h1 className="text-5xl sm:text-6xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent mb-6">
             🗼 WatchTower Pro
           </h1>
-          <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
             Advanced website monitoring and alert platform for Whop creators.
             Monitor your websites, track Whop metrics, and get intelligent
             alerts.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          <div className="bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-600 p-[1px] rounded-xl shadow-xl hover:scale-105 transition-all duration-300">
-            <div className="bg-slate-900 rounded-xl p-6 h-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          <div className="whop-gradient-border bg-gradient-to-br from-blue-500 to-cyan-500 shadow-xl hover:scale-105 transition-all duration-300 iframe-safe">
+            <div className="p-6 h-full" style={{ backgroundColor: "#0f172a" }}>
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mb-4 shadow-lg">
                 <svg
                   className="w-6 h-6 text-white"
@@ -34,15 +34,15 @@ export default function Page() {
               <h3 className="text-lg font-semibold text-white mb-2">
                 Website Monitoring
               </h3>
-              <p className="text-cyan-200">
+              <p className="text-cyan-200 text-sm">
                 Monitor HTTP/HTTPS endpoints, ping servers, and check TCP ports
                 with customizable intervals and alerts.
               </p>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-green-600 via-green-500 to-emerald-600 p-[1px] rounded-xl shadow-xl hover:scale-105 transition-all duration-300">
-            <div className="bg-slate-900 rounded-xl p-6 h-full">
+          <div className="whop-gradient-border bg-gradient-to-br from-green-500 to-emerald-500 shadow-xl hover:scale-105 transition-all duration-300 iframe-safe">
+            <div className="p-6 h-full" style={{ backgroundColor: "#0f172a" }}>
               <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mb-4 shadow-lg">
                 <svg
                   className="w-6 h-6 text-white"
@@ -61,15 +61,15 @@ export default function Page() {
               <h3 className="text-lg font-semibold text-white mb-2">
                 Whop Metrics
               </h3>
-              <p className="text-emerald-200">
+              <p className="text-emerald-200 text-sm">
                 Track your Whop business metrics including sales, user growth,
                 revenue, and get alerts on anomalies.
               </p>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-yellow-600 via-yellow-500 to-orange-600 p-[1px] rounded-xl shadow-xl hover:scale-105 transition-all duration-300">
-            <div className="bg-slate-900 rounded-xl p-6 h-full">
+          <div className="whop-gradient-border bg-gradient-to-br from-yellow-500 to-orange-500 shadow-xl hover:scale-105 transition-all duration-300 iframe-safe">
+            <div className="p-6 h-full" style={{ backgroundColor: "#0f172a" }}>
               <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center mb-4 shadow-lg">
                 <svg
                   className="w-6 h-6 text-white"
@@ -88,15 +88,15 @@ export default function Page() {
               <h3 className="text-lg font-semibold text-white mb-2">
                 Smart Alerts
               </h3>
-              <p className="text-orange-200">
+              <p className="text-orange-200 text-sm">
                 Get notified via email, Slack, Discord, or SMS when issues are
                 detected with intelligent escalation.
               </p>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-600 via-purple-500 to-pink-600 p-[1px] rounded-xl shadow-xl hover:scale-105 transition-all duration-300">
-            <div className="bg-slate-900 rounded-xl p-6 h-full">
+          <div className="whop-gradient-border bg-gradient-to-br from-purple-500 to-pink-500 shadow-xl hover:scale-105 transition-all duration-300 iframe-safe">
+            <div className="p-6 h-full" style={{ backgroundColor: "#0f172a" }}>
               <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-4 shadow-lg">
                 <svg
                   className="w-6 h-6 text-white"
@@ -115,15 +115,15 @@ export default function Page() {
               <h3 className="text-lg font-semibold text-white mb-2">
                 SSL Monitoring
               </h3>
-              <p className="text-pink-200">
+              <p className="text-pink-200 text-sm">
                 Monitor SSL certificates and get warned before they expire to
                 avoid downtime.
               </p>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-red-600 via-red-500 to-pink-600 p-[1px] rounded-xl shadow-xl hover:scale-105 transition-all duration-300">
-            <div className="bg-slate-900 rounded-xl p-6 h-full">
+          <div className="whop-gradient-border bg-gradient-to-br from-red-500 to-pink-500 shadow-xl hover:scale-105 transition-all duration-300 iframe-safe">
+            <div className="p-6 h-full" style={{ backgroundColor: "#0f172a" }}>
               <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl flex items-center justify-center mb-4 shadow-lg">
                 <svg
                   className="w-6 h-6 text-white"
@@ -142,15 +142,15 @@ export default function Page() {
               <h3 className="text-lg font-semibold text-white mb-2">
                 Performance Tracking
               </h3>
-              <p className="text-pink-200">
+              <p className="text-pink-200 text-sm">
                 Track response times, uptime statistics, and performance trends
                 over time.
               </p>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-indigo-600 via-indigo-500 to-blue-600 p-[1px] rounded-xl shadow-xl hover:scale-105 transition-all duration-300">
-            <div className="bg-slate-900 rounded-xl p-6 h-full">
+          <div className="whop-gradient-border bg-gradient-to-br from-indigo-500 to-blue-500 shadow-xl hover:scale-105 transition-all duration-300 iframe-safe">
+            <div className="p-6 h-full" style={{ backgroundColor: "#0f172a" }}>
               <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-xl flex items-center justify-center mb-4 shadow-lg">
                 <svg
                   className="w-6 h-6 text-white"
@@ -169,7 +169,7 @@ export default function Page() {
               <h3 className="text-lg font-semibold text-white mb-2">
                 Team Collaboration
               </h3>
-              <p className="text-blue-200">
+              <p className="text-blue-200 text-sm">
                 Share monitors and alerts with your team, manage incidents, and
                 coordinate responses.
               </p>
@@ -178,99 +178,101 @@ export default function Page() {
         </div>
 
         <div className="space-y-8">
-          <div className="bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800 border border-blue-500 p-8 rounded-xl shadow-2xl">
-            <h2 className="text-2xl font-semibold text-white mb-4 flex items-center">
-              <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white mr-3 text-sm font-bold shadow-lg">
-                1
-              </span>
-              Project Setup Complete
-            </h2>
-            <div className="ml-11">
-              <p className="text-slate-300 mb-4">
-                The WatchTower Pro foundation has been successfully set up with:
-              </p>
-              <ul className="space-y-3 text-slate-300">
-                <li className="flex items-center">
-                  <div className="w-5 h-5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mr-3 shadow-lg">
-                    <svg
-                      className="w-3 h-3 text-white"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  Complete database schema with Prisma
-                </li>
-                <li className="flex items-center">
-                  <div className="w-5 h-5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mr-3 shadow-lg">
-                    <svg
-                      className="w-3 h-3 text-white"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  Authentication & authorization system
-                </li>
-                <li className="flex items-center">
-                  <div className="w-5 h-5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mr-3 shadow-lg">
-                    <svg
-                      className="w-3 h-3 text-white"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  Professional monitoring engine
-                </li>
-                <li className="flex items-center">
-                  <div className="w-5 h-5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mr-3 shadow-lg">
-                    <svg
-                      className="w-3 h-3 text-white"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  Beautiful, responsive UI components
-                </li>
-                <li className="flex items-center">
-                  <div className="w-5 h-5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mr-3 shadow-lg">
-                    <svg
-                      className="w-3 h-3 text-white"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  Whop integration and billing system
-                </li>
-              </ul>
+          <div className="whop-gradient-border bg-gradient-to-r from-slate-600 to-blue-600 shadow-2xl iframe-safe">
+            <div className="p-8" style={{ backgroundColor: "#0f172a" }}>
+              <h2 className="text-2xl font-semibold text-white mb-4 flex items-center">
+                <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white mr-3 text-sm font-bold shadow-lg">
+                  1
+                </span>
+                Project Setup Complete
+              </h2>
+              <div className="ml-11">
+                <p className="text-slate-300 mb-4">
+                  The WatchTower Pro foundation has been successfully set up with:
+                </p>
+                <ul className="space-y-3 text-slate-300">
+                  <li className="flex items-center">
+                    <div className="w-5 h-5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mr-3 shadow-lg">
+                      <svg
+                        className="w-3 h-3 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    Complete database schema with Prisma
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-5 h-5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mr-3 shadow-lg">
+                      <svg
+                        className="w-3 h-3 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    Authentication & authorization system
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-5 h-5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mr-3 shadow-lg">
+                      <svg
+                        className="w-3 h-3 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    Professional monitoring engine
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-5 h-5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mr-3 shadow-lg">
+                      <svg
+                        className="w-3 h-3 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    Beautiful, responsive UI components
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-5 h-5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mr-3 shadow-lg">
+                      <svg
+                        className="w-3 h-3 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    Whop integration and billing system
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>

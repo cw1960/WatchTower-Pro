@@ -2,8 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import iframe compatibility styles - temporarily removed due to conflicts */
-/* @import "../lib/styles/iframe-compatibility.css"; */
+/* Import iframe compatibility styles - CRITICAL for Whop apps */
+@import "../lib/styles/iframe-compatibility.css";
 
 @import "@whop/react/styles.css";
 
@@ -12,15 +12,24 @@
     --radius: 0.5rem;
   }
 
-  /* Dark theme for the entire app */
+  /* Whop-optimized dark theme */
+  html[data-whop-theme="dark"] {
+    background-color: #0f172a !important;
+    color: #f1f5f9 !important;
+  }
+
+  /* Ensure proper iframe rendering */
   html {
     background-color: #0f172a;
     color: #f1f5f9;
+    height: 100%;
+    margin: 0;
+    padding: 0;
   }
 
   body {
-    background-color: #0f172a;
-    color: #f1f5f9;
+    background-color: #0f172a !important;
+    color: #f1f5f9 !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -31,41 +40,77 @@
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Root app container */
+  /* Root app container - iframe specific */
   #__next {
     height: 100%;
     width: 100%;
+    background-color: #0f172a;
   }
 
-  /* Prevent content from breaking out */
+  /* Prevent content from breaking out of iframe */
   * {
     box-sizing: border-box;
+  }
+
+  /* Ensure all containers have proper background */
+  .min-h-screen {
+    background-color: #0f172a !important;
   }
 }
 
 @layer components {
-  /* Ensure gradients work properly in dark theme */
+  /* Force gradient backgrounds to work in iframe */
   .bg-gradient-to-r,
   .bg-gradient-to-br,
   .bg-gradient-to-l,
   .bg-gradient-to-t,
   .bg-gradient-to-b {
-    background-image: linear-gradient(var(--tw-gradient-stops));
+    background-image: linear-gradient(var(--tw-gradient-stops)) !important;
   }
 
-  /* Ensure text gradients work */
+  /* Ensure text gradients work in iframe */
   .bg-clip-text {
-    -webkit-background-clip: text;
-    background-clip: text;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
   }
 
   .text-transparent {
-    color: transparent;
+    color: transparent !important;
+  }
+
+  /* Iframe-specific card styling */
+  .whop-card {
+    background: #0f172a;
+    border-radius: 0.75rem;
+    border: 1px solid #374151;
+    backdrop-filter: blur(10px);
+  }
+
+  /* Ensure proper contrast in iframe */
+  .whop-gradient-border {
+    background: linear-gradient(var(--tw-gradient-stops));
+    padding: 1px;
+    border-radius: 0.75rem;
+  }
+
+  .whop-gradient-border > * {
+    background: #0f172a;
+    border-radius: calc(0.75rem - 1px);
   }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* Iframe-specific utilities */
+  .iframe-safe {
+    position: relative;
+    z-index: 1;
+  }
+
+  .iframe-background {
+    background-color: #0f172a !important;
   }
 }

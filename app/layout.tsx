@@ -38,28 +38,49 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning data-whop-theme="dark">
       <head>
-        {/* Add meta tags for iframe compatibility */}
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* Critical meta tags for Whop iframe compatibility */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         <meta httpEquiv="X-Frame-Options" content="ALLOWALL" />
         <meta
           httpEquiv="Content-Security-Policy"
-          content="frame-ancestors *;"
+          content="frame-ancestors *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval';"
         />
+        <meta name="color-scheme" content="dark" />
+        <meta name="theme-color" content="#0f172a" />
+        {/* Prevent zoom on mobile in iframe */}
+        <meta name="format-detection" content="telephone=no" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-900 text-slate-100`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased iframe-background`}
         style={{
-          // Ensure iframe compatibility
+          // Critical iframe compatibility styles
           margin: 0,
           padding: 0,
           height: "100vh",
+          width: "100vw",
           overflow: "auto",
+          backgroundColor: "#0f172a",
+          color: "#f1f5f9",
+          fontFamily: "var(--font-geist-sans), system-ui, sans-serif",
+          // Prevent iOS bounce scrolling in iframe
+          overscrollBehavior: "none",
+          // Ensure proper rendering in iframe
+          WebkitFontSmoothing: "antialiased",
+          MozOsxFontSmoothing: "grayscale",
+          textRendering: "optimizeLegibility",
         }}
       >
         <WhopIframeSdkProvider>
           <ErrorBoundary>
             <WhopUserProvider initialUser={initialUser}>
-              <div className="w-full h-full bg-slate-900 min-h-screen">
+              <div 
+                className="w-full h-full min-h-screen iframe-background iframe-safe"
+                style={{
+                  backgroundColor: "#0f172a",
+                  minHeight: "100vh",
+                  width: "100%",
+                }}
+              >
                 {children}
               </div>
             </WhopUserProvider>
