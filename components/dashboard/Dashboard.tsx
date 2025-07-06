@@ -325,7 +325,7 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
       </div>
 
       {/* Monitoring System Status */}
-      <div className="bg-gradient-to-r from-slate-800/90 via-blue-900/50 to-slate-800/90 border border-blue-500/30 rounded-lg mb-6 p-6 shadow-xl">
+      <div className="bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800 border border-blue-500 rounded-lg mb-6 p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-medium text-white">
             Monitoring System Status
@@ -368,32 +368,40 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
         </div>
         {monitoringStats ? (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="text-center bg-gradient-to-br from-blue-600/20 to-cyan-600/20 backdrop-blur-sm rounded-xl p-4 border border-blue-400/30 shadow-lg">
-              <div className="text-2xl font-bold text-white">
-                {monitoringStats.recentChecks?.count || 0}
+            <div className="bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-600 p-[1px] rounded-xl">
+              <div className="text-center bg-slate-900 rounded-xl p-4 shadow-lg">
+                <div className="text-2xl font-bold text-white">
+                  {monitoringStats.recentChecks?.count || 0}
+                </div>
+                <div className="text-sm text-cyan-300">Checks (24h)</div>
               </div>
-              <div className="text-sm text-cyan-300">Checks (24h)</div>
             </div>
-            <div className="text-center bg-gradient-to-br from-purple-600/20 to-pink-600/20 backdrop-blur-sm rounded-xl p-4 border border-purple-400/30 shadow-lg">
-              <div className="text-2xl font-bold text-white">
-                {Math.round(
-                  monitoringStats.recentChecks?.averageResponseTime || 0,
-                )}
-                ms
+            <div className="bg-gradient-to-br from-purple-600 via-purple-500 to-pink-600 p-[1px] rounded-xl">
+              <div className="text-center bg-slate-900 rounded-xl p-4 shadow-lg">
+                <div className="text-2xl font-bold text-white">
+                  {Math.round(
+                    monitoringStats.recentChecks?.averageResponseTime || 0,
+                  )}
+                  ms
+                </div>
+                <div className="text-sm text-pink-300">Avg Response</div>
               </div>
-              <div className="text-sm text-pink-300">Avg Response</div>
             </div>
-            <div className="text-center bg-gradient-to-br from-green-600/20 to-emerald-600/20 backdrop-blur-sm rounded-xl p-4 border border-green-400/30 shadow-lg">
-              <div className="text-2xl font-bold text-white">
-                {monitoringStats.engineStats?.totalMonitors || 0}
+            <div className="bg-gradient-to-br from-green-600 via-green-500 to-emerald-600 p-[1px] rounded-xl">
+              <div className="text-center bg-slate-900 rounded-xl p-4 shadow-lg">
+                <div className="text-2xl font-bold text-white">
+                  {monitoringStats.engineStats?.totalMonitors || 0}
+                </div>
+                <div className="text-sm text-emerald-300">Total Monitors</div>
               </div>
-              <div className="text-sm text-emerald-300">Total Monitors</div>
             </div>
-            <div className="text-center bg-gradient-to-br from-orange-600/20 to-yellow-600/20 backdrop-blur-sm rounded-xl p-4 border border-orange-400/30 shadow-lg">
-              <div className="text-2xl font-bold text-white">
-                {monitoringStats.engineStats?.activeMonitors || 0}
+            <div className="bg-gradient-to-br from-orange-600 via-orange-500 to-yellow-600 p-[1px] rounded-xl">
+              <div className="text-center bg-slate-900 rounded-xl p-4 shadow-lg">
+                <div className="text-2xl font-bold text-white">
+                  {monitoringStats.engineStats?.activeMonitors || 0}
+                </div>
+                <div className="text-sm text-yellow-300">Active Monitors</div>
               </div>
-              <div className="text-sm text-yellow-300">Active Monitors</div>
             </div>
           </div>
         ) : (
@@ -407,8 +415,8 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-blue-600/10 to-cyan-600/10 backdrop-blur-sm border border-blue-400/30 rounded-xl overflow-hidden shadow-xl">
-          <div className="p-6">
+        <div className="bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-600 p-[1px] rounded-xl shadow-xl">
+          <div className="bg-slate-900 rounded-xl p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -441,8 +449,8 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-green-600/10 to-emerald-600/10 backdrop-blur-sm border border-green-400/30 rounded-xl overflow-hidden shadow-xl">
-          <div className="p-6">
+        <div className="bg-gradient-to-br from-green-600 via-green-500 to-emerald-600 p-[1px] rounded-xl shadow-xl">
+          <div className="bg-slate-900 rounded-xl p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -478,8 +486,8 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-yellow-600/10 to-orange-600/10 backdrop-blur-sm border border-yellow-400/30 rounded-xl overflow-hidden shadow-xl">
-          <div className="p-6">
+        <div className="bg-gradient-to-br from-yellow-600 via-yellow-500 to-orange-600 p-[1px] rounded-xl shadow-xl">
+          <div className="bg-slate-900 rounded-xl p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -514,7 +522,7 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
       </div>
 
       {/* Monitors List */}
-      <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm border border-slate-600/50 rounded-xl mb-8 shadow-xl">
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-600 rounded-xl mb-8 shadow-2xl">
         <div className="px-6 py-6">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-semibold text-white">
@@ -574,8 +582,8 @@ export default function Dashboard({ userId, userPlan }: DashboardProps) {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-600/50">
-                <thead className="bg-gradient-to-r from-slate-700/80 to-slate-800/80">
+              <table className="min-w-full divide-y divide-slate-600">
+                <thead className="bg-gradient-to-r from-slate-700 to-slate-800">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-medium text-cyan-300 uppercase tracking-wider">
                       Name

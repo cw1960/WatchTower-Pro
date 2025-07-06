@@ -14,159 +14,171 @@ export default function Page() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          <div className="bg-gradient-to-br from-blue-600/10 to-cyan-600/10 backdrop-blur-sm border border-blue-400/30 p-6 rounded-xl shadow-xl hover:scale-105 transition-all duration-300">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mb-4 shadow-lg">
-              <svg
-                className="w-6 h-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                />
-              </svg>
+          <div className="bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-600 p-[1px] rounded-xl shadow-xl hover:scale-105 transition-all duration-300">
+            <div className="bg-slate-900 rounded-xl p-6 h-full">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mb-4 shadow-lg">
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">
+                Website Monitoring
+              </h3>
+              <p className="text-cyan-200">
+                Monitor HTTP/HTTPS endpoints, ping servers, and check TCP ports
+                with customizable intervals and alerts.
+              </p>
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">
-              Website Monitoring
-            </h3>
-            <p className="text-cyan-200">
-              Monitor HTTP/HTTPS endpoints, ping servers, and check TCP ports
-              with customizable intervals and alerts.
-            </p>
           </div>
 
-          <div className="bg-gradient-to-br from-green-600/10 to-emerald-600/10 backdrop-blur-sm border border-green-400/30 p-6 rounded-xl shadow-xl hover:scale-105 transition-all duration-300">
-            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mb-4 shadow-lg">
-              <svg
-                className="w-6 h-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                />
-              </svg>
+          <div className="bg-gradient-to-br from-green-600 via-green-500 to-emerald-600 p-[1px] rounded-xl shadow-xl hover:scale-105 transition-all duration-300">
+            <div className="bg-slate-900 rounded-xl p-6 h-full">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mb-4 shadow-lg">
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">
+                Whop Metrics
+              </h3>
+              <p className="text-emerald-200">
+                Track your Whop business metrics including sales, user growth,
+                revenue, and get alerts on anomalies.
+              </p>
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">
-              Whop Metrics
-            </h3>
-            <p className="text-emerald-200">
-              Track your Whop business metrics including sales, user growth,
-              revenue, and get alerts on anomalies.
-            </p>
           </div>
 
-          <div className="bg-gradient-to-br from-yellow-600/10 to-orange-600/10 backdrop-blur-sm border border-yellow-400/30 p-6 rounded-xl shadow-xl hover:scale-105 transition-all duration-300">
-            <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center mb-4 shadow-lg">
-              <svg
-                className="w-6 h-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z"
-                />
-              </svg>
+          <div className="bg-gradient-to-br from-yellow-600 via-yellow-500 to-orange-600 p-[1px] rounded-xl shadow-xl hover:scale-105 transition-all duration-300">
+            <div className="bg-slate-900 rounded-xl p-6 h-full">
+              <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center mb-4 shadow-lg">
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">
+                Smart Alerts
+              </h3>
+              <p className="text-orange-200">
+                Get notified via email, Slack, Discord, or SMS when issues are
+                detected with intelligent escalation.
+              </p>
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">
-              Smart Alerts
-            </h3>
-            <p className="text-orange-200">
-              Get notified via email, Slack, Discord, or SMS when issues are
-              detected with intelligent escalation.
-            </p>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-600/10 to-pink-600/10 backdrop-blur-sm border border-purple-400/30 p-6 rounded-xl shadow-xl hover:scale-105 transition-all duration-300">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-4 shadow-lg">
-              <svg
-                className="w-6 h-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
-              </svg>
+          <div className="bg-gradient-to-br from-purple-600 via-purple-500 to-pink-600 p-[1px] rounded-xl shadow-xl hover:scale-105 transition-all duration-300">
+            <div className="bg-slate-900 rounded-xl p-6 h-full">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-4 shadow-lg">
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">
+                SSL Monitoring
+              </h3>
+              <p className="text-pink-200">
+                Monitor SSL certificates and get warned before they expire to
+                avoid downtime.
+              </p>
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">
-              SSL Monitoring
-            </h3>
-            <p className="text-pink-200">
-              Monitor SSL certificates and get warned before they expire to
-              avoid downtime.
-            </p>
           </div>
 
-          <div className="bg-gradient-to-br from-red-600/10 to-pink-600/10 backdrop-blur-sm border border-red-400/30 p-6 rounded-xl shadow-xl hover:scale-105 transition-all duration-300">
-            <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl flex items-center justify-center mb-4 shadow-lg">
-              <svg
-                className="w-6 h-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
+          <div className="bg-gradient-to-br from-red-600 via-red-500 to-pink-600 p-[1px] rounded-xl shadow-xl hover:scale-105 transition-all duration-300">
+            <div className="bg-slate-900 rounded-xl p-6 h-full">
+              <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl flex items-center justify-center mb-4 shadow-lg">
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">
+                Performance Tracking
+              </h3>
+              <p className="text-pink-200">
+                Track response times, uptime statistics, and performance trends
+                over time.
+              </p>
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">
-              Performance Tracking
-            </h3>
-            <p className="text-pink-200">
-              Track response times, uptime statistics, and performance trends
-              over time.
-            </p>
           </div>
 
-          <div className="bg-gradient-to-br from-indigo-600/10 to-blue-600/10 backdrop-blur-sm border border-indigo-400/30 p-6 rounded-xl shadow-xl hover:scale-105 transition-all duration-300">
-            <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-xl flex items-center justify-center mb-4 shadow-lg">
-              <svg
-                className="w-6 h-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
+          <div className="bg-gradient-to-br from-indigo-600 via-indigo-500 to-blue-600 p-[1px] rounded-xl shadow-xl hover:scale-105 transition-all duration-300">
+            <div className="bg-slate-900 rounded-xl p-6 h-full">
+              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-xl flex items-center justify-center mb-4 shadow-lg">
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">
+                Team Collaboration
+              </h3>
+              <p className="text-blue-200">
+                Share monitors and alerts with your team, manage incidents, and
+                coordinate responses.
+              </p>
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">
-              Team Collaboration
-            </h3>
-            <p className="text-blue-200">
-              Share monitors and alerts with your team, manage incidents, and
-              coordinate responses.
-            </p>
           </div>
         </div>
 
         <div className="space-y-8">
-          <div className="bg-gradient-to-r from-slate-800/90 via-blue-900/50 to-slate-800/90 border border-blue-500/30 p-8 rounded-xl shadow-xl">
+          <div className="bg-gradient-to-r from-slate-800 via-blue-900 to-slate-800 border border-blue-500 p-8 rounded-xl shadow-2xl">
             <h2 className="text-2xl font-semibold text-white mb-4 flex items-center">
               <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white mr-3 text-sm font-bold shadow-lg">
                 1
