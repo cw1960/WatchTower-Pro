@@ -1,5 +1,4 @@
 import type { Config } from "tailwindcss";
-import { frostedThemePlugin } from "@whop/react/tailwind";
 
 const config: Config = {
   content: [
@@ -63,6 +62,7 @@ const config: Config = {
     "shadow-lg",
     "shadow-xl", "shadow-2xl",
   ],
+  darkMode: ["class"],
   theme: {
     extend: {
       borderRadius: {
@@ -76,7 +76,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [frostedThemePlugin()],
+  plugins: [],
 };
 
 export default config;
