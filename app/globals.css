@@ -1,4 +1,4 @@
-/* WatchTower Pro - Plain CSS for Whop iframe */
+/* WatchTower Pro - Pure CSS for Whop iframe (NO TAILWIND) */
 :root {
   --radius: 0.5rem;
   --slate-900: #0f172a;
@@ -22,8 +22,8 @@ html {
 }
 
 body {
-  background-color: var(--slate-900);
-  color: var(--slate-300);
+  background-color: var(--slate-900) !important;
+  color: var(--slate-300) !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   height: 100%;
@@ -41,7 +41,7 @@ body {
 
 .min-h-screen {
   min-height: 100vh;
-  background-color: var(--slate-900);
+  background-color: var(--slate-900) !important;
 }
 
 .max-w-4xl {
