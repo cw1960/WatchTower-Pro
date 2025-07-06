@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { WhopUserProvider } from "@/lib/context/WhopUserContext";
 import { getCurrentWhopUser } from "@/lib/auth/whop-auth-middleware";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import WhopIframeInitializer from "@/components/WhopIframeInitializer";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -76,6 +77,12 @@ export default async function RootLayout({
         <WhopIframeSdkProvider>
           <ErrorBoundary>
             <WhopUserProvider initialUser={initialUser}>
+              {/* Enhanced iframe communication initializer */}
+              <WhopIframeInitializer
+                autoResize={true}
+                notifyReady={true}
+                enableErrorReporting={true}
+              />
               <div
                 className="w-full h-full"
                 style={{

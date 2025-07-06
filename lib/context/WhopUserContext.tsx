@@ -7,8 +7,23 @@ import {
   useState,
   ReactNode,
 } from "react";
-import { WhopUser } from "@/lib/auth/whop-auth-middleware";
 import { PlanType } from "@prisma/client";
+import {
+  useWhopIframeSDK,
+  useWhopIframeActions,
+} from "@/lib/hooks/useWhopIframeSDK";
+
+// Define WhopUser type locally
+export interface WhopUser {
+  id: string;
+  whopId: string;
+  email: string;
+  name: string;
+  avatar: string | null;
+  plan: string;
+  accessLevel: string;
+  hasAccess: boolean;
+}
 
 interface WhopUserContextType {
   user: WhopUser | null;
@@ -18,6 +33,21 @@ interface WhopUserContextType {
   refreshUser: () => Promise<void>;
   updateUserPlan: (plan: PlanType) => Promise<void>;
   logout: () => Promise<void>;
+  // Enhanced iframe capabilities
+  iframeSDK: {
+    isInitialized: boolean;
+    isLoading: boolean;
+    error: string | null;
+    sdk: any | null;
+  };
+  iframeActions: {
+    sendMessage: (message: any) => Promise<any>;
+    requestData: (dataType: string) => Promise<any>;
+    updateHeight: (height: number) => Promise<any>;
+    notifyReady: () => Promise<any>;
+    isReady: boolean;
+    error: string | null;
+  };
 }
 
 const WhopUserContext = createContext<WhopUserContextType | undefined>(
@@ -36,6 +66,10 @@ export function WhopUserProvider({
   const [user, setUser] = useState<WhopUser | null>(initialUser || null);
   const [loading, setLoading] = useState(!initialUser);
   const [error, setError] = useState<string | null>(null);
+
+  // Initialize iframe SDK hooks
+  const iframeSDK = useWhopIframeSDK();
+  const iframeActions = useWhopIframeActions();
 
   const refreshUser = async () => {
     try {
@@ -117,6 +151,8 @@ export function WhopUserProvider({
     refreshUser,
     updateUserPlan,
     logout,
+    iframeSDK,
+    iframeActions,
   };
 
   return (
