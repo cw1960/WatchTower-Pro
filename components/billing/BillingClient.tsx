@@ -13,6 +13,8 @@ const planFeatures = {
     name: "Free",
     price: "$0",
     description: "Perfect for trying out WatchTower Pro",
+    color: "slate",
+    gradient: "from-slate-500 to-slate-600",
     features: [
       "1 monitor",
       "5-minute check frequency",
@@ -32,6 +34,8 @@ const planFeatures = {
     name: "Starter",
     price: "$9.99",
     description: "Great for small websites and projects",
+    color: "green",
+    gradient: "from-green-500 to-emerald-600",
     features: [
       "5 monitors",
       "1-minute check frequency",
@@ -51,6 +55,8 @@ const planFeatures = {
     name: "Professional",
     price: "$29.99",
     description: "Perfect for growing businesses",
+    color: "blue",
+    gradient: "from-blue-500 to-purple-600",
     features: [
       "25 monitors",
       "30-second check frequency",
@@ -66,6 +72,8 @@ const planFeatures = {
     name: "Enterprise",
     price: "$99.99",
     description: "For teams and large organizations",
+    color: "purple",
+    gradient: "from-purple-500 to-pink-600",
     features: [
       "Unlimited monitors",
       "15-second check frequency",
@@ -147,57 +155,59 @@ export default function BillingClient({ user }: BillingClientProps) {
     }
   };
 
+  const currentPlan = planFeatures[user.plan];
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <Link
             href="/dashboard"
-            className="inline-flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+            className="inline-flex items-center text-sm font-medium text-slate-300 hover:text-white mb-4 transition-colors group"
           >
-            <ArrowLeftIcon className="w-4 h-4 mr-2" />
+            <ArrowLeftIcon className="w-4 h-4 mr-2 group-hover:text-blue-400" />
             Back to Dashboard
           </Link>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Billing & Subscription
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                💳 Billing & Subscription
               </h1>
-              <p className="text-gray-600 mt-2">
+              <p className="text-slate-300 mt-2">
                 Manage your WatchTower Pro subscription and billing
               </p>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                Current Plan: {planFeatures[user.plan].name}
+              <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r ${currentPlan.gradient} text-white shadow-lg`}>
+                Current Plan: {currentPlan.name}
               </span>
             </div>
           </div>
         </div>
 
         {/* Current Plan Info */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">
+        <div className="bg-gradient-to-r from-slate-800/90 via-blue-900/50 to-slate-800/90 backdrop-blur-sm border border-blue-400/30 rounded-xl shadow-xl p-8 mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-white">
               Current Subscription
             </h2>
             <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-              <span className="text-sm text-gray-600">Active</span>
+              <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full shadow-lg animate-pulse"></div>
+              <span className="text-sm text-green-300 font-medium">Active</span>
             </div>
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-medium text-gray-900">
-                {planFeatures[user.plan].name} Plan
+              <h3 className="text-lg font-medium text-white">
+                {currentPlan.name} Plan
               </h3>
-              <p className="text-gray-600">
-                {planFeatures[user.plan].description}
+              <p className="text-slate-300">
+                {currentPlan.description}
               </p>
-              <p className="text-2xl font-bold text-gray-900 mt-2">
-                {planFeatures[user.plan].price}
-                <span className="text-sm font-normal text-gray-600">
+              <p className="text-2xl font-bold bg-gradient-to-r from-white to-blue-400 bg-clip-text text-transparent mt-2">
+                {currentPlan.price}
+                <span className="text-sm font-normal text-slate-400">
                   /month
                 </span>
               </p>
@@ -205,7 +215,7 @@ export default function BillingClient({ user }: BillingClientProps) {
             {user.plan !== PlanType.FREE && (
               <button
                 onClick={handleCancelSubscription}
-                className="px-4 py-2 text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition-colors"
+                className="px-6 py-3 bg-gradient-to-r from-red-600/20 to-pink-600/20 border border-red-400/30 rounded-xl text-red-300 hover:text-red-200 hover:bg-red-600/30 transition-all duration-200 backdrop-blur-sm"
               >
                 Cancel Subscription
               </button>
@@ -215,136 +225,137 @@ export default function BillingClient({ user }: BillingClientProps) {
 
         {/* Available Plans */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          <h2 className="text-2xl font-bold text-white mb-6">
             Available Plans
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {Object.entries(planFeatures).map(([planType, plan]) => (
               <div
                 key={planType}
-                className={`bg-white rounded-lg shadow-sm border-2 p-6 relative ${
-                  user.plan === planType
-                    ? "border-blue-500 ring-2 ring-blue-200"
-                    : "border-gray-200"
-                }`}
+                className={`relative bg-gradient-to-br ${
+                  user.plan === planType 
+                    ? `from-${plan.color}-600/20 to-${plan.color}-500/20 border-${plan.color}-400/50` 
+                    : "from-slate-800/50 to-slate-700/50 border-slate-600/50"
+                } backdrop-blur-sm border rounded-xl p-6 transition-all duration-300 hover:scale-105 hover:shadow-2xl`}
               >
                 {user.plan === planType && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                      Current Plan
-                    </span>
+                  <div className="absolute -top-3 -right-3 w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-lg">
+                    <CheckIcon className="w-5 h-5 text-white" />
                   </div>
                 )}
-
-                <div className="text-center mb-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold text-white mb-2">
                     {plan.name}
                   </h3>
-                  <p className="text-gray-600 text-sm mb-4">
+                  <p className="text-slate-300 text-sm mb-4">
                     {plan.description}
                   </p>
-                  <div className="text-3xl font-bold text-gray-900">
-                    {plan.price}
-                    <span className="text-sm font-normal text-gray-600">
+                  <div className="flex items-baseline">
+                    <span className={`text-3xl font-bold bg-gradient-to-r ${plan.gradient} bg-clip-text text-transparent`}>
+                      {plan.price}
+                    </span>
+                    <span className="text-slate-400 text-sm ml-2">
                       /month
                     </span>
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-2">
-                      Included:
-                    </h4>
-                    <ul className="space-y-1">
-                      {plan.features.map((feature, index) => (
-                        <li key={index} className="flex items-center text-sm">
-                          <CheckIcon className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />
-                          <span className="text-gray-700">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
+                <div className="space-y-3 mb-6">
+                  {plan.features.map((feature, index) => (
+                    <div key={index} className="flex items-center">
+                      <div className={`w-4 h-4 rounded-full bg-gradient-to-r ${plan.gradient} flex items-center justify-center mr-3 shadow-sm`}>
+                        <CheckIcon className="w-3 h-3 text-white" />
+                      </div>
+                      <span className="text-slate-300 text-sm">{feature}</span>
+                    </div>
+                  ))}
+                  
                   {plan.limitations.length > 0 && (
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-2">
-                        Not included:
-                      </h4>
-                      <ul className="space-y-1">
-                        {plan.limitations.map((limitation, index) => (
-                          <li key={index} className="flex items-center text-sm">
-                            <XMarkIcon className="w-4 h-4 text-red-500 mr-2 flex-shrink-0" />
-                            <span className="text-gray-500">{limitation}</span>
-                          </li>
-                        ))}
-                      </ul>
+                    <div className="pt-3 border-t border-slate-600/30">
+                      {plan.limitations.map((limitation, index) => (
+                        <div key={index} className="flex items-center">
+                          <div className="w-4 h-4 rounded-full bg-slate-600/50 flex items-center justify-center mr-3">
+                            <XMarkIcon className="w-3 h-3 text-slate-400" />
+                          </div>
+                          <span className="text-slate-400 text-sm">{limitation}</span>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
 
-                <div className="mt-6">
-                  {user.plan === planType ? (
-                    <button
-                      disabled
-                      className="w-full py-2 px-4 bg-gray-100 text-gray-500 rounded-md cursor-not-allowed"
-                    >
-                      Current Plan
-                    </button>
-                  ) : planType === PlanType.FREE ? (
-                    <button
-                      onClick={() => handleUpgrade(planType as PlanType)}
-                      className="w-full py-2 px-4 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
-                    >
-                      Downgrade to Free
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handleUpgrade(planType as PlanType)}
-                      className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                    >
-                      {user.plan === PlanType.FREE ? "Upgrade" : "Switch"} to{" "}
-                      {plan.name}
-                    </button>
-                  )}
-                </div>
+                {user.plan === planType ? (
+                  <button
+                    disabled
+                    className={`w-full py-3 px-4 rounded-xl font-medium bg-gradient-to-r ${plan.gradient} text-white shadow-lg cursor-not-allowed opacity-75`}
+                  >
+                    Current Plan
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleUpgrade(planType as PlanType)}
+                    className={`w-full py-3 px-4 rounded-xl font-medium bg-gradient-to-r ${plan.gradient} hover:shadow-xl text-white transition-all duration-200 transform hover:scale-105`}
+                  >
+                    {planType === PlanType.FREE ? "Downgrade" : "Upgrade"}
+                  </button>
+                )}
               </div>
             ))}
           </div>
         </div>
 
         {/* Billing Information */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <div className="bg-gradient-to-r from-slate-800/90 via-blue-900/50 to-slate-800/90 backdrop-blur-sm border border-blue-400/30 rounded-xl shadow-xl p-8">
+          <h2 className="text-xl font-semibold text-white mb-6">
             Billing Information
           </h2>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Email:</span>
-              <span className="text-gray-900">{user.email}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Current Plan:</span>
-              <span className="text-gray-900">
-                {planFeatures[user.plan].name}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Monthly Cost:</span>
-              <span className="text-gray-900">
-                {planFeatures[user.plan].price}
-              </span>
-            </div>
-            {user.plan !== PlanType.FREE && (
-              <div className="flex justify-between">
-                <span className="text-gray-600">Next Billing Date:</span>
-                <span className="text-gray-900">
-                  {new Date(
-                    Date.now() + 30 * 24 * 60 * 60 * 1000,
-                  ).toLocaleDateString()}
-                </span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-lg font-medium text-white mb-4">
+                Account Details
+              </h3>
+              <div className="space-y-3">
+                <div className="flex justify-between py-2 border-b border-slate-600/30">
+                  <span className="text-slate-300">Email:</span>
+                  <span className="text-white">{user.email}</span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-slate-600/30">
+                  <span className="text-slate-300">Plan:</span>
+                  <span className={`text-${currentPlan.color}-300 font-medium`}>
+                    {currentPlan.name}
+                  </span>
+                </div>
+                <div className="flex justify-between py-2 border-b border-slate-600/30">
+                  <span className="text-slate-300">Status:</span>
+                  <span className="text-green-300">Active</span>
+                </div>
               </div>
-            )}
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-medium text-white mb-4">
+                Next Steps
+              </h3>
+              <div className="space-y-3">
+                <div className="p-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-400/30 rounded-xl">
+                  <h4 className="font-medium text-blue-300 mb-2">
+                    Need Help?
+                  </h4>
+                  <p className="text-blue-200 text-sm">
+                    Contact our support team if you have any questions about your billing or subscription.
+                  </p>
+                </div>
+                <div className="p-4 bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-400/30 rounded-xl">
+                  <h4 className="font-medium text-green-300 mb-2">
+                    Manage Usage
+                  </h4>
+                  <p className="text-green-200 text-sm">
+                    Monitor your usage and upgrade when you need more monitoring capacity.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
